@@ -1,4 +1,5 @@
 import { Bell, User } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,11 +10,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header = () => {
+  const location = useLocation();
+
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case "/contratos/novo":
+        return "Cadastro de Contratos";
+      default:
+        return "Dashboard";
+    }
+  };
+
   return (
     <header className="fixed top-0 right-0 left-64 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold text-warm-900">
-          Cadastro de Contratos
+          {getPageTitle()}
         </h2>
       </div>
 
