@@ -5,6 +5,9 @@ import ContractIdentification from "./contract/ContractIdentification";
 import ContractorInfo from "./contract/ContractorInfo";
 import ContractDetails from "./contract/ContractDetails";
 import PaymentInfo from "./contract/PaymentInfo";
+import PenaltiesInfo from "./contract/PenaltiesInfo";
+import BudgetClassification from "./contract/BudgetClassification";
+import AdditionalInfo from "./contract/AdditionalInfo";
 
 interface ContractFormData {
   contractNumber: string;
@@ -28,6 +31,18 @@ interface ContractFormData {
   agency: string;
   account: string;
   paymentTerm: string;
+  delayPenalty: string;
+  terminationPenalty: string;
+  budgetUnit: string;
+  workProgram: string;
+  expenseNature: string;
+  resourceSource: string;
+  witness1Name: string;
+  witness1Cpf: string;
+  witness2Name: string;
+  witness2Cpf: string;
+  signatureLocation: string;
+  generalObservations: string;
 }
 
 const ContractForm = () => {
@@ -54,6 +69,18 @@ const ContractForm = () => {
     agency: "",
     account: "",
     paymentTerm: "",
+    delayPenalty: "",
+    terminationPenalty: "",
+    budgetUnit: "",
+    workProgram: "",
+    expenseNature: "",
+    resourceSource: "",
+    witness1Name: "",
+    witness1Cpf: "",
+    witness2Name: "",
+    witness2Cpf: "",
+    signatureLocation: "",
+    generalObservations: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,7 +93,7 @@ const ContractForm = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -117,6 +144,30 @@ const ContractForm = () => {
         agency={formData.agency}
         account={formData.account}
         paymentTerm={formData.paymentTerm}
+        onChange={handleInputChange}
+      />
+
+      <PenaltiesInfo
+        delayPenalty={formData.delayPenalty}
+        terminationPenalty={formData.terminationPenalty}
+        onChange={handleInputChange}
+      />
+
+      <BudgetClassification
+        budgetUnit={formData.budgetUnit}
+        workProgram={formData.workProgram}
+        expenseNature={formData.expenseNature}
+        resourceSource={formData.resourceSource}
+        onChange={handleInputChange}
+      />
+
+      <AdditionalInfo
+        witness1Name={formData.witness1Name}
+        witness1Cpf={formData.witness1Cpf}
+        witness2Name={formData.witness2Name}
+        witness2Cpf={formData.witness2Cpf}
+        signatureLocation={formData.signatureLocation}
+        generalObservations={formData.generalObservations}
         onChange={handleInputChange}
       />
 
