@@ -10,6 +10,8 @@ import PhysicalPersonRegistration from "./pages/PhysicalPersonRegistration";
 import LegalPersonRegistration from "./pages/LegalPersonRegistration";
 import PhysicalPersonList from "./pages/PhysicalPersonList";
 import LegalPersonList from "./pages/LegalPersonList";
+import PhysicalPersonDetails from "./pages/PhysicalPersonDetails";
+import LegalPersonDetails from "./pages/LegalPersonDetails";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />
           <Route path="/pessoas/fisica" element={<PhysicalPersonList />} />
           <Route path="/pessoas/juridica" element={<LegalPersonList />} />
+          <Route path="/pessoas/fisica/:id" element={<PhysicalPersonDetails />} />
+          <Route path="/pessoas/juridica/:id" element={<LegalPersonDetails />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
