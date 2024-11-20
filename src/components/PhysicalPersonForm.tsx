@@ -30,10 +30,16 @@ const formSchema = z.object({
   role: z.string().optional(),
 });
 
-const PhysicalPersonForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+type FormData = z.infer<typeof formSchema>;
+
+interface PhysicalPersonFormProps {
+  initialData?: FormData;
+}
+
+const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       fullName: "",
       cpf: "",
       rg: "",

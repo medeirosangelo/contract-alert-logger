@@ -35,10 +35,16 @@ const formSchema = z.object({
   account: z.string().optional(),
 });
 
-const LegalPersonForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+type FormData = z.infer<typeof formSchema>;
+
+interface LegalPersonFormProps {
+  initialData?: FormData;
+}
+
+const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       companyName: "",
       tradeName: "",
       cnpj: "",
