@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -18,8 +19,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import ContractViewModal from "@/components/contract/ContractViewModal";
 
 const ContractList = () => {
+  const [selectedContract, setSelectedContract] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const contracts = [
     {
       orgao: "10000 - CAER",
@@ -34,6 +39,11 @@ const ContractList = () => {
     },
     // Add more mock data as needed
   ];
+
+  const handleContractClick = (contract) => {
+    setSelectedContract(contract);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-warm-100">
@@ -86,7 +96,11 @@ const ContractList = () => {
                 </TableHeader>
                 <TableBody>
                   {contracts.map((contract, index) => (
-                    <TableRow key={index}>
+                    <TableRow 
+                      key={index}
+                      className="cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleContractClick(contract)}
+                    >
                       <TableCell>{contract.orgao}</TableCell>
                       <TableCell>{contract.unidade}</TableCell>
                       <TableCell>{contract.receitaDespesa}</TableCell>
@@ -104,6 +118,12 @@ const ContractList = () => {
           </div>
         </div>
       </main>
+
+      <ContractViewModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        contract={selectedContract}
+      />
     </div>
   );
 };
