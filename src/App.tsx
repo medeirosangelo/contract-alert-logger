@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import ContractRegistration from "./pages/ContractRegistration";
 import ContractList from "./pages/ContractList";
 import ContractAlerts from "./pages/ContractAlerts";
+import ContractTemplate from "./pages/ContractTemplate";
 import PhysicalPersonRegistration from "./pages/PhysicalPersonRegistration";
 import LegalPersonRegistration from "./pages/LegalPersonRegistration";
 import PhysicalPersonList from "./pages/PhysicalPersonList";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/contratos/novo" element={<ContractRegistration />} />
           <Route path="/contratos" element={<ContractList />} />
+          <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
           <Route path="/alertas/contratos" element={<ContractAlerts />} />
           <Route path="/pessoas/fisica/novo" element={<PhysicalPersonRegistration />} />
           <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />

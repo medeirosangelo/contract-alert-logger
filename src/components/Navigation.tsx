@@ -48,6 +48,7 @@ const menuItems: MenuItem[] = [
     subItems: [
       { name: "Cadastro de Contratos", path: "/contratos/novo" },
       { name: "Lista de Contratos", path: "/contratos" },
+      { name: "Editor de Modelos", path: "/contratos/modelo" },
       { name: "Contratos Perto de Vencer", path: "/contratos/vencer" },
       { name: "Contratos Feitos", path: "/contratos/feitos" },
     ],
