@@ -1,69 +1,168 @@
-# Welcome to your Lovable project
+# SWCI - Sistema Web de Controle Interno
 
-## Project info
+## Visão Geral
+O SWCI é um sistema web de controle interno desenvolvido para gerenciar contratos, pessoas físicas e jurídicas, com funcionalidades de alertas e geração de documentos.
 
-**URL**: https://lovable.dev/projects/c33269d4-2f32-4781-a3dc-16140c85ca66
+## Funcionalidades Principais
 
-## How can I edit this code?
+### Dashboard
+- Visão geral estatística dos contratos
+- Cards com resumos:
+  - Total de contratos
+  - Contratos ativos
+  - Valor total
+  - Valor médio
+- Gráfico de projeção de gastos com contratos (2024-2026)
 
-There are several ways of editing your application.
+### Gestão de Pessoas
 
-**Use Lovable**
+#### Pessoas Físicas
+- Cadastro completo com informações pessoais
+- Listagem com busca e filtros
+- Visualização detalhada
+- Edição de cadastros
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c33269d4-2f32-4781-a3dc-16140c85ca66) and start prompting.
+#### Pessoas Jurídicas
+- Cadastro de empresas
+- Listagem com busca e filtros
+- Visualização detalhada
+- Edição de cadastros
 
-Changes made via Lovable will be committed automatically to this repo.
+### Gestão de Contratos
 
-**Use your preferred IDE**
+#### Cadastro de Contratos
+- Formulário completo com:
+  - Identificação do contrato
+  - Informações do contratante
+  - Informações do contratado
+  - Detalhes do contrato
+  - Informações de pagamento
+  - Penalidades
+  - Classificação orçamentária
+  - Informações adicionais
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+#### Lista de Contratos
+- Visualização em tabela
+- Filtros e busca
+- Modal para visualização detalhada
+- Opções para:
+  - Edição de contratos
+  - Visualização de PDF
+  - Download de documentos
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### Editor de Modelos
+- Seleção de modelos predefinidos
+- Edição de templates
+- Geração de PDF
 
-Follow these steps:
+### Sistema de Alertas
+- Notificações de contratos próximos ao vencimento
+- Classificação por cores:
+  - Verde: 120 dias
+  - Laranja: 60 dias
+  - Vermelho: 30 dias
+- Opções para renovação ou finalização
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Tecnologias Utilizadas
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Frontend
+- React com TypeScript
+- Vite como bundler
+- Tailwind CSS para estilização
+- shadcn/ui para componentes de interface
+- Tanstack Query para gerenciamento de estado e requisições
+- Recharts para gráficos
+- Lucide React para ícones
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Bibliotecas Principais
+- @tanstack/react-query
+- react-router-dom
+- recharts
+- lucide-react
+- date-fns
+- zod (validação)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## Estrutura do Projeto
+
+### Componentes Principais
+
+```
+src/
+├── components/
+│   ├── contract/           # Componentes relacionados a contratos
+│   ├── dashboard/          # Componentes do dashboard
+│   ├── ui/                 # Componentes de UI reutilizáveis
+│   └── Navigation.tsx      # Navegação principal
+├── pages/
+│   ├── Index.tsx           # Dashboard principal
+│   ├── ContractList.tsx    # Lista de contratos
+│   ├── ContractAlerts.tsx  # Sistema de alertas
+│   └── ...                 # Outras páginas
+└── App.tsx                 # Componente principal
+```
+
+## Rotas Principais
+
+- `/` - Dashboard
+- `/contratos/novo` - Cadastro de contratos
+- `/contratos` - Lista de contratos
+- `/contratos/modelo/:id?` - Editor de modelos
+- `/alertas/contratos` - Alertas de contratos
+- `/pessoas/fisica/novo` - Cadastro de pessoa física
+- `/pessoas/juridica/novo` - Cadastro de pessoa jurídica
+- `/pessoas/fisica` - Lista de pessoas físicas
+- `/pessoas/juridica` - Lista de pessoas jurídicas
+- `/pessoas/fisica/:id` - Detalhes de pessoa física
+- `/pessoas/juridica/:id` - Detalhes de pessoa jurídica
+
+## Instalação e Execução
+
+1. Clone o repositório:
+```bash
+git clone <URL_DO_REPOSITORIO>
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Execute o projeto:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Desenvolvimento
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Padrões de Código
+- Componentes funcionais com TypeScript
+- Hooks do React para gerenciamento de estado
+- Tailwind CSS para estilização
+- Componentes modulares e reutilizáveis
+- Validação de formulários com Zod
 
-**Use GitHub Codespaces**
+### Boas Práticas
+- Código limpo e bem documentado
+- Componentes pequenos e focados
+- Reutilização de componentes
+- Tipagem forte com TypeScript
+- Gerenciamento de estado eficiente
+- Responsividade em todas as telas
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Próximos Passos
+- Integração com backend Django
+- Implementação de WebSockets para atualizações em tempo real
+- Sistema de autenticação e autorização
+- Melhorias na geração de PDFs
+- Implementação de testes automatizados
 
-## What technologies are used for this project?
+## Contribuição
+Para contribuir com o projeto:
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature
+3. Faça commit das mudanças
+4. Push para a branch
+5. Abra um Pull Request
 
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c33269d4-2f32-4781-a3dc-16140c85ca66) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Licença
+Este projeto está sob a licença [MIT](https://opensource.org/licenses/MIT).
