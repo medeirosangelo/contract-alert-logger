@@ -22,6 +22,10 @@ const Header = () => {
         return "Lista de Contratos";
       case "/contratos/modelo":
         return "Editor de Modelos";
+      case "/contratos/vencer":
+        return "Contratos Perto de Vencer";
+      case "/contratos/feitos":
+        return "Contratos Feitos";
       case "/alertas/contratos":
         return "Alertas de Contratos";
       case "/pessoas/fisica/novo":
@@ -32,7 +36,21 @@ const Header = () => {
         return "Lista de Pessoas Físicas";
       case "/pessoas/juridica":
         return "Lista de Pessoas Jurídicas";
+      case "/configuracoes/usuarios":
+        return "Usuários e Permissões";
+      case "/configuracoes/preferencias":
+        return "Preferências do Sistema";
+      case "/ajuda/documentacao":
+        return "Documentação";
+      case "/ajuda/suporte":
+        return "Suporte Técnico";
       default:
+        if (location.pathname.startsWith("/pessoas/fisica/")) {
+          return "Detalhes da Pessoa Física";
+        }
+        if (location.pathname.startsWith("/pessoas/juridica/")) {
+          return "Detalhes da Pessoa Jurídica";
+        }
         return "";
     }
   };
