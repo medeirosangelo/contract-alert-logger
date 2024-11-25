@@ -28,7 +28,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Tech Solutions Ltd",
       expirationDate: "2024-03-15",
       daysUntilExpiration: 15,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 150000,
     },
     {
@@ -37,7 +37,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Marketing Pro Inc",
       expirationDate: "2024-03-30",
       daysUntilExpiration: 30,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 75000,
     },
     {
@@ -46,7 +46,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Global Services SA",
       expirationDate: "2024-04-15",
       daysUntilExpiration: 45,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 200000,
     },
     {
@@ -55,7 +55,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Consultoria XYZ",
       expirationDate: "2024-05-01",
       daysUntilExpiration: 60,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 180000,
     },
     {
@@ -64,7 +64,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Manutenção ABC",
       expirationDate: "2024-06-15",
       daysUntilExpiration: 90,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 95000,
     },
     {
@@ -73,7 +73,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Serviços Gerais Ltda",
       expirationDate: "2024-07-01",
       daysUntilExpiration: 105,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 120000,
     },
     {
@@ -82,7 +82,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Limpeza & Cia",
       expirationDate: "2024-07-15",
       daysUntilExpiration: 120,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 85000,
     },
     {
@@ -91,7 +91,7 @@ const fetchContractAlerts = async (): Promise<Contract[]> => {
       companyName: "Segurança Total",
       expirationDate: "2024-08-01",
       daysUntilExpiration: 135,
-      status: "pending",
+      status: "pending" as const,
       currentValue: 250000,
     },
   ].sort((a, b) => a.daysUntilExpiration - b.daysUntilExpiration);
