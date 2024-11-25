@@ -14,10 +14,26 @@ const Header = () => {
 
   const getPageTitle = () => {
     switch (location.pathname) {
+      case "/":
+        return "Dashboard";
       case "/contratos/novo":
         return "Cadastro de Contratos";
+      case "/contratos":
+        return "Lista de Contratos";
+      case "/contratos/modelo":
+        return "Editor de Modelos";
+      case "/alertas/contratos":
+        return "Alertas de Contratos";
+      case "/pessoas/fisica/novo":
+        return "Cadastro de Pessoa Física";
+      case "/pessoas/juridica/novo":
+        return "Cadastro de Pessoa Jurídica";
+      case "/pessoas/fisica":
+        return "Lista de Pessoas Físicas";
+      case "/pessoas/juridica":
+        return "Lista de Pessoas Jurídicas";
       default:
-        return "Dashboard";
+        return "";
     }
   };
 

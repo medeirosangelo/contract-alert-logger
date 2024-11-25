@@ -4,14 +4,10 @@ import {
   Home,
   Users,
   FileText,
-  Activity,
   Bell,
   Settings,
   HelpCircle,
   ChevronDown,
-  Plus,
-  Search,
-  MessageSquare,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -54,21 +50,10 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    name: "Atividades",
-    icon: <Activity className="w-5 h-5" />,
-    subItems: [
-      { name: "Cadastro de Atividades", path: "/atividades/novo" },
-      { name: "Lista de Atividades", path: "/atividades" },
-      { name: "Relatório de Atividades", path: "/atividades/relatorio" },
-    ],
-  },
-  {
     name: "Alertas",
     icon: <Bell className="w-5 h-5" />,
     subItems: [
       { name: "Alertas de Contratos", path: "/alertas/contratos" },
-      { name: "Alertas de Atividades", path: "/alertas/atividades" },
-      { name: "Alertas de Licitações", path: "/alertas/licitacoes" },
     ],
   },
   {
@@ -164,5 +149,3 @@ const Navigation = () => {
     </nav>
   );
 };
-
-export default Navigation;
