@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
 import Index from "./pages/Index";
 import ContractRegistration from "./pages/ContractRegistration";
 import ContractList from "./pages/ContractList";
@@ -27,6 +28,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Index />} />
           <Route path="/contratos/novo" element={<ContractRegistration />} />
           <Route path="/contratos" element={<ContractList />} />
@@ -43,6 +45,7 @@ const App = () => (
           <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
           <Route path="/ajuda/documentacao" element={<Documentation />} />
           <Route path="/ajuda/suporte" element={<Support />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

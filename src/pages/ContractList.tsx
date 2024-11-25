@@ -32,12 +32,65 @@ const ContractList = () => {
       receitaDespesa: "Despesa",
       tipo: "Contrato",
       categoria: "Compras",
-      subcategoria: "",
-      unidRequisitantes: "00000/2001",
-      numeros: "00000/2001",
+      subcategoria: "Material de Escritório",
+      unidRequisitantes: "00001/2024",
+      numeros: "00001/2024",
       cnpjCpf: "05.939.467/0001-15",
+      valor: 150000,
+      status: "Ativo",
     },
-    // Add more mock data as needed
+    {
+      orgao: "10000 - CAER",
+      unidade: "0700000 - CAER",
+      receitaDespesa: "Despesa",
+      tipo: "Contrato",
+      categoria: "Serviços",
+      subcategoria: "Manutenção",
+      unidRequisitantes: "00002/2024",
+      numeros: "00002/2024",
+      cnpjCpf: "12.345.678/0001-90",
+      valor: 75000,
+      status: "Ativo",
+    },
+    {
+      orgao: "10000 - CAER",
+      unidade: "0700000 - CAER",
+      receitaDespesa: "Despesa",
+      tipo: "Contrato",
+      categoria: "Serviços",
+      subcategoria: "Consultoria",
+      unidRequisitantes: "00003/2024",
+      numeros: "00003/2024",
+      cnpjCpf: "98.765.432/0001-10",
+      valor: 200000,
+      status: "Finalizado",
+    },
+    {
+      orgao: "10000 - CAER",
+      unidade: "0700000 - CAER",
+      receitaDespesa: "Despesa",
+      tipo: "Contrato",
+      categoria: "Serviços",
+      subcategoria: "Limpeza",
+      unidRequisitantes: "00004/2024",
+      numeros: "00004/2024",
+      cnpjCpf: "11.222.333/0001-44",
+      valor: 180000,
+      status: "Ativo",
+    },
+    {
+      orgao: "10000 - CAER",
+      unidade: "0700000 - CAER",
+      receitaDespesa: "Despesa",
+      tipo: "Contrato",
+      categoria: "Serviços",
+      subcategoria: "Segurança",
+      unidRequisitantes: "00005/2024",
+      numeros: "00005/2024",
+      cnpjCpf: "44.555.666/0001-77",
+      valor: 250000,
+      status: "Ativo",
+    },
   ];
 
   const handleContractClick = (contract) => {
@@ -52,12 +105,12 @@ const ContractList = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-bold mb-6">Relatório - Lista Todos Contratos</h2>
+            <h2 className="text-2xl font-bold mb-6">Lista de Contratos</h2>
             
             <div className="flex justify-between items-center mb-4">
               <Button variant="outline" className="flex items-center gap-2">
                 <Download className="w-4 h-4" />
-                Exportação
+                Exportar
               </Button>
               
               <Input
@@ -92,6 +145,8 @@ const ContractList = () => {
                     <TableHead>Unid. Requisitantes</TableHead>
                     <TableHead>Números</TableHead>
                     <TableHead>CNPJ/CPF</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -110,6 +165,11 @@ const ContractList = () => {
                       <TableCell>{contract.unidRequisitantes}</TableCell>
                       <TableCell>{contract.numeros}</TableCell>
                       <TableCell>{contract.cnpjCpf}</TableCell>
+                      <TableCell>{contract.valor.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      })}</TableCell>
+                      <TableCell>{contract.status}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
