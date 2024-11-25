@@ -1,0 +1,79 @@
+import Navigation from "@/components/Navigation";
+import Header from "@/components/Header";
+import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
+import ContractCalendar from "@/components/dashboard/ContractCalendar";
+import ContractSummaryCards from "@/components/dashboard/ContractSummaryCards";
+import ContractValueChart from "@/components/dashboard/ContractValueChart";
+import { useQuery } from "@tanstack/react-query";
+
+const Dashboard = () => {
+  const { data: contractStats } = useQuery({
+    queryKey: ["contractStats"],
+    queryFn: async () => {
+      // Mock data - replace with actual API call
+      return {
+        newContracts: 0,
+        updatedContracts: 3,
+        expiredContracts: 0,
+        expiringContracts: 2,
+      };
+    },
+  });
+
+  return (
+    <div className="min-h-screen bg-warm-100">
+      <Navigation />
+      <Header />
+      <main className="ml-64 pt-16 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-warm-800">Dashboard</h1>
+            <span className="text-sm text-warm-600">
+              Atualizado em: {new Date().toLocaleString()}
+            </span>
+          </div>
+
+          <ContractSummaryCards />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ContractStatusCard
+              count={contractStats?.newContracts || 0}
+              title="Novos Contratos"
+              subtitle="(Últimos 5 dias)"
+              link="/contratos"
+              bgColor="bg-cyan-500"
+            />
+            <ContractStatusCard
+              count={contractStats?.updatedContracts || 0}
+              title="Contratos Atualizados"
+              subtitle="(Últimos 5 dias)"
+              link="/contratos"
+              bgColor="bg-green-500"
+            />
+            <ContractStatusCard
+              count={contractStats?.expiredContracts || 0}
+              title="Contratos vencidos"
+              subtitle="(Últimos 5 dias)"
+              link="/contratos/finalizados"
+              bgColor="bg-red-500"
+            />
+            <ContractStatusCard
+              count={contractStats?.expiringContracts || 0}
+              title="Contratos a vencer"
+              subtitle="(Últimos 5 dias)"
+              link="/alertas/contratos"
+              bgColor="bg-orange-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ContractValueChart />
+            <ContractCalendar />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;

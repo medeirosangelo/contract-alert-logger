@@ -8,7 +8,6 @@ import {
   Settings,
   HelpCircle,
   ChevronDown,
-  BarChart,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -25,17 +24,9 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    name: "Início",
-    icon: <Home className="w-5 h-5" />,
-    path: "/",
-  },
-  {
     name: "Dashboard",
-    icon: <BarChart className="w-5 h-5" />,
-    subItems: [
-      { name: "Estatísticas", path: "/dashboard/estatisticas" },
-      { name: "Visão Geral", path: "/dashboard/overview" },
-    ],
+    icon: <Home className="w-5 h-5" />,
+    path: "/dashboard",
   },
   {
     name: "Pessoas",

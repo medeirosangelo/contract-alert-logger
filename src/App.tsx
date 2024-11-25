@@ -4,8 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Index from "./pages/Index";
-import DashboardStats from "./pages/DashboardStats";
+import Dashboard from "./pages/Dashboard";
 import ContractRegistration from "./pages/ContractRegistration";
 import ContractList from "./pages/ContractList";
 import ContractAlerts from "./pages/ContractAlerts";
@@ -30,9 +29,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard/estatisticas" element={<DashboardStats />} />
-          <Route path="/dashboard/overview" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/contratos/novo" element={<ContractRegistration />} />
           <Route path="/contratos" element={<ContractList />} />
           <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
@@ -48,7 +46,7 @@ const App = () => (
           <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
           <Route path="/ajuda/documentacao" element={<Documentation />} />
           <Route path="/ajuda/suporte" element={<Support />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
