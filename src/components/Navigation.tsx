@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
+  LayoutDashboard,
   Users,
   FileText,
   Bell,
@@ -24,8 +25,13 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Início",
     icon: <Home className="w-5 h-5" />,
+    path: "/",
+  },
+  {
+    name: "Dashboard",
+    icon: <LayoutDashboard className="w-5 h-5" />,
     path: "/dashboard",
   },
   {
