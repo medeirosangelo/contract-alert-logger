@@ -14,6 +14,9 @@ import PhysicalPersonList from "./pages/PhysicalPersonList";
 import LegalPersonList from "./pages/LegalPersonList";
 import PhysicalPersonDetails from "./pages/PhysicalPersonDetails";
 import LegalPersonDetails from "./pages/LegalPersonDetails";
+import UserPermissions from "./pages/UserPermissions";
+import Documentation from "./pages/Documentation";
+import Support from "./pages/Support";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +31,8 @@ const App = () => (
           <Route path="/contratos/novo" element={<ContractRegistration />} />
           <Route path="/contratos" element={<ContractList />} />
           <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
+          <Route path="/contratos/ativos" element={<ContractList />} />
+          <Route path="/contratos/finalizados" element={<ContractList />} />
           <Route path="/alertas/contratos" element={<ContractAlerts />} />
           <Route path="/pessoas/fisica/novo" element={<PhysicalPersonRegistration />} />
           <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />
@@ -35,6 +40,9 @@ const App = () => (
           <Route path="/pessoas/juridica" element={<LegalPersonList />} />
           <Route path="/pessoas/fisica/:id" element={<PhysicalPersonDetails />} />
           <Route path="/pessoas/juridica/:id" element={<LegalPersonDetails />} />
+          <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
+          <Route path="/ajuda/documentacao" element={<Documentation />} />
+          <Route path="/ajuda/suporte" element={<Support />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
