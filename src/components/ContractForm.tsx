@@ -8,6 +8,7 @@ import PaymentInfo from "./contract/PaymentInfo";
 import PenaltiesInfo from "./contract/PenaltiesInfo";
 import BudgetClassification from "./contract/BudgetClassification";
 import AdditionalInfo from "./contract/AdditionalInfo";
+import { generateContractPDF } from "@/utils/contractUtils";
 
 interface ContractFormData {
   contractNumber: string;
@@ -97,6 +98,70 @@ const ContractForm = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Auto-fill data when CPF/CNPJ is entered
+    if (name === "contractorCnpj" || name === "contractedCnpj") {
+      console.log(`Fetching data for ${name}:`, value);
+      // Mock auto-fill (replace with actual API call)
+      if (value.length === 14) { // CNPJ
+        const mockData = {
+          companyName: "Empresa ABC Ltda",
+          address: "Rua Principal, 123",
+          legalRepName: "João Silva",
+          legalRepCpf: "123.456.789-00",
+          email: "contato@empresa.com",
+        };
+        setFormData(prev => ({
+          ...prev,
+          [`${name === "contractorCnpj" ? "contractor" : "contracted"}CompanyName`]: mockData.companyName,
+          [`${name === "contractorCnpj" ? "contractor" : "contracted"}Address`]: mockData.address,
+          ...(name === "contractedCnpj" && {
+            legalRepName: mockData.legalRepName,
+            legalRepCpf: mockData.legalRepCpf,
+            email: mockData.email,
+          }),
+        }));
+      }
+    }
+  };
+
+  const handleGenerateContract = async () => {
+    try {
+      const contractNumber = formData.contractNumber || `${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`;
+      const contractData = {
+        contractNumber,
+        object: formData.object,
+        contractorName: formData.contractorCompanyName,
+        contractorAddress: formData.contractorAddress,
+        contractorCnpj: formData.contractorCnpj,
+        contractedName: formData.contractedCompanyName,
+        contractedAddress: formData.contractedAddress,
+        contractedCnpj: formData.contractedCnpj,
+        legalRepName: formData.legalRepName,
+        legalRepCpf: formData.legalRepCpf,
+        totalValue: formData.totalValue,
+        duration: formData.duration,
+        signatureDate: formData.signatureDate,
+        witness1Name: formData.witness1Name,
+        witness1Cpf: formData.witness1Cpf,
+        witness2Name: formData.witness2Name,
+        witness2Cpf: formData.witness2Cpf,
+        signatureLocation: formData.signatureLocation,
+      };
+
+      await generateContractPDF(contractData);
+      toast({
+        title: "Contrato gerado com sucesso!",
+        description: "O arquivo PDF foi baixado automaticamente.",
+      });
+    } catch (error) {
+      console.error("Error generating contract:", error);
+      toast({
+        title: "Erro ao gerar contrato",
+        description: "Não foi possível gerar o arquivo PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -173,6 +238,9 @@ const ContractForm = () => {
 
       <div className="flex justify-end gap-4">
         <Button variant="outline">Cancelar</Button>
+        <Button onClick={handleGenerateContract} type="button" variant="outline" className="bg-green-500 text-white hover:bg-green-600">
+          Gerar Contrato
+        </Button>
         <Button type="submit">Salvar Contrato</Button>
       </div>
     </form>
