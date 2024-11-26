@@ -9,6 +9,7 @@ import PenaltiesInfo from "./contract/PenaltiesInfo";
 import BudgetClassification from "./contract/BudgetClassification";
 import AdditionalInfo from "./contract/AdditionalInfo";
 import { generateContractPDF } from "@/utils/contractUtils";
+import { fetchCompanyByCNPJ } from "@/services/company";
 
 interface ContractFormData {
   contractNumber: string;
@@ -93,7 +94,7 @@ const ContractForm = () => {
     });
   };
 
-  const handleInputChange = (
+  const handleInputChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
@@ -102,25 +103,34 @@ const ContractForm = () => {
     // Auto-fill data when CPF/CNPJ is entered
     if (name === "contractorCnpj" || name === "contractedCnpj") {
       console.log(`Fetching data for ${name}:`, value);
-      // Mock auto-fill (replace with actual API call)
-      if (value.length === 14) { // CNPJ
-        const mockData = {
-          companyName: "Empresa ABC Ltda",
-          address: "Rua Principal, 123",
-          legalRepName: "João Silva",
-          legalRepCpf: "123.456.789-00",
-          email: "contato@empresa.com",
-        };
-        setFormData(prev => ({
-          ...prev,
-          [`${name === "contractorCnpj" ? "contractor" : "contracted"}CompanyName`]: mockData.companyName,
-          [`${name === "contractorCnpj" ? "contractor" : "contracted"}Address`]: mockData.address,
-          ...(name === "contractedCnpj" && {
-            legalRepName: mockData.legalRepName,
-            legalRepCpf: mockData.legalRepCpf,
-            email: mockData.email,
-          }),
-        }));
+      try {
+        const companyData = await fetchCompanyByCNPJ(value);
+        console.log('Received company data:', companyData);
+        
+        if (companyData.companyName) {
+          setFormData(prev => ({
+            ...prev,
+            [`${name === "contractorCnpj" ? "contractor" : "contracted"}CompanyName`]: companyData.companyName,
+            [`${name === "contractorCnpj" ? "contractor" : "contracted"}Address`]: companyData.address,
+            ...(name === "contractedCnpj" && {
+              legalRepName: companyData.legalRepName,
+              legalRepCpf: companyData.legalRepCpf,
+              email: companyData.email,
+            }),
+          }));
+
+          toast({
+            title: "Dados preenchidos automaticamente",
+            description: "Os dados da empresa foram carregados com sucesso.",
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching company data:', error);
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar os dados da empresa.",
+          variant: "destructive",
+        });
       }
     }
   };
