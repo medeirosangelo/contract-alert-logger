@@ -138,11 +138,11 @@ const Navigation = () => {
               <div>
                 <button
                   onClick={() => isExpanded && toggleMenu(item.name)}
-                  className={`w-full flex items-center justify-between px-4 py-2 text-warm-800 hover:bg-warm-100 transition-colors ${
-                    !isExpanded ? "justify-center" : ""
-                  }`}
+                  className={`w-full flex items-center ${
+                    !isExpanded ? "justify-center px-2" : "justify-between px-4"
+                  } py-2 text-warm-800 hover:bg-warm-100 transition-colors`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 ${!isExpanded ? "justify-center" : ""}`}>
                     {item.icon}
                     {isExpanded && <span>{item.name}</span>}
                   </div>
@@ -175,16 +175,16 @@ const Navigation = () => {
             ) : (
               <Link
                 to={item.path!}
-                className={`flex items-center gap-2 px-4 py-2 ${
-                  !isExpanded ? "justify-center" : ""
-                } ${
+                className={`flex items-center ${
+                  !isExpanded ? "justify-center px-2" : "px-4"
+                } py-2 ${
                   location.pathname === item.path
                     ? "bg-primary text-white"
                     : "text-warm-800 hover:bg-warm-100"
                 }`}
               >
                 {item.icon}
-                {isExpanded && <span>{item.name}</span>}
+                {isExpanded && <span className="ml-2">{item.name}</span>}
               </Link>
             )}
           </div>

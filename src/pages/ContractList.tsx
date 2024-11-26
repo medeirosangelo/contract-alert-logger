@@ -19,14 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import ContractViewModal from "@/components/contract/ContractViewModal";
+import { Download, Eye } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 
 const ContractList = () => {
   const [selectedContract, setSelectedContract] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
+  const { toast } = useToast();
 
   const isFinalized = location.pathname === "/contratos/finalizados";
 
@@ -108,21 +110,53 @@ const ContractList = () => {
     },
   });
 
-  const handleContractClick = (contract) => {
-    setSelectedContract(contract);
-    setIsModalOpen(true);
+  const generateContractPDF = async (contract) => {
+    try {
+      console.log("Generating PDF for contract:", contract);
+      
+      // Mock contract template - in production this would come from your backend
+      const template = `
+        CONTRATO DE ${contract.categoria.toUpperCase()}
+        
+        CONTRATANTE: ${contract.orgao}
+        CNPJ/CPF: ${contract.cnpjCpf}
+        
+        OBJETO: ${contract.subcategoria}
+        VALOR: ${contract.valor.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        })}
+        
+        [Demais cláusulas contratuais...]
+      `;
+      
+      // In production, this would be an API call to generate the PDF
+      const blob = new Blob([template], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `contrato-${contract.numeros}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast({
+        title: "PDF Gerado com Sucesso",
+        description: "O arquivo foi baixado automaticamente.",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Erro ao Gerar PDF",
+        description: "Não foi possível gerar o arquivo PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleGeneratePDF = async (contract) => {
-    // Mock PDF generation - replace with actual PDF generation logic
-    const pdfWindow = window.open("", "_blank");
-    if (pdfWindow) {
-      pdfWindow.document.write(`
-        <h1>Contrato ${contract.numeros}</h1>
-        <p>Gerando PDF...</p>
-      `);
-      // Add your PDF generation logic here
-    }
+  const viewContract = (contract) => {
+    setSelectedContract(contract);
+    setIsModalOpen(true);
   };
 
   return (
@@ -200,13 +234,22 @@ const ContractList = () => {
                       })}</TableCell>
                       <TableCell>{contract.status}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGeneratePDF(contract)}
-                        >
-                          Gerar PDF
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateContractPDF(contract)}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => viewContract(contract)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -217,11 +260,46 @@ const ContractList = () => {
         </div>
       </main>
 
-      <ContractViewModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        contract={selectedContract}
-      />
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl">
+          {selectedContract && (
+            <div className="p-6 space-y-4">
+              <h2 className="text-2xl font-bold">
+                Contrato {selectedContract.numeros}
+              </h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold">Dados do Contrato</h3>
+                    <p>Orgão: {selectedContract.orgao}</p>
+                    <p>Unidade: {selectedContract.unidade}</p>
+                    <p>Tipo: {selectedContract.tipo}</p>
+                    <p>Categoria: {selectedContract.categoria}</p>
+                    <p>Subcategoria: {selectedContract.subcategoria}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Dados Financeiros</h3>
+                    <p>Valor: {selectedContract.valor.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    })}</p>
+                    <p>Status: {selectedContract.status}</p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => generateContractPDF(selectedContract)}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Gerar PDF
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
