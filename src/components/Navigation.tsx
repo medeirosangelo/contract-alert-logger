@@ -9,6 +9,7 @@ import {
   Settings,
   HelpCircle,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -82,6 +83,7 @@ const menuItems: MenuItem[] = [
 
 const Navigation = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
+  const [isNavOpen, setIsNavOpen] = useState(true);
   const location = useLocation();
 
   const toggleMenu = (menuName: string) => {
@@ -92,67 +94,82 @@ const Navigation = () => {
     );
   };
 
-  return (
-    <nav className="bg-warm-50 border-r border-warm-200 h-screen w-64 fixed left-0 top-0 overflow-y-auto">
-      <div className="p-4 border-b border-warm-200">
-        <h1 className="text-xl font-semibold text-primary">SWCI</h1>
-        <p className="text-sm text-warm-700">Sistema Web de Controle Interno</p>
-      </div>
+  const toggleNav = () => {
+    setIsNavOpen((prev) => !prev);
+  };
 
-      <div className="py-4">
-        {menuItems.map((item) => (
-          <div key={item.name} className="mb-1">
-            {item.subItems ? (
-              <div>
-                <button
-                  onClick={() => toggleMenu(item.name)}
-                  className="w-full flex items-center justify-between px-4 py-2 text-warm-800 hover:bg-warm-100 transition-colors"
+  return (
+    <>
+      <button
+        onClick={toggleNav}
+        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-primary text-white lg:hidden"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      <nav className={`bg-warm-50 border-r border-warm-200 h-screen fixed left-0 top-0 overflow-y-auto transition-all duration-300 ${
+        isNavOpen ? "w-64" : "w-0 -translate-x-full"
+      } lg:translate-x-0 lg:w-64 z-40`}>
+        <div className="p-4 border-b border-warm-200">
+          <h1 className="text-xl font-semibold text-primary">SWCI</h1>
+          <p className="text-sm text-warm-700">Sistema Web de Controle Interno</p>
+        </div>
+
+        <div className="py-4">
+          {menuItems.map((item) => (
+            <div key={item.name} className="mb-1">
+              {item.subItems ? (
+                <div>
+                  <button
+                    onClick={() => toggleMenu(item.name)}
+                    className="w-full flex items-center justify-between px-4 py-2 text-warm-800 hover:bg-warm-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${
+                        openMenus.includes(item.name) ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {openMenus.includes(item.name) && (
+                    <div className="bg-warm-100/50 py-1">
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.path}
+                          to={subItem.path}
+                          className={`block px-11 py-2 text-sm ${
+                            location.pathname === subItem.path
+                              ? "bg-primary text-white"
+                              : "text-warm-800 hover:bg-warm-100"
+                          }`}
+                        >
+                          {subItem.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={item.path!}
+                  className={`flex items-center gap-2 px-4 py-2 ${
+                    location.pathname === item.path
+                      ? "bg-primary text-white"
+                      : "text-warm-800 hover:bg-warm-100"
+                  }`}
                 >
-                  <div className="flex items-center gap-2">
-                    {item.icon}
-                    <span>{item.name}</span>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openMenus.includes(item.name) ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {openMenus.includes(item.name) && (
-                  <div className="bg-warm-100/50 py-1">
-                    {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.path}
-                        to={subItem.path}
-                        className={`block px-11 py-2 text-sm ${
-                          location.pathname === subItem.path
-                            ? "bg-primary text-white"
-                            : "text-warm-800 hover:bg-warm-100"
-                        }`}
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                to={item.path!}
-                className={`flex items-center gap-2 px-4 py-2 ${
-                  location.pathname === item.path
-                    ? "bg-primary text-white"
-                    : "text-warm-800 hover:bg-warm-100"
-                }`}
-              >
-                {item.icon}
-                <span>{item.name}</span>
-              </Link>
-            )}
-          </div>
-        ))}
-      </div>
-    </nav>
+                  {item.icon}
+                  <span>{item.name}</span>
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </nav>
+    </>
   );
 };
 
