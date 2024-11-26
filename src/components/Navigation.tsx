@@ -59,11 +59,9 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    name: "Alertas",
+    name: "Alertas de Contratos",
     icon: <Bell className="w-5 h-5" />,
-    subItems: [
-      { name: "Alertas de Contratos", path: "/alertas/contratos" },
-    ],
+    path: "/alertas/contratos",
   },
   {
     name: "Configurações",
@@ -98,7 +96,6 @@ const Navigation = () => {
 
   const toggleExpansion = () => {
     setIsExpanded((prev) => !prev);
-    // Close all submenus when collapsing
     if (isExpanded) {
       setOpenMenus([]);
     }

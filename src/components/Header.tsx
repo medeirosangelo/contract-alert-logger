@@ -1,5 +1,5 @@
 import { Bell, User } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -58,7 +59,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-16 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10">
+    <header className={`fixed top-0 right-0 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10 transition-all duration-300 ease-in-out left-16`}>
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold text-warm-900">
           {getPageTitle()}
@@ -66,7 +67,10 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="p-2 hover:bg-warm-50 rounded-full">
+        <button 
+          className="p-2 hover:bg-warm-50 rounded-full"
+          onClick={() => navigate('/alertas/contratos')}
+        >
           <Bell className="w-5 h-5 text-warm-600" />
         </button>
 
