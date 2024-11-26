@@ -58,7 +58,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-64 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10">
+    <header className="fixed top-0 right-0 left-16 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold text-warm-900">
           {getPageTitle()}
