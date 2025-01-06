@@ -1,7 +1,6 @@
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
-// Initialize pdfMake with fonts
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 interface ContractData {
@@ -25,95 +24,189 @@ interface ContractData {
   signatureLocation: string;
 }
 
+const formatCurrency = (value: string) => {
+  const number = parseFloat(value);
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(number);
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('pt-BR');
+};
+
 export const generateContractPDF = async (data: ContractData) => {
   console.log("Generating PDF with data:", data);
 
   const documentDefinition = {
+    pageSize: 'A4',
+    pageMargins: [40, 60, 40, 60],
     content: [
-      { text: `CONTRATO Nº ${data.contractNumber}/2024`, style: 'header' },
-      { text: '\n' },
-      { text: 'CONTRATO DE AQUISIÇÃO QUE ENTRE SI CELEBRAM O FUNDO ESPECIAL DA DEFENSORIA PÚBLICA DO ESTADO DE RORAIMA E ' + data.contractedName.toUpperCase(), style: 'subheader' },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA PRIMEIRA - OBJETO', style: 'clausula' },
-      { text: `1.1. O presente contrato tem por objeto ${data.object}.` },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA SEGUNDA - VIGÊNCIA', style: 'clausula' },
-      { text: `2.1. O prazo de vigência será de ${data.duration} meses, contados a partir da assinatura deste contrato.` },
-      { text: '2.2. A vigência poderá ser prorrogada mediante aditivo contratual, conforme legislação aplicável.' },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA TERCEIRA - PREÇO E CONDIÇÕES DE PAGAMENTO', style: 'clausula' },
-      { text: `3.1. O valor total do contrato é de R$ ${data.totalValue}, incluídos todos os encargos diretos e indiretos.` },
-      { text: '3.2. O pagamento será realizado mediante apresentação de Nota Fiscal e comprovante de entrega do objeto.' },
-      { text: '\n\n' },
-      { text: 'ASSINATURAS', style: 'clausula' },
-      { text: '\n\n' },
+      {
+        text: `CONTRATO Nº ${data.contractNumber}`,
+        style: 'header',
+        alignment: 'center',
+        margin: [0, 0, 0, 20]
+      },
+      {
+        text: [
+          'CONTRATO DE PRESTAÇÃO DE SERVIÇOS QUE ENTRE SI CELEBRAM ',
+          { text: data.contractorName.toUpperCase(), bold: true },
+          ' E ',
+          { text: data.contractedName.toUpperCase(), bold: true }
+        ],
+        style: 'subheader',
+        alignment: 'center',
+        margin: [0, 0, 0, 20]
+      },
+      {
+        text: 'QUALIFICAÇÃO DAS PARTES',
+        style: 'sectionHeader'
+      },
+      {
+        text: [
+          'CONTRATANTE: ',
+          { text: data.contractorName, bold: true },
+          ', inscrita no CNPJ sob nº ',
+          data.contractorCnpj,
+          ', com sede em ',
+          data.contractorAddress,
+          '.\n\n'
+        ]
+      },
+      {
+        text: [
+          'CONTRATADA: ',
+          { text: data.contractedName, bold: true },
+          ', inscrita no CNPJ sob nº ',
+          data.contractedCnpj,
+          ', com sede em ',
+          data.contractedAddress,
+          ', neste ato representada por ',
+          data.legalRepName,
+          ', CPF nº ',
+          data.legalRepCpf,
+          '.\n\n'
+        ]
+      },
+      {
+        text: 'CLÁUSULA PRIMEIRA - DO OBJETO',
+        style: 'clausula'
+      },
+      {
+        text: data.object,
+        margin: [0, 0, 0, 15]
+      },
+      {
+        text: 'CLÁUSULA SEGUNDA - DO VALOR',
+        style: 'clausula'
+      },
+      {
+        text: `O valor total do presente contrato é de ${formatCurrency(data.totalValue)}.`,
+        margin: [0, 0, 0, 15]
+      },
+      {
+        text: 'CLÁUSULA TERCEIRA - DA VIGÊNCIA',
+        style: 'clausula'
+      },
+      {
+        text: `O presente contrato terá vigência de ${data.duration} meses, a partir da data de sua assinatura.`,
+        margin: [0, 0, 0, 15]
+      },
+      {
+        text: [
+          '\n\n',
+          data.signatureLocation,
+          ', ',
+          formatDate(data.signatureDate)
+        ],
+        alignment: 'right',
+        margin: [0, 30, 0, 30]
+      },
       {
         columns: [
           {
-            width: '50%',
+            width: '*',
             text: [
-              'CONTRATANTE:\n',
-              '_______________________\n',
-              `CNPJ: ${data.contractorCnpj}`
-            ]
+              '_________________________________\n',
+              'CONTRATANTE\n',
+              data.contractorName,
+              '\nCNPJ: ',
+              data.contractorCnpj
+            ],
+            alignment: 'center'
           },
           {
-            width: '50%',
+            width: '*',
             text: [
-              'CONTRATADA:\n',
-              '_______________________\n',
-              `${data.legalRepName}\n`,
-              `CPF: ${data.legalRepCpf}`
-            ]
+              '_________________________________\n',
+              'CONTRATADA\n',
+              data.contractedName,
+              '\nCNPJ: ',
+              data.contractedCnpj
+            ],
+            alignment: 'center'
           }
-        ]
+        ],
+        columnGap: 30
       },
-      { text: '\n\n' },
+      {
+        text: '\n\n'
+      },
       {
         columns: [
           {
-            width: '50%',
+            width: '*',
             text: [
-              'TESTEMUNHA 1:\n',
-              '_______________________\n',
-              `${data.witness1Name}\n`,
-              `CPF: ${data.witness1Cpf}`
-            ]
+              '_________________________________\n',
+              'TESTEMUNHA 1\n',
+              data.witness1Name,
+              '\nCPF: ',
+              data.witness1Cpf
+            ],
+            alignment: 'center'
           },
           {
-            width: '50%',
+            width: '*',
             text: [
-              'TESTEMUNHA 2:\n',
-              '_______________________\n',
-              `${data.witness2Name}\n`,
-              `CPF: ${data.witness2Cpf}`
-            ]
+              '_________________________________\n',
+              'TESTEMUNHA 2\n',
+              data.witness2Name,
+              '\nCPF: ',
+              data.witness2Cpf
+            ],
+            alignment: 'center'
           }
-        ]
-      },
-      { text: '\n\n' },
-      { text: `${data.signatureLocation}, ${new Date(data.signatureDate).toLocaleDateString()}`, alignment: 'right' }
+        ],
+        columnGap: 30
+      }
     ],
     styles: {
       header: {
         fontSize: 16,
         bold: true,
-        alignment: 'center'
+        margin: [0, 0, 0, 10]
       },
       subheader: {
         fontSize: 14,
         bold: true,
-        alignment: 'center'
+        margin: [0, 0, 0, 10]
+      },
+      sectionHeader: {
+        fontSize: 13,
+        bold: true,
+        margin: [0, 15, 0, 10]
       },
       clausula: {
         fontSize: 12,
         bold: true,
-        margin: [0, 10, 0, 5]
+        margin: [0, 15, 0, 10]
       }
     },
     defaultStyle: {
       fontSize: 11,
-      lineHeight: 1.2
+      lineHeight: 1.3
     }
   };
 
