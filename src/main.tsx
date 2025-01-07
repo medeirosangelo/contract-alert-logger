@@ -5,6 +5,7 @@ import './index.css'
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
+  console.error("Elemento root não encontrado!");
   throw new Error("Elemento root não encontrado!");
 }
 
