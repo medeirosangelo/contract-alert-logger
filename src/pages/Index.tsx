@@ -4,10 +4,15 @@ import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
 import ContractCalendar from "@/components/dashboard/ContractCalendar";
 import { useQuery } from "@tanstack/react-query";
 
+console.log("Index component loading...");
+
 const Index = () => {
-  const { data: contractStats } = useQuery({
+  console.log("Index component rendering...");
+
+  const { data: contractStats, isLoading, error } = useQuery({
     queryKey: ["contractStats"],
     queryFn: async () => {
+      console.log("Fetching contract stats...");
       // Mock data - replace with actual API call
       return {
         newContracts: 0,
@@ -17,6 +22,18 @@ const Index = () => {
       };
     },
   });
+
+  console.log("Contract stats:", contractStats);
+
+  if (isLoading) {
+    console.log("Loading contract stats...");
+    return <div className="min-h-screen bg-warm-100 flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    console.error("Error loading contract stats:", error);
+    return <div className="min-h-screen bg-warm-100 flex items-center justify-center">Error loading data</div>;
+  }
 
   return (
     <div className="min-h-screen bg-warm-100">
