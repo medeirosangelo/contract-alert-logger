@@ -20,13 +20,9 @@ import UserPermissions from "./pages/UserPermissions";
 import Documentation from "./pages/Documentation";
 import Support from "./pages/Support";
 
-console.log("App component iniciando...");
-
 const queryClient = new QueryClient();
 
 const App = () => {
-  console.log("Renderizando App component");
-  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
