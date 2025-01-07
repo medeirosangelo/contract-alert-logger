@@ -10,10 +10,10 @@ const Index = () => {
     queryFn: async () => {
       // Mock data - replace with actual API call
       return {
-        newContracts: 5,
+        newContracts: 0,
         updatedContracts: 3,
-        expiredContracts: 2,
-        expiringContracts: 4,
+        expiredContracts: 0,
+        expiringContracts: 2,
       };
     },
   });
