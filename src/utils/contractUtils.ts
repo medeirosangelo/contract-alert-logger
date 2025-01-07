@@ -1,9 +1,3 @@
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-
-// Initialize pdfMake with fonts
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
-
 interface ContractData {
   contractNumber: string;
   object: string;
@@ -26,107 +20,71 @@ interface ContractData {
 }
 
 export const generateContractPDF = async (data: ContractData) => {
-  console.log("Generating PDF with data:", data);
+  // Generate contract template
+  const template = `
+CONTRATO Nº ${data.contractNumber}/2024
+CONTRATO DE AQUISIÇÃO QUE ENTRE SI CELEBRAM O FUNDO ESPECIAL DA DEFENSORIA PÚBLICA DO ESTADO DE RORAIMA E ${data.contractedName}
 
-  const documentDefinition = {
-    content: [
-      { text: `CONTRATO Nº ${data.contractNumber}/2024`, style: 'header' },
-      { text: '\n' },
-      { text: 'CONTRATO DE AQUISIÇÃO QUE ENTRE SI CELEBRAM O FUNDO ESPECIAL DA DEFENSORIA PÚBLICA DO ESTADO DE RORAIMA E ' + data.contractedName.toUpperCase(), style: 'subheader' },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA PRIMEIRA - OBJETO', style: 'clausula' },
-      { text: `1.1. O presente contrato tem por objeto ${data.object}.` },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA SEGUNDA - VIGÊNCIA', style: 'clausula' },
-      { text: `2.1. O prazo de vigência será de ${data.duration} meses, contados a partir da assinatura deste contrato.` },
-      { text: '2.2. A vigência poderá ser prorrogada mediante aditivo contratual, conforme legislação aplicável.' },
-      { text: '\n\n' },
-      { text: 'CLÁUSULA TERCEIRA - PREÇO E CONDIÇÕES DE PAGAMENTO', style: 'clausula' },
-      { text: `3.1. O valor total do contrato é de R$ ${data.totalValue}, incluídos todos os encargos diretos e indiretos.` },
-      { text: '3.2. O pagamento será realizado mediante apresentação de Nota Fiscal e comprovante de entrega do objeto.' },
-      { text: '\n\n' },
-      { text: 'ASSINATURAS', style: 'clausula' },
-      { text: '\n\n' },
-      {
-        columns: [
-          {
-            width: '50%',
-            text: [
-              'CONTRATANTE:\n',
-              '_______________________\n',
-              `CNPJ: ${data.contractorCnpj}`
-            ]
-          },
-          {
-            width: '50%',
-            text: [
-              'CONTRATADA:\n',
-              '_______________________\n',
-              `${data.legalRepName}\n`,
-              `CPF: ${data.legalRepCpf}`
-            ]
-          }
-        ]
-      },
-      { text: '\n\n' },
-      {
-        columns: [
-          {
-            width: '50%',
-            text: [
-              'TESTEMUNHA 1:\n',
-              '_______________________\n',
-              `${data.witness1Name}\n`,
-              `CPF: ${data.witness1Cpf}`
-            ]
-          },
-          {
-            width: '50%',
-            text: [
-              'TESTEMUNHA 2:\n',
-              '_______________________\n',
-              `${data.witness2Name}\n`,
-              `CPF: ${data.witness2Cpf}`
-            ]
-          }
-        ]
-      },
-      { text: '\n\n' },
-      { text: `${data.signatureLocation}, ${new Date(data.signatureDate).toLocaleDateString()}`, alignment: 'right' }
-    ],
-    styles: {
-      header: {
-        fontSize: 16,
-        bold: true,
-        alignment: 'center'
-      },
-      subheader: {
-        fontSize: 14,
-        bold: true,
-        alignment: 'center'
-      },
-      clausula: {
-        fontSize: 12,
-        bold: true,
-        margin: [0, 10, 0, 5]
-      }
-    },
-    defaultStyle: {
-      fontSize: 11,
-      lineHeight: 1.2
-    }
-  };
+CLÁUSULA PRIMEIRA - OBJETO
+1.1. O presente contrato tem por objeto ${data.object}.
 
-  try {
-    console.log("Creating PDF document...");
-    const pdfDoc = pdfMake.createPdf(documentDefinition);
-    
-    console.log("Downloading PDF...");
-    pdfDoc.download(`contrato-${data.contractNumber}.pdf`);
-    
-    return true;
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-    throw new Error("Falha ao gerar o PDF do contrato");
-  }
+CLÁUSULA SEGUNDA - VIGÊNCIA
+2.1. O prazo de vigência será de ${data.duration} meses, contados a partir da assinatura deste contrato.
+2.2. A vigência poderá ser prorrogada mediante aditivo contratual, conforme legislação aplicável.
+
+CLÁUSULA TERCEIRA - PREÇO E CONDIÇÕES DE PAGAMENTO
+3.1. O valor total do contrato é de R$ ${data.totalValue}, incluídos todos os encargos diretos e indiretos.
+3.2. O pagamento será realizado mediante apresentação de Nota Fiscal e comprovante de entrega do objeto.
+
+CLÁUSULA QUARTA - OBRIGAÇÕES DAS PARTES
+
+4.1. Obrigações do Contratante:
+- Fiscalizar a execução do contrato.
+- Efetuar os pagamentos nos prazos estabelecidos.
+
+4.2. Obrigações da Contratada:
+- Executar o objeto conforme especificações técnicas.
+- Garantir os produtos/serviços pelo prazo estabelecido.
+- Substituir quaisquer itens com defeito no prazo acordado.
+
+CLÁUSULA QUINTA - SANÇÕES E PENALIDADES
+5.1. Em caso de descumprimento das obrigações contratuais, a Contratada estará sujeita às penalidades previstas na Lei nº 14.133/2021.
+
+CLÁUSULA SEXTA - RESCISÃO CONTRATUAL
+6.1. O contrato poderá ser rescindido por comum acordo entre as partes ou por inadimplência.
+
+CLÁUSULA SÉTIMA - DISPOSIÇÕES GERAIS
+7.1. Os casos omissos serão resolvidos conforme a legislação vigente, em especial a Lei nº 14.133/2021.
+7.2. O foro competente para dirimir conflitos será o da Comarca de Boa Vista/RR.
+
+Local e data: ${data.signatureLocation}, ${new Date(data.signatureDate).toLocaleDateString()}
+
+CONTRATANTE:
+Nome: __________________________
+Cargo: __________________________
+CNPJ: ${data.contractorCnpj}
+
+CONTRATADA:
+Nome: ${data.legalRepName}
+CPF: ${data.legalRepCpf}
+Cargo: Representante Legal
+CNPJ: ${data.contractedCnpj}
+
+TESTEMUNHAS:
+1. Nome: ${data.witness1Name}
+   CPF: ${data.witness1Cpf}
+
+2. Nome: ${data.witness2Name}
+   CPF: ${data.witness2Cpf}
+`;
+
+  // Create and download PDF
+  const blob = new Blob([template], { type: 'text/plain' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `contrato-${data.contractNumber}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 };
