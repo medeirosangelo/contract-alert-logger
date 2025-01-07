@@ -20,38 +20,44 @@ import UserPermissions from "./pages/UserPermissions";
 import Documentation from "./pages/Documentation";
 import Support from "./pages/Support";
 
+console.log("App component iniciando...");
+
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/contratos/novo" element={<ContractRegistration />} />
-          <Route path="/contratos" element={<ContractList />} />
-          <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
-          <Route path="/contratos/ativos" element={<ContractList />} />
-          <Route path="/contratos/finalizados" element={<ContractList />} />
-          <Route path="/alertas/contratos" element={<ContractAlerts />} />
-          <Route path="/pessoas/fisica/novo" element={<PhysicalPersonRegistration />} />
-          <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />
-          <Route path="/pessoas/fisica" element={<PhysicalPersonList />} />
-          <Route path="/pessoas/juridica" element={<LegalPersonList />} />
-          <Route path="/pessoas/fisica/:id" element={<PhysicalPersonDetails />} />
-          <Route path="/pessoas/juridica/:id" element={<LegalPersonDetails />} />
-          <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
-          <Route path="/ajuda/documentacao" element={<Documentation />} />
-          <Route path="/ajuda/suporte" element={<Support />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log("Renderizando App component");
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/contratos/novo" element={<ContractRegistration />} />
+            <Route path="/contratos" element={<ContractList />} />
+            <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
+            <Route path="/contratos/ativos" element={<ContractList />} />
+            <Route path="/contratos/finalizados" element={<ContractList />} />
+            <Route path="/alertas/contratos" element={<ContractAlerts />} />
+            <Route path="/pessoas/fisica/novo" element={<PhysicalPersonRegistration />} />
+            <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />
+            <Route path="/pessoas/fisica" element={<PhysicalPersonList />} />
+            <Route path="/pessoas/juridica" element={<LegalPersonList />} />
+            <Route path="/pessoas/fisica/:id" element={<PhysicalPersonDetails />} />
+            <Route path="/pessoas/juridica/:id" element={<LegalPersonDetails />} />
+            <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
+            <Route path="/ajuda/documentacao" element={<Documentation />} />
+            <Route path="/ajuda/suporte" element={<Support />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
