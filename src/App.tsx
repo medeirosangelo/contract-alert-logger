@@ -20,6 +20,7 @@ import UserPermissions from "./pages/UserPermissions";
 import Documentation from "./pages/Documentation";
 import Support from "./pages/Support";
 import UseCases from "./pages/UseCases";
+import UseCasesDocumentation from "./pages/UseCasesDocumentation";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/ajuda/documentacao" element={<Documentation />} />
           <Route path="/ajuda/suporte" element={<Support />} />
           <Route path="/uml/casos-de-uso" element={<UseCases />} />
+          <Route path="/uml/casos-de-uso/documentacao" element={<UseCasesDocumentation />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
