@@ -68,8 +68,7 @@ const menuItems: MenuItem[] = [
     name: "UML",
     icon: <Boxes className="w-5 h-5" />,
     subItems: [
-      { name: "Casos de Uso - Diagrama", path: "/uml/casos-de-uso" },
-      { name: "Casos de Uso - Documentação", path: "/uml/casos-de-uso/documentacao" },
+      { name: "Casos de Uso", path: "/uml/casos-de-uso" },
     ],
   },
   {

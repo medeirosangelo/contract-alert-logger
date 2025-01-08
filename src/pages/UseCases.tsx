@@ -1,116 +1,9 @@
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import ActorNode from '@/components/uml/ActorNode';
-import UseCaseNode from '@/components/uml/UseCaseNode';
-
-const initialNodes = [
-  // Atores
-  {
-    id: 'admin',
-    type: 'actor',
-    position: { x: 50, y: 200 },
-    data: { label: 'Administrador' },
-  },
-  {
-    id: 'user',
-    type: 'actor',
-    position: { x: 50, y: 400 },
-    data: { label: 'Usuário' },
-  },
-  
-  // Casos de Uso - Contratos
-  {
-    id: 'manage-contracts',
-    type: 'useCase',
-    position: { x: 300, y: 100 },
-    data: { label: 'Gerenciar Contratos' },
-  },
-  {
-    id: 'view-contracts',
-    type: 'useCase',
-    position: { x: 300, y: 200 },
-    data: { label: 'Visualizar Contratos' },
-  },
-  {
-    id: 'create-contract',
-    type: 'useCase',
-    position: { x: 300, y: 300 },
-    data: { label: 'Criar Contrato' },
-  },
-  {
-    id: 'edit-contract',
-    type: 'useCase',
-    position: { x: 300, y: 400 },
-    data: { label: 'Editar Contrato' },
-  },
-  
-  // Casos de Uso - Pessoas
-  {
-    id: 'manage-people',
-    type: 'useCase',
-    position: { x: 500, y: 100 },
-    data: { label: 'Gerenciar Pessoas' },
-  },
-  {
-    id: 'register-physical',
-    type: 'useCase',
-    position: { x: 500, y: 200 },
-    data: { label: 'Cadastrar Pessoa Física' },
-  },
-  {
-    id: 'register-legal',
-    type: 'useCase',
-    position: { x: 500, y: 300 },
-    data: { label: 'Cadastrar Pessoa Jurídica' },
-  },
-  
-  // Casos de Uso - Alertas
-  {
-    id: 'view-alerts',
-    type: 'useCase',
-    position: { x: 500, y: 400 },
-    data: { label: 'Visualizar Alertas' },
-  },
-];
-
-const initialEdges = [
-  // Conexões do Administrador
-  { id: 'e1', source: 'admin', target: 'manage-contracts' },
-  { id: 'e2', source: 'admin', target: 'manage-people' },
-  { id: 'e3', source: 'admin', target: 'view-alerts' },
-  { id: 'e4', source: 'admin', target: 'create-contract' },
-  { id: 'e5', source: 'admin', target: 'edit-contract' },
-  { id: 'e6', source: 'admin', target: 'register-physical' },
-  { id: 'e7', source: 'admin', target: 'register-legal' },
-  
-  // Conexões do Usuário
-  { id: 'e8', source: 'user', target: 'view-contracts' },
-  { id: 'e9', source: 'user', target: 'view-alerts' },
-];
-
-const nodeTypes = {
-  actor: ActorNode,
-  useCase: UseCaseNode,
-};
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const UseCases = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const onConnect = (params: any) => {
-    setEdges((eds) => addEdge(params, eds));
-  };
-
   return (
     <div className="min-h-screen bg-warm-100">
       <Navigation />
@@ -118,22 +11,140 @@ const UseCases = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-3xl font-bold mb-8">Diagrama de Casos de Uso</h1>
-            <div style={{ width: '100%', height: '600px' }}>
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                nodeTypes={nodeTypes}
-                fitView
-              >
-                <Controls />
-                <Background />
-                <MiniMap />
-              </ReactFlow>
-            </div>
+            <h1 className="text-3xl font-bold mb-8">Casos de Uso do Sistema</h1>
+
+            <Tabs defaultValue="contracts">
+              <TabsList className="mb-6">
+                <TabsTrigger value="contracts">Contratos</TabsTrigger>
+                <TabsTrigger value="persons">Pessoas</TabsTrigger>
+                <TabsTrigger value="alerts">Alertas</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="contracts" className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">UC001 - Cadastrar Novo Contrato</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium">Ator Principal</h3>
+                      <p className="text-gray-600">Usuário do Sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Pré-condições</h3>
+                      <p className="text-gray-600">Usuário autenticado no sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Fluxo Principal</h3>
+                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                        <li>Usuário acessa a tela de cadastro de contratos</li>
+                        <li>Sistema apresenta formulário de cadastro</li>
+                        <li>Usuário preenche CNPJ/CPF da parte contratada</li>
+                        <li>Sistema auto-preenche dados cadastrais</li>
+                        <li>Usuário completa demais informações do contrato</li>
+                        <li>Usuário clica em "Gerar Contrato"</li>
+                        <li>Sistema gera PDF do contrato</li>
+                        <li>Usuário salva o contrato</li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">UC002 - Gerenciar Alertas de Contratos</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium">Ator Principal</h3>
+                      <p className="text-gray-600">Usuário do Sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Pré-condições</h3>
+                      <p className="text-gray-600">Contratos cadastrados no sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Fluxo Principal</h3>
+                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                        <li>Sistema monitora datas de vencimento</li>
+                        <li>Sistema exibe alertas de contratos próximos ao vencimento</li>
+                        <li>Usuário visualiza lista de alertas</li>
+                        <li>Usuário pode renovar ou finalizar contratos</li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="persons" className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">UC003 - Cadastrar Pessoa Jurídica</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium">Ator Principal</h3>
+                      <p className="text-gray-600">Usuário do Sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Pré-condições</h3>
+                      <p className="text-gray-600">Usuário autenticado</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Fluxo Principal</h3>
+                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                        <li>Usuário acessa cadastro de pessoa jurídica</li>
+                        <li>Preenche dados da empresa</li>
+                        <li>Sistema valida informações</li>
+                        <li>Sistema salva cadastro</li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">UC004 - Cadastrar Pessoa Física</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium">Ator Principal</h3>
+                      <p className="text-gray-600">Usuário do Sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Pré-condições</h3>
+                      <p className="text-gray-600">Usuário autenticado</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Fluxo Principal</h3>
+                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                        <li>Usuário acessa cadastro de pessoa física</li>
+                        <li>Preenche dados pessoais</li>
+                        <li>Sistema valida informações</li>
+                        <li>Sistema salva cadastro</li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="alerts" className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">UC005 - Gerenciar Alertas</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium">Ator Principal</h3>
+                      <p className="text-gray-600">Sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Pré-condições</h3>
+                      <p className="text-gray-600">Contratos ativos no sistema</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Fluxo Principal</h3>
+                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                        <li>Sistema verifica diariamente os contratos</li>
+                        <li>Sistema identifica contratos próximos ao vencimento</li>
+                        <li>Sistema gera alertas automáticos</li>
+                        <li>Sistema notifica usuários responsáveis</li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
