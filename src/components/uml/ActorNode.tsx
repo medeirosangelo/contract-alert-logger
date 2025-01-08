@@ -23,10 +23,9 @@ const ActorNode = ({ data }: { data: { label: string } }) => {
       </div>
       
       {/* Label */}
-      <div className="mt-8 text-sm text-center">{data.label}</div>
+      <div className="mt-8 text-sm text-center font-medium">{data.label}</div>
       
       <Handle type="source" position={Position.Right} />
-      <Handle type="target" position={Position.Left} />
     </div>
   );
 };

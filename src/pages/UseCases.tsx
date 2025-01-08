@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import {
@@ -15,71 +14,88 @@ import ActorNode from '@/components/uml/ActorNode';
 import UseCaseNode from '@/components/uml/UseCaseNode';
 
 const initialNodes = [
+  // Atores
   {
-    id: 'customer',
+    id: 'admin',
     type: 'actor',
-    position: { x: 50, y: 100 },
-    data: { label: 'Cliente' },
+    position: { x: 50, y: 200 },
+    data: { label: 'Administrador' },
   },
   {
-    id: 'cashier',
+    id: 'user',
     type: 'actor',
-    position: { x: 50, y: 300 },
-    data: { label: 'Caixa' },
+    position: { x: 50, y: 400 },
+    data: { label: 'Usuário' },
   },
+  
+  // Casos de Uso - Contratos
   {
-    id: 'maintenance',
-    type: 'actor',
-    position: { x: 50, y: 500 },
-    data: { label: 'Manutenção' },
-  },
-  {
-    id: 'bank',
-    type: 'actor',
-    position: { x: 650, y: 200 },
-    data: { label: 'Banco' },
-  },
-  {
-    id: 'withdraw',
+    id: 'manage-contracts',
     type: 'useCase',
-    position: { x: 300, y: 50 },
-    data: { label: 'Sacar Dinheiro' },
+    position: { x: 300, y: 100 },
+    data: { label: 'Gerenciar Contratos' },
   },
   {
-    id: 'transfer',
+    id: 'view-contracts',
     type: 'useCase',
-    position: { x: 300, y: 150 },
-    data: { label: 'Transferir Fundos' },
+    position: { x: 300, y: 200 },
+    data: { label: 'Visualizar Contratos' },
   },
   {
-    id: 'validate',
+    id: 'create-contract',
     type: 'useCase',
-    position: { x: 300, y: 250 },
-    data: { label: 'Validar Usuário' },
+    position: { x: 300, y: 300 },
+    data: { label: 'Criar Contrato' },
   },
   {
-    id: 'deposit',
+    id: 'edit-contract',
     type: 'useCase',
-    position: { x: 300, y: 350 },
-    data: { label: 'Depositar Fundos' },
+    position: { x: 300, y: 400 },
+    data: { label: 'Editar Contrato' },
+  },
+  
+  // Casos de Uso - Pessoas
+  {
+    id: 'manage-people',
+    type: 'useCase',
+    position: { x: 500, y: 100 },
+    data: { label: 'Gerenciar Pessoas' },
   },
   {
-    id: 'refill',
+    id: 'register-physical',
     type: 'useCase',
-    position: { x: 300, y: 450 },
-    data: { label: 'Reabastecer Máquina' },
+    position: { x: 500, y: 200 },
+    data: { label: 'Cadastrar Pessoa Física' },
+  },
+  {
+    id: 'register-legal',
+    type: 'useCase',
+    position: { x: 500, y: 300 },
+    data: { label: 'Cadastrar Pessoa Jurídica' },
+  },
+  
+  // Casos de Uso - Alertas
+  {
+    id: 'view-alerts',
+    type: 'useCase',
+    position: { x: 500, y: 400 },
+    data: { label: 'Visualizar Alertas' },
   },
 ];
 
 const initialEdges = [
-  { id: 'e1', source: 'customer', target: 'withdraw' },
-  { id: 'e2', source: 'customer', target: 'transfer' },
-  { id: 'e3', source: 'customer', target: 'deposit' },
-  { id: 'e4', source: 'cashier', target: 'deposit' },
-  { id: 'e5', source: 'maintenance', target: 'refill' },
-  { id: 'e6', source: 'withdraw', target: 'bank' },
-  { id: 'e7', source: 'transfer', target: 'bank' },
-  { id: 'e8', source: 'validate', target: 'bank' },
+  // Conexões do Administrador
+  { id: 'e1', source: 'admin', target: 'manage-contracts' },
+  { id: 'e2', source: 'admin', target: 'manage-people' },
+  { id: 'e3', source: 'admin', target: 'view-alerts' },
+  { id: 'e4', source: 'admin', target: 'create-contract' },
+  { id: 'e5', source: 'admin', target: 'edit-contract' },
+  { id: 'e6', source: 'admin', target: 'register-physical' },
+  { id: 'e7', source: 'admin', target: 'register-legal' },
+  
+  // Conexões do Usuário
+  { id: 'e8', source: 'user', target: 'view-contracts' },
+  { id: 'e9', source: 'user', target: 'view-alerts' },
 ];
 
 const nodeTypes = {
@@ -91,9 +107,9 @@ const UseCases = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const onConnect = useCallback((params: any) => {
+  const onConnect = (params: any) => {
     setEdges((eds) => addEdge(params, eds));
-  }, [setEdges]);
+  };
 
   return (
     <div className="min-h-screen bg-warm-100">
@@ -115,6 +131,7 @@ const UseCases = () => {
               >
                 <Controls />
                 <Background />
+                <MiniMap />
               </ReactFlow>
             </div>
           </div>
