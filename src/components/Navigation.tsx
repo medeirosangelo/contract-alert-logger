@@ -12,6 +12,7 @@ import {
   Menu,
   ChevronRight,
   ChevronLeft,
+  Boxes,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -62,6 +63,13 @@ const menuItems: MenuItem[] = [
     name: "Alertas de Contratos",
     icon: <Bell className="w-5 h-5" />,
     path: "/alertas/contratos",
+  },
+  {
+    name: "UML",
+    icon: <Boxes className="w-5 h-5" />,
+    subItems: [
+      { name: "Casos de Uso", path: "/uml/casos-de-uso" },
+    ],
   },
   {
     name: "Configurações",
