@@ -1,9 +1,100 @@
+import { useCallback } from 'react';
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ReactFlow,
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import ActorNode from '@/components/uml/ActorNode';
+import UseCaseNode from '@/components/uml/UseCaseNode';
+
+const initialNodes = [
+  {
+    id: 'customer',
+    type: 'actor',
+    position: { x: 50, y: 100 },
+    data: { label: 'Cliente' },
+  },
+  {
+    id: 'cashier',
+    type: 'actor',
+    position: { x: 50, y: 300 },
+    data: { label: 'Caixa' },
+  },
+  {
+    id: 'maintenance',
+    type: 'actor',
+    position: { x: 50, y: 500 },
+    data: { label: 'Manutenção' },
+  },
+  {
+    id: 'bank',
+    type: 'actor',
+    position: { x: 650, y: 200 },
+    data: { label: 'Banco' },
+  },
+  {
+    id: 'withdraw',
+    type: 'useCase',
+    position: { x: 300, y: 50 },
+    data: { label: 'Sacar Dinheiro' },
+  },
+  {
+    id: 'transfer',
+    type: 'useCase',
+    position: { x: 300, y: 150 },
+    data: { label: 'Transferir Fundos' },
+  },
+  {
+    id: 'validate',
+    type: 'useCase',
+    position: { x: 300, y: 250 },
+    data: { label: 'Validar Usuário' },
+  },
+  {
+    id: 'deposit',
+    type: 'useCase',
+    position: { x: 300, y: 350 },
+    data: { label: 'Depositar Fundos' },
+  },
+  {
+    id: 'refill',
+    type: 'useCase',
+    position: { x: 300, y: 450 },
+    data: { label: 'Reabastecer Máquina' },
+  },
+];
+
+const initialEdges = [
+  { id: 'e1', source: 'customer', target: 'withdraw' },
+  { id: 'e2', source: 'customer', target: 'transfer' },
+  { id: 'e3', source: 'customer', target: 'deposit' },
+  { id: 'e4', source: 'cashier', target: 'deposit' },
+  { id: 'e5', source: 'maintenance', target: 'refill' },
+  { id: 'e6', source: 'withdraw', target: 'bank' },
+  { id: 'e7', source: 'transfer', target: 'bank' },
+  { id: 'e8', source: 'validate', target: 'bank' },
+];
+
+const nodeTypes = {
+  actor: ActorNode,
+  useCase: UseCaseNode,
+};
 
 const UseCases = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback((params: any) => {
+    setEdges((eds) => addEdge(params, eds));
+  }, [setEdges]);
+
   return (
     <div className="min-h-screen bg-warm-100">
       <Navigation />
@@ -11,140 +102,21 @@ const UseCases = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-3xl font-bold mb-8">Casos de Uso do Sistema</h1>
-
-            <Tabs defaultValue="contracts">
-              <TabsList className="mb-6">
-                <TabsTrigger value="contracts">Contratos</TabsTrigger>
-                <TabsTrigger value="persons">Pessoas</TabsTrigger>
-                <TabsTrigger value="alerts">Alertas</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="contracts" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC001 - Cadastrar Novo Contrato</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa a tela de cadastro de contratos</li>
-                        <li>Sistema apresenta formulário de cadastro</li>
-                        <li>Usuário preenche CNPJ/CPF da parte contratada</li>
-                        <li>Sistema auto-preenche dados cadastrais</li>
-                        <li>Usuário completa demais informações do contrato</li>
-                        <li>Usuário clica em "Gerar Contrato"</li>
-                        <li>Sistema gera PDF do contrato</li>
-                        <li>Usuário salva o contrato</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC002 - Gerenciar Alertas de Contratos</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Contratos cadastrados no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Sistema monitora datas de vencimento</li>
-                        <li>Sistema exibe alertas de contratos próximos ao vencimento</li>
-                        <li>Usuário visualiza lista de alertas</li>
-                        <li>Usuário pode renovar ou finalizar contratos</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="persons" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC003 - Cadastrar Pessoa Jurídica</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa cadastro de pessoa jurídica</li>
-                        <li>Preenche dados da empresa</li>
-                        <li>Sistema valida informações</li>
-                        <li>Sistema salva cadastro</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC004 - Cadastrar Pessoa Física</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa cadastro de pessoa física</li>
-                        <li>Preenche dados pessoais</li>
-                        <li>Sistema valida informações</li>
-                        <li>Sistema salva cadastro</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="alerts" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC005 - Gerenciar Alertas</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Contratos ativos no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Sistema verifica diariamente os contratos</li>
-                        <li>Sistema identifica contratos próximos ao vencimento</li>
-                        <li>Sistema gera alertas automáticos</li>
-                        <li>Sistema notifica usuários responsáveis</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            <h1 className="text-3xl font-bold mb-8">Diagrama de Casos de Uso</h1>
+            <div style={{ width: '100%', height: '600px' }}>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                fitView
+              >
+                <Controls />
+                <Background />
+              </ReactFlow>
+            </div>
           </div>
         </div>
       </main>
