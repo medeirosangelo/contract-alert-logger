@@ -25,21 +25,28 @@ const initialNodes: Node[] = [
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + numero: string<br/>
+            + numeroContrato: string<br/>
             + objeto: string<br/>
-            + valorTotal: number<br/>
+            + valorTotal: decimal<br/>
             + dataAssinatura: Date<br/>
             + dataPublicacao: Date<br/>
             + prazoAjuste: number<br/>
             + indiceReajuste: string<br/>
-            + status: string
+            + status: string<br/>
+            + unidadeOrcamentaria: string<br/>
+            + naturezaDespesa: string<br/>
+            + fonteRecurso: string<br/>
+            + programaTrabalho: string<br/>
+            + observacoesGerais: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + criar()<br/>
-            + atualizar()<br/>
-            + excluir()<br/>
-            + gerarPDF()<br/>
-            + renovar()
+            + criar(): void<br/>
+            + atualizar(): void<br/>
+            + excluir(): void<br/>
+            + gerarPDF(): void<br/>
+            + renovar(): void<br/>
+            + calcularVencimento(): Date<br/>
+            + verificarStatus(): string
           </div>
         </div>
       )
@@ -58,20 +65,27 @@ const initialNodes: Node[] = [
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + nome: string<br/>
+            + nomeCompleto: string<br/>
             + cpf: string<br/>
             + rg: string<br/>
             + dataNascimento: Date<br/>
             + endereco: string<br/>
+            + numero: string<br/>
+            + complemento: string<br/>
+            + bairro: string<br/>
+            + cidade: string<br/>
+            + estado: string<br/>
+            + cep: string<br/>
             + telefone: string<br/>
             + email: string<br/>
             + cargo: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + criar()<br/>
-            + atualizar()<br/>
-            + excluir()<br/>
-            + validarCPF()
+            + criar(): void<br/>
+            + atualizar(): void<br/>
+            + excluir(): void<br/>
+            + validarCPF(): boolean<br/>
+            + verificarDuplicidade(): boolean
           </div>
         </div>
       )
@@ -95,15 +109,24 @@ const initialNodes: Node[] = [
             + cnpj: string<br/>
             + inscricaoEstadual: string<br/>
             + endereco: string<br/>
+            + numero: string<br/>
+            + complemento: string<br/>
+            + bairro: string<br/>
+            + cidade: string<br/>
+            + estado: string<br/>
+            + cep: string<br/>
             + telefone: string<br/>
             + email: string<br/>
-            + representanteLegal: string
+            + representanteLegal: string<br/>
+            + cpfRepresentante: string<br/>
+            + cargoRepresentante: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + criar()<br/>
-            + atualizar()<br/>
-            + excluir()<br/>
-            + validarCNPJ()
+            + criar(): void<br/>
+            + atualizar(): void<br/>
+            + excluir(): void<br/>
+            + validarCNPJ(): boolean<br/>
+            + verificarDuplicidade(): boolean
           </div>
         </div>
       )
@@ -127,13 +150,48 @@ const initialNodes: Node[] = [
             + dataAlerta: Date<br/>
             + status: string<br/>
             + mensagem: string<br/>
-            + prioridade: string
+            + prioridade: string<br/>
+            + diasParaVencimento: number
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + criar()<br/>
-            + atualizar()<br/>
-            + marcarComoLido()<br/>
-            + notificarUsuarios()
+            + criar(): void<br/>
+            + atualizar(): void<br/>
+            + marcarComoLido(): void<br/>
+            + notificarUsuarios(): void<br/>
+            + calcularPrioridade(): string
+          </div>
+        </div>
+      )
+    }
+  },
+  {
+    id: '5',
+    type: 'default',
+    position: { x: 750, y: 200 },
+    data: { 
+      label: (
+        <div className="p-2">
+          <div className="flex items-center gap-2 font-bold border-b pb-2 mb-2">
+            <Component className="w-4 h-4" />
+            Usuário
+          </div>
+          <div className="text-sm text-left">
+            + id: number<br/>
+            + nome: string<br/>
+            + email: string<br/>
+            + senha: string<br/>
+            + cargo: string<br/>
+            + permissoes: string[]<br/>
+            + ultimoAcesso: Date<br/>
+            + status: string
+          </div>
+          <div className="text-sm text-left mt-2 pt-2 border-t">
+            + criar(): void<br/>
+            + atualizar(): void<br/>
+            + excluir(): void<br/>
+            + autenticar(): boolean<br/>
+            + alterarSenha(): void<br/>
+            + verificarPermissoes(): string[]
           </div>
         </div>
       )
@@ -144,7 +202,8 @@ const initialNodes: Node[] = [
 const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', label: '1 : n' },
   { id: 'e1-3', source: '1', target: '3', label: '1 : n' },
-  { id: 'e1-4', source: '1', target: '4', label: '1 : n' }
+  { id: 'e1-4', source: '1', target: '4', label: '1 : n' },
+  { id: 'e1-5', source: '1', target: '5', label: 'n : n' }
 ];
 
 const ClassDiagram = () => {

@@ -86,30 +86,87 @@ A gestão de contratos é um processo crítico que envolve:
   - Integridade referencial
   - Consultas complexas
 
-## 4. Metodologia
+## 4. Requisitos do Sistema
 
-### Etapas do Desenvolvimento
+### 4.1 Requisitos Funcionais
 
-1. **Pesquisa Bibliográfica**
-   - Levantamento de literatura sobre gestão de contratos
-   - Análise de sistemas similares
-   - Estudo de tecnologias modernas
+#### RF001 - Gestão de Contratos
+- Cadastrar novos contratos
+- Editar contratos existentes
+- Excluir contratos
+- Visualizar detalhes dos contratos
+- Gerar PDF dos contratos
+- Renovar contratos
+- Finalizar contratos
 
-2. **Levantamento de Requisitos**
-   - Requisitos Funcionais
-   - Requisitos Não Funcionais
-   - Casos de Uso
-   - Diagramas UML
+#### RF002 - Gestão de Pessoas Físicas
+- Cadastrar pessoas físicas
+- Editar cadastros existentes
+- Excluir cadastros
+- Validar CPF
+- Verificar duplicidade de cadastros
+- Vincular a contratos
 
-3. **Desenvolvimento Incremental**
-   - Sprints de desenvolvimento
-   - Testes iterativos
-   - Feedback contínuo
+#### RF003 - Gestão de Pessoas Jurídicas
+- Cadastrar pessoas jurídicas
+- Editar cadastros existentes
+- Excluir cadastros
+- Validar CNPJ
+- Verificar duplicidade de cadastros
+- Vincular a contratos
 
-4. **Validação**
-   - Testes de usabilidade
-   - Feedback de usuários
-   - Ajustes e melhorias
+#### RF004 - Sistema de Alertas
+- Monitorar datas de vencimento
+- Gerar alertas automáticos
+- Notificar usuários
+- Permitir configuração de períodos
+- Categorizar por prioridade
+- Marcar alertas como lidos
+
+#### RF005 - Autenticação e Autorização
+- Realizar login no sistema
+- Gerenciar perfis de usuário
+- Controlar permissões de acesso
+- Alterar senha
+- Recuperar senha
+- Registrar logs de acesso
+
+### 4.2 Requisitos Não Funcionais
+
+#### RNF001 - Usabilidade
+- Interface intuitiva e responsiva
+- Tempo de resposta inferior a 2 segundos
+- Compatibilidade com principais navegadores
+- Design adaptativo para diferentes dispositivos
+- Feedback visual para ações do usuário
+
+#### RNF002 - Segurança
+- Criptografia de dados sensíveis
+- Autenticação por token JWT
+- Proteção contra SQL Injection
+- Validação de entrada de dados
+- Registro de logs de atividades
+
+#### RNF003 - Disponibilidade
+- Sistema disponível 24/7
+- Tempo de uptime mínimo de 99%
+- Backup diário dos dados
+- Plano de recuperação de desastres
+- Monitoramento contínuo
+
+#### RNF004 - Desempenho
+- Carregamento de páginas em até 3 segundos
+- Suporte a múltiplos usuários simultâneos
+- Otimização de consultas ao banco de dados
+- Cache de dados frequentemente acessados
+- Paginação de resultados extensos
+
+#### RNF005 - Manutenibilidade
+- Código documentado
+- Arquitetura modular
+- Padrões de projeto definidos
+- Versionamento de código
+- Testes automatizados
 
 ## 5. Produto Desenvolvido
 
