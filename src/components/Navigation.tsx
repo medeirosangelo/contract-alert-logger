@@ -70,6 +70,7 @@ const menuItems: MenuItem[] = [
     subItems: [
       { name: "Casos de Uso", path: "/uml/casos-de-uso" },
       { name: "Atores do Sistema", path: "/uml/atores" },
+      { name: "Diagrama de Classes", path: "/uml/diagrama-classes" },
     ],
   },
   {

@@ -21,6 +21,7 @@ import Documentation from "./pages/Documentation";
 import Support from "./pages/Support";
 import UseCases from "./pages/UseCases";
 import UseCaseActors from "./pages/UseCaseActors";
+import ClassDiagram from "./pages/ClassDiagram";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/ajuda/suporte" element={<Support />} />
           <Route path="/uml/casos-de-uso" element={<UseCases />} />
           <Route path="/uml/atores" element={<UseCaseActors />} />
+          <Route path="/uml/diagrama-classes" element={<ClassDiagram />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
