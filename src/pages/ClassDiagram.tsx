@@ -5,7 +5,9 @@ import {
   Edge,
   Background,
   Controls,
-  MiniMap
+  MiniMap,
+  NodeTypes,
+  EdgeTypes
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
