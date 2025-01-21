@@ -21,21 +21,25 @@ const initialNodes: Node[] = [
         <div className="p-2">
           <div className="flex items-center gap-2 font-bold border-b pb-2 mb-2">
             <Package className="w-4 h-4" />
-            Contract
+            Contrato
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + number: string<br/>
-            + object: string<br/>
-            + value: number<br/>
-            + startDate: Date<br/>
-            + endDate: Date
+            + numero: string<br/>
+            + objeto: string<br/>
+            + valorTotal: number<br/>
+            + dataAssinatura: Date<br/>
+            + dataPublicacao: Date<br/>
+            + prazoAjuste: number<br/>
+            + indiceReajuste: string<br/>
+            + status: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + create()<br/>
-            + update()<br/>
-            + delete()<br/>
-            + generatePDF()
+            + criar()<br/>
+            + atualizar()<br/>
+            + excluir()<br/>
+            + gerarPDF()<br/>
+            + renovar()
           </div>
         </div>
       )
@@ -50,19 +54,24 @@ const initialNodes: Node[] = [
         <div className="p-2">
           <div className="flex items-center gap-2 font-bold border-b pb-2 mb-2">
             <Component className="w-4 h-4" />
-            PhysicalPerson
+            Pessoa Física
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + name: string<br/>
+            + nome: string<br/>
             + cpf: string<br/>
+            + rg: string<br/>
+            + dataNascimento: Date<br/>
+            + endereco: string<br/>
+            + telefone: string<br/>
             + email: string<br/>
-            + phone: string
+            + cargo: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + create()<br/>
-            + update()<br/>
-            + delete()
+            + criar()<br/>
+            + atualizar()<br/>
+            + excluir()<br/>
+            + validarCPF()
           </div>
         </div>
       )
@@ -77,19 +86,24 @@ const initialNodes: Node[] = [
         <div className="p-2">
           <div className="flex items-center gap-2 font-bold border-b pb-2 mb-2">
             <Component className="w-4 h-4" />
-            LegalPerson
+            Pessoa Jurídica
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + companyName: string<br/>
+            + razaoSocial: string<br/>
+            + nomeFantasia: string<br/>
             + cnpj: string<br/>
+            + inscricaoEstadual: string<br/>
+            + endereco: string<br/>
+            + telefone: string<br/>
             + email: string<br/>
-            + phone: string
+            + representanteLegal: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + create()<br/>
-            + update()<br/>
-            + delete()
+            + criar()<br/>
+            + atualizar()<br/>
+            + excluir()<br/>
+            + validarCNPJ()
           </div>
         </div>
       )
@@ -104,19 +118,22 @@ const initialNodes: Node[] = [
         <div className="p-2">
           <div className="flex items-center gap-2 font-bold border-b pb-2 mb-2">
             <Component className="w-4 h-4" />
-            ContractAlert
+            Alerta de Contrato
           </div>
           <div className="text-sm text-left">
             + id: number<br/>
-            + contractId: number<br/>
-            + type: string<br/>
-            + date: Date<br/>
-            + status: string
+            + contratoId: number<br/>
+            + tipo: string<br/>
+            + dataAlerta: Date<br/>
+            + status: string<br/>
+            + mensagem: string<br/>
+            + prioridade: string
           </div>
           <div className="text-sm text-left mt-2 pt-2 border-t">
-            + create()<br/>
-            + update()<br/>
-            + markAsRead()
+            + criar()<br/>
+            + atualizar()<br/>
+            + marcarComoLido()<br/>
+            + notificarUsuarios()
           </div>
         </div>
       )

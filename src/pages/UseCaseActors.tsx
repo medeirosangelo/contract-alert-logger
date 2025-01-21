@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import { UserRound } from "lucide-react";
 
 const UseCaseActors = () => {
   return (
@@ -11,7 +12,10 @@ const UseCaseActors = () => {
           
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Administrador</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <UserRound className="w-8 h-8 text-primary" />
+                <h2 className="text-xl font-semibold">Administrador</h2>
+              </div>
               <p className="text-muted-foreground mb-4">
                 Ator responsável pela gestão completa do sistema, com acesso a todas as funcionalidades.
               </p>
@@ -26,7 +30,10 @@ const UseCaseActors = () => {
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Usuário</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <UserRound className="w-8 h-8 text-secondary" />
+                <h2 className="text-xl font-semibold">Usuário</h2>
+              </div>
               <p className="text-muted-foreground mb-4">
                 Ator com acesso às funcionalidades básicas do sistema para operações diárias.
               </p>
