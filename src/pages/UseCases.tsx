@@ -1,7 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserRound } from "lucide-react";
 
 const UseCases = () => {
   return (
@@ -13,138 +12,116 @@ const UseCases = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h1 className="text-3xl font-bold mb-8">Casos de Uso do Sistema</h1>
 
-            <Tabs defaultValue="contracts">
-              <TabsList className="mb-6">
-                <TabsTrigger value="contracts">Contratos</TabsTrigger>
-                <TabsTrigger value="persons">Pessoas</TabsTrigger>
-                <TabsTrigger value="alerts">Alertas</TabsTrigger>
-              </TabsList>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Coluna dos Atores */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold mb-4">Atores</h2>
+                
+                <div className="flex flex-col items-center p-4 border rounded-lg bg-warm-50">
+                  <UserRound size={48} className="text-primary mb-2" />
+                  <h3 className="font-semibold">Usuário do Sistema</h3>
+                  <p className="text-sm text-gray-600 text-center mt-2">
+                    Responsável por gerenciar contratos e cadastros
+                  </p>
+                </div>
 
-              <TabsContent value="contracts" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC001 - Cadastrar Novo Contrato</h2>
+                <div className="flex flex-col items-center p-4 border rounded-lg bg-warm-50">
+                  <UserRound size={48} className="text-primary mb-2" />
+                  <h3 className="font-semibold">Administrador</h3>
+                  <p className="text-sm text-gray-600 text-center mt-2">
+                    Gerencia usuários e configurações do sistema
+                  </p>
+                </div>
+              </div>
+
+              {/* Coluna dos Casos de Uso */}
+              <div className="lg:col-span-2 space-y-6">
+                <h2 className="text-2xl font-semibold mb-4">Casos de Uso</h2>
+
+                {/* Gestão de Contratos */}
+                <div className="border rounded-lg p-4 bg-warm-50">
+                  <h3 className="text-xl font-semibold mb-4">Gestão de Contratos</h3>
+                  
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-semibold">UC001 - Cadastrar Novo Contrato</h4>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <p><strong>Ator:</strong> Usuário do Sistema</p>
+                        <p><strong>Pré-condição:</strong> Usuário autenticado</p>
+                        <div>
+                          <p><strong>Fluxo Principal:</strong></p>
+                          <ol className="list-decimal list-inside ml-4">
+                            <li>Acessa tela de cadastro</li>
+                            <li>Preenche CNPJ/CPF</li>
+                            <li>Completa informações</li>
+                            <li>Gera contrato</li>
+                            <li>Salva contrato</li>
+                          </ol>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa a tela de cadastro de contratos</li>
-                        <li>Sistema apresenta formulário de cadastro</li>
-                        <li>Usuário preenche CNPJ/CPF da parte contratada</li>
-                        <li>Sistema auto-preenche dados cadastrais</li>
-                        <li>Usuário completa demais informações do contrato</li>
-                        <li>Usuário clica em "Gerar Contrato"</li>
-                        <li>Sistema gera PDF do contrato</li>
-                        <li>Usuário salva o contrato</li>
-                      </ol>
+
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-semibold">UC002 - Gerenciar Alertas de Contratos</h4>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <p><strong>Ator:</strong> Usuário do Sistema</p>
+                        <p><strong>Pré-condição:</strong> Contratos cadastrados</p>
+                        <div>
+                          <p><strong>Fluxo Principal:</strong></p>
+                          <ol className="list-decimal list-inside ml-4">
+                            <li>Visualiza alertas</li>
+                            <li>Monitora vencimentos</li>
+                            <li>Renova contratos</li>
+                            <li>Finaliza contratos</li>
+                          </ol>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </Card>
+                </div>
 
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC002 - Gerenciar Alertas de Contratos</h2>
+                {/* Gestão de Pessoas */}
+                <div className="border rounded-lg p-4 bg-warm-50">
+                  <h3 className="text-xl font-semibold mb-4">Gestão de Pessoas</h3>
+                  
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-semibold">UC003 - Cadastrar Pessoa Jurídica</h4>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <p><strong>Ator:</strong> Usuário do Sistema</p>
+                        <p><strong>Pré-condição:</strong> Usuário autenticado</p>
+                        <div>
+                          <p><strong>Fluxo Principal:</strong></p>
+                          <ol className="list-decimal list-inside ml-4">
+                            <li>Acessa cadastro</li>
+                            <li>Preenche dados</li>
+                            <li>Sistema valida</li>
+                            <li>Salva cadastro</li>
+                          </ol>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Contratos cadastrados no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Sistema monitora datas de vencimento</li>
-                        <li>Sistema exibe alertas de contratos próximos ao vencimento</li>
-                        <li>Usuário visualiza lista de alertas</li>
-                        <li>Usuário pode renovar ou finalizar contratos</li>
-                      </ol>
+
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-semibold">UC004 - Cadastrar Pessoa Física</h4>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <p><strong>Ator:</strong> Usuário do Sistema</p>
+                        <p><strong>Pré-condição:</strong> Usuário autenticado</p>
+                        <div>
+                          <p><strong>Fluxo Principal:</strong></p>
+                          <ol className="list-decimal list-inside ml-4">
+                            <li>Acessa cadastro</li>
+                            <li>Preenche dados</li>
+                            <li>Sistema valida</li>
+                            <li>Salva cadastro</li>
+                          </ol>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="persons" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC003 - Cadastrar Pessoa Jurídica</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa cadastro de pessoa jurídica</li>
-                        <li>Preenche dados da empresa</li>
-                        <li>Sistema valida informações</li>
-                        <li>Sistema salva cadastro</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC004 - Cadastrar Pessoa Física</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Usuário do Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Usuário autenticado</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Usuário acessa cadastro de pessoa física</li>
-                        <li>Preenche dados pessoais</li>
-                        <li>Sistema valida informações</li>
-                        <li>Sistema salva cadastro</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="alerts" className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">UC005 - Gerenciar Alertas</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Ator Principal</h3>
-                      <p className="text-gray-600">Sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Pré-condições</h3>
-                      <p className="text-gray-600">Contratos ativos no sistema</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Fluxo Principal</h3>
-                      <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                        <li>Sistema verifica diariamente os contratos</li>
-                        <li>Sistema identifica contratos próximos ao vencimento</li>
-                        <li>Sistema gera alertas automáticos</li>
-                        <li>Sistema notifica usuários responsáveis</li>
-                      </ol>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
