@@ -1,10 +1,11 @@
 import { Package, Component } from "lucide-react";
-import ReactFlow, { 
-  Node, 
+import {
+  ReactFlow,
+  Node,
   Edge,
   Background,
   Controls,
-  MiniMap 
+  MiniMap
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
