@@ -260,58 +260,33 @@ const initialEdges = [
 
 const ClassDiagram = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Diagrama de Classes</h1>
-      <div className="w-full h-[800px] border rounded-lg bg-white">
-        <ReactFlow
-          nodes={initialNodes}
-          edges={initialEdges}
-          fitView
-          minZoom={0.2}
-          maxZoom={1.5}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
-        >
-          <Background />
-          <Controls />
-          <MiniMap 
-            nodeColor={(node) => {
-              switch (node.id) {
-                case '1':
-                  return '#93c5fd';
-                case '5':
-                  return '#fca5a5';
-                default:
-                  return '#d1d5db';
-              }
-            }}
-            nodeStrokeWidth={3}
-            zoomable
-            pannable
-          />
-        </ReactFlow>
-      </div>
-      
-      <div className="mt-4 p-4 bg-white rounded-lg border">
-        <h2 className="text-xl font-bold mb-2">Legenda</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h3 className="font-semibold mb-2">Tipos de Status:</h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li><span className="font-medium">ContractStatus:</span> ativo, inativo, pendente, finalizado</li>
-              <li><span className="font-medium">AlertStatus:</span> pendente, lido, arquivado</li>
-              <li><span className="font-medium">UserStatus:</span> ativo, inativo, bloqueado</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2">Tipos de Dados:</h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li><span className="font-medium">AlertType:</span> vencimento, renovação, pagamento</li>
-              <li><span className="font-medium">Priority:</span> baixa, média, alta</li>
-              <li><span className="font-medium">UserRole:</span> admin, user, manager</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <div className="fixed inset-0 w-screen h-screen">
+      <ReactFlow
+        nodes={initialNodes}
+        edges={initialEdges}
+        fitView
+        minZoom={0.2}
+        maxZoom={1.5}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
+      >
+        <Background />
+        <Controls />
+        <MiniMap 
+          nodeColor={(node) => {
+            switch (node.id) {
+              case '1':
+                return '#93c5fd';
+              case '5':
+                return '#fca5a5';
+              default:
+                return '#d1d5db';
+            }
+          }}
+          nodeStrokeWidth={3}
+          zoomable
+          pannable
+        />
+      </ReactFlow>
     </div>
   );
 };
