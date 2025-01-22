@@ -71,6 +71,7 @@ const menuItems: MenuItem[] = [
       { name: "Casos de Uso", path: "/uml/casos-de-uso" },
       { name: "Atores do Sistema", path: "/uml/atores" },
       { name: "Diagrama de Classes", path: "/uml/diagrama-classes" },
+      { name: "Diagrama de Casos de Uso", path: "/uml/diagrama-casos-de-uso" },
     ],
   },
   {
