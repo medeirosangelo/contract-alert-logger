@@ -269,7 +269,7 @@ const ClassDiagram = () => {
           fitView
           minZoom={0.2}
           maxZoom={1.5}
-          defaultZoom={0.6}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         >
           <Background />
           <Controls />
