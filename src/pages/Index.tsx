@@ -8,6 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Only redirect to dashboard if the user is authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate('/dashboard');
