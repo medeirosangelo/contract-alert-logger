@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -89,10 +88,27 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
       setIsSubmitting(true);
       console.log("Form submitted:", values);
       
-      // Convertendo para o formato esperado pela API
+      // Create a properly typed object matching LegalPersonInsert
       const companyData: LegalPersonInsert = {
-        ...values,
-        // Certos campos precisam ser convertidos ou formatados conforme necessário
+        company_name: values.company_name,
+        trade_name: values.trade_name,
+        cnpj: values.cnpj,
+        state_registration: values.state_registration,
+        street: values.street,
+        number: values.number,
+        complement: values.complement,
+        neighborhood: values.neighborhood,
+        city: values.city,
+        state: values.state,
+        zip_code: values.zip_code,
+        phone: values.phone,
+        email: values.email,
+        legal_rep_name: values.legal_rep_name,
+        legal_rep_cpf: values.legal_rep_cpf,
+        legal_rep_role: values.legal_rep_role,
+        bank: values.bank,
+        agency: values.agency,
+        account: values.account,
       };
       
       await legalPersonsApi.create(companyData);
