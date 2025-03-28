@@ -1,6 +1,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,7 @@ import { Building2, Save, Loader2 } from "lucide-react";
 import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import InputMask from "react-input-mask";
+import MaskedInput from "./person/MaskedInput";
 
 const formSchema = z.object({
   company_name: z.string().min(2, "Razão social é obrigatória"),
@@ -194,24 +194,10 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CNPJ</FormLabel>
                       <FormControl>
-                        <Controller
-                          name="cnpj"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="99.999.999/9999-99"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
-                          )}
+                        <MaskedInput
+                          mask="99.999.999/9999-99"
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -329,24 +315,10 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <Controller
-                          name="zip_code"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="99999-999"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
-                          )}
+                        <MaskedInput
+                          mask="99999-999"
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -366,24 +338,10 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Controller
-                          name="phone"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="(99) 99999-9999"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
-                          )}
+                        <MaskedInput
+                          mask="(99) 99999-9999"
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -431,24 +389,10 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CPF do Representante Legal</FormLabel>
                       <FormControl>
-                        <Controller
-                          name="legal_rep_cpf"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="999.999.999-99"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
-                          )}
+                        <MaskedInput
+                          mask="999.999.999-99"
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
