@@ -64,12 +64,12 @@ const AdditionalInfo = ({
                     maskChar={null}
                     value={witness1Cpf}
                     onChange={onChange}
+                    id="witness1Cpf"
+                    name="witness1Cpf"
                   >
                     {(inputProps: any) => (
                       <Input
                         {...inputProps}
-                        id="witness1Cpf"
-                        name="witness1Cpf"
                       />
                     )}
                   </InputMask>
@@ -104,12 +104,12 @@ const AdditionalInfo = ({
                     maskChar={null}
                     value={witness2Cpf}
                     onChange={onChange}
+                    id="witness2Cpf"
+                    name="witness2Cpf"
                   >
                     {(inputProps: any) => (
                       <Input
                         {...inputProps}
-                        id="witness2Cpf"
-                        name="witness2Cpf"
                       />
                     )}
                   </InputMask>

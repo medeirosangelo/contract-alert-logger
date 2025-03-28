@@ -46,12 +46,12 @@ const ContractDetails = ({
                 maskChar={null}
                 value={totalValue}
                 onChange={onChange}
+                id="totalValue"
+                name="totalValue"
               >
                 {(inputProps: any) => (
                   <Input
                     {...inputProps}
-                    id="totalValue"
-                    name="totalValue"
                     type="text"
                     className={errors.totalValue ? "border-destructive" : ""}
                   />

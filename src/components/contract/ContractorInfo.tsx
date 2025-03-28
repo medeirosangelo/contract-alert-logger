@@ -100,12 +100,12 @@ const ContractorInfo = ({
                 maskChar={null}
                 value={cnpj}
                 onChange={onChange}
+                id={`${prefix}Cnpj`}
+                name={`${prefix}Cnpj`}
               >
                 {(inputProps: any) => (
                   <Input
                     {...inputProps}
-                    id={`${prefix}Cnpj`}
-                    name={`${prefix}Cnpj`}
                     className={errors[`${prefix}Cnpj`] ? "border-destructive" : ""}
                   />
                 )}
@@ -156,12 +156,12 @@ const ContractorInfo = ({
                     maskChar={null}
                     value={legalRepCpf}
                     onChange={onChange}
+                    id="legalRepCpf"
+                    name="legalRepCpf"
                   >
                     {(inputProps: any) => (
                       <Input
                         {...inputProps}
-                        id="legalRepCpf"
-                        name="legalRepCpf"
                         className={errors.legalRepCpf ? "border-destructive" : ""}
                       />
                     )}
