@@ -7,6 +7,7 @@ const MaskedInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { mask: string }
 >(({ mask, className, disabled, ...props }, ref) => {
+  // Definindo props para o InputMask diretamente
   return (
     <InputMask 
       mask={mask} 
@@ -15,17 +16,12 @@ const MaskedInput = React.forwardRef<
       {...props}
     >
       {(inputProps: any) => {
-        // Ensure proper handling of the disabled prop
-        const combinedProps = {
-          ...inputProps,
-          disabled: disabled || inputProps.disabled
-        };
-        
         return (
           <Input
             ref={ref}
             className={className}
-            {...combinedProps}
+            disabled={disabled} // Definindo disabled diretamente aqui
+            {...inputProps}
           />
         );
       }}
