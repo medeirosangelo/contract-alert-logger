@@ -8,10 +8,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const { toast } = useToast();
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -29,7 +33,7 @@ const Header = () => {
         return "Contratos Perto de Vencer";
       case "/contratos/feitos":
         return "Contratos Feitos";
-      case "/alertas/contratos":
+      case "/alerts/contratos":
         return "Alertas de Contratos";
       case "/pessoas/fisica/novo":
         return "Cadastro de Pessoa Física";
@@ -58,6 +62,24 @@ const Header = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+      toast({
+        title: "Logout realizado",
+        description: "Você saiu do sistema com sucesso.",
+      });
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      toast({
+        title: "Erro ao sair",
+        description: "Não foi possível sair do sistema.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <header className={`fixed top-0 right-0 h-16 bg-white border-b border-warm-200 px-6 flex items-center justify-between z-10 transition-all duration-300 ease-in-out left-16`}>
       <div className="flex items-center gap-2">
@@ -69,7 +91,7 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <button 
           className="p-2 hover:bg-warm-50 rounded-full"
-          onClick={() => navigate('/alertas/contratos')}
+          onClick={() => navigate('/alerts')}
         >
           <Bell className="w-5 h-5 text-warm-600" />
         </button>
@@ -79,14 +101,19 @@ const Header = () => {
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
-            <span className="text-sm text-warm-800">Alecrim Dourado</span>
+            <span className="text-sm text-warm-800">Minha Conta</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configurações</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Sair</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/profile')}>Perfil</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>Configurações</DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-red-600" 
+              onClick={handleLogout}
+            >
+              Sair
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

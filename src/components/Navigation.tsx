@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   LayoutDashboard,
@@ -9,7 +10,6 @@ import {
   Settings,
   HelpCircle,
   ChevronDown,
-  Menu,
   ChevronRight,
   ChevronLeft,
   Boxes,
@@ -42,27 +42,25 @@ const menuItems: MenuItem[] = [
     name: "Pessoas",
     icon: <Users className="w-5 h-5" />,
     subItems: [
-      { name: "Cadastro de Pessoa Física", path: "/pessoas/fisica/novo" },
-      { name: "Cadastro de Pessoa Jurídica", path: "/pessoas/juridica/novo" },
-      { name: "Lista de Pessoas Físicas", path: "/pessoas/fisica" },
-      { name: "Lista de Pessoas Jurídicas", path: "/pessoas/juridica" },
+      { name: "Cadastro de Pessoa Física", path: "/physical-persons/new" },
+      { name: "Cadastro de Pessoa Jurídica", path: "/legal-persons/new" },
+      { name: "Lista de Pessoas Físicas", path: "/physical-persons" },
+      { name: "Lista de Pessoas Jurídicas", path: "/legal-persons" },
     ],
   },
   {
     name: "Contratos",
     icon: <FileText className="w-5 h-5" />,
     subItems: [
-      { name: "Cadastro de Contratos", path: "/contratos/novo" },
-      { name: "Lista de Contratos", path: "/contratos" },
-      { name: "Editor de Modelos", path: "/contratos/modelo" },
-      { name: "Contratos Ativos", path: "/contratos/ativos" },
-      { name: "Contratos Finalizados", path: "/contratos/finalizados" },
+      { name: "Cadastro de Contratos", path: "/contracts/new" },
+      { name: "Lista de Contratos", path: "/contracts" },
+      { name: "Editor de Modelos", path: "/contracts/template" },
     ],
   },
   {
     name: "Alertas de Contratos",
     icon: <Bell className="w-5 h-5" />,
-    path: "/alertas/contratos",
+    path: "/alerts",
   },
   {
     name: "UML",
@@ -78,16 +76,16 @@ const menuItems: MenuItem[] = [
     name: "Configurações",
     icon: <Settings className="w-5 h-5" />,
     subItems: [
-      { name: "Usuários e Permissões", path: "/configuracoes/usuarios" },
-      { name: "Preferências do Sistema", path: "/configuracoes/preferencias" },
+      { name: "Usuários e Permissões", path: "/users" },
+      { name: "Preferências do Sistema", path: "/settings" },
     ],
   },
   {
     name: "Ajuda",
     icon: <HelpCircle className="w-5 h-5" />,
     subItems: [
-      { name: "Documentação", path: "/ajuda/documentacao" },
-      { name: "Suporte Técnico", path: "/ajuda/suporte" },
+      { name: "Documentação", path: "/documentation" },
+      { name: "Suporte Técnico", path: "/support" },
     ],
   },
 ];
@@ -96,6 +94,7 @@ const Navigation = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleMenu = (menuName: string) => {
     setOpenMenus((prev) =>
@@ -110,6 +109,10 @@ const Navigation = () => {
     if (isExpanded) {
       setOpenMenus([]);
     }
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
   };
 
   return (

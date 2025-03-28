@@ -90,17 +90,8 @@ export const authApi = {
       if (error) throw error;
       
       console.log('Logout successful');
-      toast({
-        title: "Logout realizado",
-        description: "Você saiu do sistema com sucesso.",
-      });
     } catch (error) {
       console.error('Logout error:', error);
-      toast({
-        title: "Erro ao fazer logout",
-        description: "Não foi possível sair do sistema.",
-        variant: "destructive",
-      });
       throw error;
     }
   },
@@ -131,8 +122,8 @@ export const authApi = {
 
   getUserRole: async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session?.user) return null;
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session?.user) return null;
       
       const { data, error: userError } = await supabase
         .from('users')
@@ -140,12 +131,16 @@ export const authApi = {
         .eq('id', session.user.id)
         .single();
         
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error fetching user role from database:', userError);
+        // Instead of throwing, we'll return a default role
+        return 'user';
+      }
       
       return data?.role || 'user';
     } catch (error) {
-      console.error('Error getting user role:', error);
-      return null;
+      console.error('Error in getUserRole:', error);
+      return 'user'; // Default role if there's an error
     }
   }
 };

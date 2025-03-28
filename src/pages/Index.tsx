@@ -1,19 +1,10 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
-
-  // Only redirect to dashboard if the user is authenticated
-  useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, isLoading, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50 p-4">
@@ -27,12 +18,19 @@ const Index = () => {
           de forma simples e eficiente.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            className="text-lg px-8 py-6" 
-            onClick={() => navigate('/login')}
-          >
-            Entrar no Sistema
-          </Button>
+          {isAuthenticated ? (
+            <Link to="/dashboard">
+              <Button className="text-lg px-8 py-6">
+                Ir para o Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login">
+              <Button className="text-lg px-8 py-6">
+                Entrar no Sistema
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

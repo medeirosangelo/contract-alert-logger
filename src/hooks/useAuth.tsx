@@ -31,8 +31,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(!!currentUser);
         
         if (currentUser) {
-          const userRole = await authApi.getUserRole();
-          setRole(userRole);
+          try {
+            const userRole = await authApi.getUserRole();
+            setRole(userRole);
+          } catch (error) {
+            console.error('Error fetching user role:', error);
+            // Default to 'user' role if we can't fetch a specific role
+            setRole('user');
+          }
         } else {
           setRole(null);
         }
@@ -55,8 +61,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(!!session?.user);
         
         if (session?.user) {
-          const userRole = await authApi.getUserRole();
-          setRole(userRole);
+          try {
+            const userRole = await authApi.getUserRole();
+            setRole(userRole);
+          } catch (error) {
+            console.error('Error fetching user role in auth change:', error);
+            // Default to 'user' role if we can't fetch a specific role
+            setRole('user');
+          }
         } else {
           setRole(null);
         }
@@ -77,8 +89,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (session?.user) {
       setUser(session.user);
       setIsAuthenticated(true);
-      const userRole = await authApi.getUserRole();
-      setRole(userRole);
+      try {
+        const userRole = await authApi.getUserRole();
+        setRole(userRole);
+      } catch (error) {
+        console.error('Error getting user role in login:', error);
+        // Default to 'user' role if we can't fetch a specific role
+        setRole('user');
+      }
     }
   };
 
