@@ -1,65 +1,71 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/toaster";
+
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import ContractList from "@/pages/ContractList";
+import ContractRegistration from "@/pages/ContractRegistration";
+import LegalPersonList from "@/pages/LegalPersonList";
+import LegalPersonRegistration from "@/pages/LegalPersonRegistration";
+import LegalPersonDetails from "@/pages/LegalPersonDetails";
+import PhysicalPersonList from "@/pages/PhysicalPersonList";
+import PhysicalPersonRegistration from "@/pages/PhysicalPersonRegistration";
+import PhysicalPersonDetails from "@/pages/PhysicalPersonDetails";
+import ContractAlerts from "@/pages/ContractAlerts";
+import UserPermissions from "@/pages/UserPermissions";
+import ContractTemplate from "@/pages/ContractTemplate";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import ContractRegistration from "./pages/ContractRegistration";
-import ContractList from "./pages/ContractList";
-import ContractAlerts from "./pages/ContractAlerts";
-import ContractTemplate from "./pages/ContractTemplate";
-import PhysicalPersonRegistration from "./pages/PhysicalPersonRegistration";
-import LegalPersonRegistration from "./pages/LegalPersonRegistration";
-import PhysicalPersonList from "./pages/PhysicalPersonList";
-import LegalPersonList from "./pages/LegalPersonList";
-import PhysicalPersonDetails from "./pages/PhysicalPersonDetails";
-import LegalPersonDetails from "./pages/LegalPersonDetails";
-import UserPermissions from "./pages/UserPermissions";
-import Documentation from "./pages/Documentation";
-import Support from "./pages/Support";
-import UseCases from "./pages/UseCases";
-import UseCaseActors from "./pages/UseCaseActors";
-import ClassDiagram from "./pages/ClassDiagram";
-import UseCaseDiagram from "./pages/UseCaseDiagram";
 
-const queryClient = new QueryClient();
+import "./App.css";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/contratos/novo" element={<ContractRegistration />} />
-          <Route path="/contratos" element={<ContractList />} />
-          <Route path="/contratos/modelo/:id?" element={<ContractTemplate />} />
-          <Route path="/contratos/ativos" element={<ContractList />} />
-          <Route path="/contratos/finalizados" element={<ContractList />} />
-          <Route path="/alertas/contratos" element={<ContractAlerts />} />
-          <Route path="/pessoas/fisica/novo" element={<PhysicalPersonRegistration />} />
-          <Route path="/pessoas/juridica/novo" element={<LegalPersonRegistration />} />
-          <Route path="/pessoas/fisica" element={<PhysicalPersonList />} />
-          <Route path="/pessoas/juridica" element={<LegalPersonList />} />
-          <Route path="/pessoas/fisica/:id" element={<PhysicalPersonDetails />} />
-          <Route path="/pessoas/juridica/:id" element={<LegalPersonDetails />} />
-          <Route path="/configuracoes/usuarios" element={<UserPermissions />} />
-          <Route path="/ajuda/documentacao" element={<Documentation />} />
-          <Route path="/ajuda/suporte" element={<Support />} />
-          <Route path="/uml/casos-de-uso" element={<UseCases />} />
-          <Route path="/uml/atores" element={<UseCaseActors />} />
-          <Route path="/uml/diagrama-classes" element={<ClassDiagram />} />
-          <Route path="/uml/diagrama-casos-de-uso" element={<UseCaseDiagram />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      retry: 1,
+    },
+  },
+});
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contracts" element={<ContractList />} />
+              <Route path="/contracts/new" element={<ContractRegistration />} />
+              <Route path="/contracts/template" element={<ContractTemplate />} />
+              <Route path="/legal-persons" element={<LegalPersonList />} />
+              <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
+              <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
+              <Route path="/physical-persons" element={<PhysicalPersonList />} />
+              <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />
+              <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
+              <Route path="/alerts" element={<ContractAlerts />} />
+            </Route>
+            
+            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/users" element={<UserPermissions />} />
+            </Route>
+
+            <Route path="/unauthorized" element={<div>Acesso negado</div>} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+        <Toaster />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
