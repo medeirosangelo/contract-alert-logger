@@ -14,14 +14,16 @@ const MaskedInput = React.forwardRef<
       disabled={disabled}
       {...props}
     >
-      {(inputProps: any) => (
-        <Input
-          ref={ref}
-          className={className}
-          disabled={disabled}
-          {...inputProps}
-        />
-      )}
+      {(inputProps: any) => {
+        return (
+          <Input
+            ref={ref}
+            className={className}
+            disabled={disabled}
+            {...inputProps}
+          />
+        );
+      }}
     </InputMask>
   );
 });
