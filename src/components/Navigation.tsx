@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -13,7 +13,13 @@ import {
   ChevronRight,
   ChevronLeft,
   Boxes,
+  LogOut,
+  User,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 interface SubMenuItem {
   name: string;
@@ -95,6 +101,20 @@ const Navigation = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
+
+  // Auto-expand menu based on current path
+  useEffect(() => {
+    const currentPath = location.pathname;
+    menuItems.forEach(item => {
+      if (item.subItems) {
+        const hasActiveSubItem = item.subItems.some(subItem => currentPath === subItem.path);
+        if (hasActiveSubItem && !openMenus.includes(item.name)) {
+          setOpenMenus(prev => [...prev, item.name]);
+        }
+      }
+    });
+  }, [location.pathname]);
 
   const toggleMenu = (menuName: string) => {
     setOpenMenus((prev) =>
@@ -111,17 +131,27 @@ const Navigation = () => {
     }
   };
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const getInitials = (name: string = "Usuário") => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   return (
     <nav 
       className={`fixed left-0 top-0 h-screen bg-warm-50 border-r border-warm-200 transition-all duration-300 ease-in-out ${
         isExpanded ? "w-64" : "w-16"
-      } z-40`}
+      } z-40 shadow-md`}
     >
-      <div className="p-4 border-b border-warm-200 flex items-center justify-between">
+      <div className="p-4 border-b border-warm-200 flex items-center justify-between bg-gradient-to-r from-warm-100 to-warm-200">
         {isExpanded ? (
           <>
             <div>
@@ -130,79 +160,129 @@ const Navigation = () => {
             </div>
             <button 
               onClick={toggleExpansion}
-              className="p-1 hover:bg-warm-100 rounded-full"
+              className="p-1 hover:bg-warm-100 rounded-full text-warm-600 hover:text-primary transition-colors"
+              aria-label="Recolher menu"
             >
-              <ChevronLeft className="w-5 h-5 text-warm-600" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
           </>
         ) : (
           <button 
             onClick={toggleExpansion}
-            className="p-1 hover:bg-warm-100 rounded-full mx-auto"
+            className="p-1 hover:bg-warm-100 rounded-full mx-auto text-warm-600 hover:text-primary transition-colors"
+            aria-label="Expandir menu"
           >
-            <ChevronRight className="w-5 h-5 text-warm-600" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      <div className="py-4">
-        {menuItems.map((item) => (
-          <div key={item.name} className="mb-1">
-            {item.subItems ? (
-              <div>
-                <button
-                  onClick={() => isExpanded && toggleMenu(item.name)}
-                  className={`w-full flex items-center ${
-                    !isExpanded ? "justify-center px-2" : "justify-between px-4"
-                  } py-2 text-warm-800 hover:bg-warm-100 transition-colors`}
-                >
-                  <div className={`flex items-center gap-2 ${!isExpanded ? "justify-center" : ""}`}>
-                    {item.icon}
-                    {isExpanded && <span>{item.name}</span>}
-                  </div>
-                  {isExpanded && (
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        openMenus.includes(item.name) ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </button>
-                {isExpanded && openMenus.includes(item.name) && (
-                  <div className="bg-warm-100/50 py-1">
-                    {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.path}
-                        to={subItem.path}
-                        className={`block px-11 py-2 text-sm ${
-                          location.pathname === subItem.path
-                            ? "bg-primary text-white"
-                            : "text-warm-800 hover:bg-warm-100"
-                        }`}
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                to={item.path!}
-                className={`flex items-center ${
-                  !isExpanded ? "justify-center px-2" : "px-4"
-                } py-2 ${
-                  location.pathname === item.path
-                    ? "bg-primary text-white"
-                    : "text-warm-800 hover:bg-warm-100"
-                }`}
-              >
-                {item.icon}
-                {isExpanded && <span className="ml-2">{item.name}</span>}
-              </Link>
-            )}
+      {isExpanded && user && (
+        <div className="py-3 px-4 bg-warm-100/50">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-9 w-9 border border-warm-300">
+              <AvatarFallback className="bg-primary text-white">
+                {getInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="overflow-hidden">
+              <p className="text-sm font-medium text-warm-900 truncate">{user.name || "Usuário"}</p>
+              <p className="text-xs text-warm-600 truncate">{user.role || "Usuário"}</p>
+            </div>
           </div>
-        ))}
+        </div>
+      )}
+
+      <div className="overflow-y-auto h-[calc(100vh-12rem)]">
+        <div className="py-4">
+          {menuItems.map((item) => (
+            <div key={item.name} className="mb-1">
+              {item.subItems ? (
+                <div>
+                  <button
+                    onClick={() => isExpanded && toggleMenu(item.name)}
+                    className={`w-full flex items-center ${
+                      !isExpanded ? "justify-center px-2" : "justify-between px-4"
+                    } py-2.5 text-warm-800 hover:bg-warm-100 transition-colors ${
+                      openMenus.includes(item.name) ? "bg-warm-100/80" : ""
+                    }`}
+                  >
+                    <div className={`flex items-center gap-3 ${!isExpanded ? "justify-center" : ""}`}>
+                      <span className="text-warm-600">{item.icon}</span>
+                      {isExpanded && <span className="text-sm font-medium">{item.name}</span>}
+                    </div>
+                    {isExpanded && (
+                      <ChevronDown
+                        className={`w-4 h-4 text-warm-500 transition-transform ${
+                          openMenus.includes(item.name) ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </button>
+                  {isExpanded && openMenus.includes(item.name) && (
+                    <div className="bg-warm-100/30 py-1 pl-4 pr-2 border-l-2 border-warm-300 ml-4">
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.path}
+                          to={subItem.path}
+                          className={`block px-4 py-2 text-sm rounded-md my-1 transition-colors ${
+                            location.pathname === subItem.path
+                              ? "bg-primary text-white"
+                              : "text-warm-700 hover:bg-warm-200/50"
+                          }`}
+                        >
+                          {subItem.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={item.path!}
+                  className={`flex items-center ${
+                    !isExpanded ? "justify-center px-2" : "px-4"
+                  } py-2.5 ${
+                    location.pathname === item.path
+                      ? "bg-primary text-white"
+                      : "text-warm-800 hover:bg-warm-100"
+                  } transition-colors rounded-md mx-1`}
+                >
+                  <span className={location.pathname === item.path ? "" : "text-warm-600"}>
+                    {item.icon}
+                  </span>
+                  {isExpanded && <span className="ml-3 text-sm font-medium">{item.name}</span>}
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer with logout */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-warm-200 bg-warm-50">
+        {isExpanded ? (
+          <div className="space-y-2">
+            <Separator className="bg-warm-200" />
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-warm-700 hover:text-primary hover:bg-warm-100 py-2.5"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-3 h-5 w-5" />
+              <span className="text-sm font-medium">Sair</span>
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-full flex justify-center text-warm-700 hover:text-primary"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+        )}
       </div>
     </nav>
   );
