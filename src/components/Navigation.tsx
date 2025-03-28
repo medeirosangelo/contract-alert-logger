@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -101,9 +100,8 @@ const Navigation = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { logout, user, role } = useAuth();
 
-  // Auto-expand menu based on current path
   useEffect(() => {
     const currentPath = location.pathname;
     menuItems.forEach(item => {
@@ -136,9 +134,7 @@ const Navigation = () => {
     navigate("/login");
   };
 
-  // Modificação para usar email ou um valor padrão quando name não existir
   const getInitials = (email: string = "Usuario") => {
-    // Se for um email, pegamos a primeira parte antes do @
     if (email.includes('@')) {
       return email.split('@')[0].substring(0, 2).toUpperCase();
     }
@@ -264,7 +260,6 @@ const Navigation = () => {
         </div>
       </div>
 
-      {/* Footer with logout */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-warm-200 bg-warm-50">
         {isExpanded ? (
           <div className="space-y-2">
