@@ -7,25 +7,20 @@ const MaskedInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { mask: string }
 >(({ mask, className, ...props }, ref) => {
-  // Define a function that correctly renders the Input component with merged props
-  const renderInput = (inputProps: any) => {
-    const mergedProps = { ...props, ...inputProps };
-    return (
-      <Input
-        ref={ref}
-        className={className}
-        {...mergedProps}
-      />
-    );
-  };
-
-  // The key fix: pass renderInput as a function to InputMask
+  // Passando todas as props para o InputMask, inclusive as que podem ser undefined
   return (
     <InputMask 
       mask={mask} 
       maskChar={null}
+      {...props} // Passando todas as props para o InputMask
     >
-      {renderInput}
+      {(inputProps: any) => (
+        <Input
+          ref={ref}
+          className={className}
+          {...inputProps}
+        />
+      )}
     </InputMask>
   );
 });
