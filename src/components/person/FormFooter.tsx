@@ -6,13 +6,9 @@ import { CardFooter } from "@/components/ui/card";
 
 interface FormFooterProps {
   isSubmitting: boolean;
-  label?: string;
 }
 
-const FormFooter: React.FC<FormFooterProps> = ({ 
-  isSubmitting, 
-  label = "Cadastrar Pessoa Física" 
-}) => {
+const FormFooter: React.FC<FormFooterProps> = ({ isSubmitting }) => {
   return (
     <CardFooter className="flex justify-end px-0 pt-4">
       <Button 
@@ -28,7 +24,7 @@ const FormFooter: React.FC<FormFooterProps> = ({
         ) : (
           <>
             <Save className="h-4 w-4" />
-            {label}
+            Cadastrar Pessoa Física
           </>
         )}
       </Button>
