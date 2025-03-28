@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
@@ -123,6 +124,18 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
     }
   };
 
+  // Create a custom component to wrap InputMask with proper props
+  const MaskedInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { mask: string }>(
+    ({ mask, className, ...props }, ref) => {
+      return (
+        <InputMask mask={mask} maskChar={null} {...props}>
+          {() => <Input ref={ref} className={className} />}
+        </InputMask>
+      );
+    }
+  );
+  MaskedInput.displayName = "MaskedInput";
+
   return (
     <Card className="shadow-lg border-warm-200 animate-fadeIn">
       <CardHeader className="bg-warm-100 rounded-t-lg border-b border-warm-200">
@@ -163,20 +176,11 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CPF</FormLabel>
                       <FormControl>
-                        <InputMask
+                        <MaskedInput
                           mask="999.999.999-99"
-                          maskChar={null}
-                          value={field.value}
-                          onChange={field.onChange}
-                          id="cpf"
-                          name="cpf"
-                        >
-                          {() => (
-                            <Input 
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
-                        </InputMask>
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -307,20 +311,11 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <InputMask
+                        <MaskedInput
                           mask="99999-999"
-                          maskChar={null}
-                          value={field.value}
-                          onChange={field.onChange}
-                          id="zip_code"
-                          name="zip_code"
-                        >
-                          {() => (
-                            <Input 
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
-                        </InputMask>
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -339,20 +334,11 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <InputMask
+                        <MaskedInput
                           mask="(99) 99999-9999"
-                          maskChar={null}
-                          value={field.value}
-                          onChange={field.onChange}
-                          id="phone"
-                          name="phone"
-                        >
-                          {() => (
-                            <Input 
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
-                        </InputMask>
+                          className="border-warm-300 focus:border-primary"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
