@@ -136,8 +136,13 @@ const Navigation = () => {
     navigate("/login");
   };
 
-  const getInitials = (name: string = "Usuário") => {
-    return name
+  // Modificação para usar email ou um valor padrão quando name não existir
+  const getInitials = (email: string = "Usuario") => {
+    // Se for um email, pegamos a primeira parte antes do @
+    if (email.includes('@')) {
+      return email.split('@')[0].substring(0, 2).toUpperCase();
+    }
+    return email
       .split(' ')
       .map(part => part[0])
       .join('')
@@ -182,12 +187,12 @@ const Navigation = () => {
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9 border border-warm-300">
               <AvatarFallback className="bg-primary text-white">
-                {getInitials(user.name)}
+                {getInitials(user.email || "Usuário")}
               </AvatarFallback>
             </Avatar>
             <div className="overflow-hidden">
-              <p className="text-sm font-medium text-warm-900 truncate">{user.name || "Usuário"}</p>
-              <p className="text-xs text-warm-600 truncate">{user.role || "Usuário"}</p>
+              <p className="text-sm font-medium text-warm-900 truncate">{user.email || "Usuário"}</p>
+              <p className="text-xs text-warm-600 truncate">{role || "Usuário"}</p>
             </div>
           </div>
         </div>
