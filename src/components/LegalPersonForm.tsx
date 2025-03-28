@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import { 
   Card,
   CardHeader,
@@ -22,25 +22,28 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Building2, Save } from "lucide-react";
+import { Building2, Save, Loader2 } from "lucide-react";
+import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
-  companyName: z.string().min(2, "Razão social é obrigatória"),
-  tradeName: z.string().min(2, "Nome fantasia é obrigatório"),
+  company_name: z.string().min(2, "Razão social é obrigatória"),
+  trade_name: z.string().min(2, "Nome fantasia é obrigatório"),
   cnpj: z.string().min(14, "CNPJ inválido"),
-  stateRegistration: z.string().optional(),
+  state_registration: z.string().optional(),
   street: z.string().min(1, "Logradouro é obrigatório"),
   number: z.string().min(1, "Número é obrigatório"),
   complement: z.string().optional(),
   neighborhood: z.string().min(1, "Bairro é obrigatório"),
   city: z.string().min(1, "Cidade é obrigatória"),
   state: z.string().min(2, "Estado é obrigatório"),
-  zipCode: z.string().min(8, "CEP inválido"),
+  zip_code: z.string().min(8, "CEP inválido"),
   phone: z.string().min(10, "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
-  legalRepName: z.string().min(2, "Nome do representante legal é obrigatório"),
-  legalRepCpf: z.string().min(11, "CPF do representante legal inválido"),
-  legalRepRole: z.string().min(2, "Cargo do representante legal é obrigatório"),
+  legal_rep_name: z.string().min(2, "Nome do representante legal é obrigatório"),
+  legal_rep_cpf: z.string().min(11, "CPF do representante legal inválido"),
+  legal_rep_role: z.string().min(2, "Cargo do representante legal é obrigatório"),
   bank: z.string().optional(),
   agency: z.string().optional(),
   account: z.string().optional(),
@@ -53,39 +56,63 @@ interface LegalPersonFormProps {
 }
 
 const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      companyName: "",
-      tradeName: "",
+      company_name: "",
+      trade_name: "",
       cnpj: "",
-      stateRegistration: "",
+      state_registration: "",
       street: "",
       number: "",
       complement: "",
       neighborhood: "",
       city: "",
       state: "",
-      zipCode: "",
+      zip_code: "",
       phone: "",
       email: "",
-      legalRepName: "",
-      legalRepCpf: "",
-      legalRepRole: "",
+      legal_rep_name: "",
+      legal_rep_cpf: "",
+      legal_rep_role: "",
       bank: "",
       agency: "",
       account: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormData) => {
     try {
+      setIsSubmitting(true);
       console.log("Form submitted:", values);
-      // Here you would typically make an API call to save the data
-      toast.success("Pessoa jurídica cadastrada com sucesso!");
+      
+      // Convertendo para o formato esperado pela API
+      const companyData: LegalPersonInsert = {
+        ...values,
+        // Certos campos precisam ser convertidos ou formatados conforme necessário
+      };
+      
+      await legalPersonsApi.create(companyData);
+      
+      toast({
+        title: "Pessoa jurídica cadastrada com sucesso!",
+        description: "Os dados foram salvos no banco de dados.",
+      });
+      
+      // Redirecionar para a lista após o cadastro
+      navigate("/legal-persons");
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Erro ao cadastrar pessoa jurídica");
+      toast({
+        title: "Erro ao cadastrar pessoa jurídica",
+        description: "Ocorreu um erro ao salvar os dados no banco de dados.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -110,7 +137,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="companyName"
+                  name="company_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Razão Social</FormLabel>
@@ -124,7 +151,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="tradeName"
+                  name="trade_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome Fantasia</FormLabel>
@@ -152,7 +179,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="stateRegistration"
+                  name="state_registration"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Inscrição Estadual (opcional)</FormLabel>
@@ -255,7 +282,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="zipCode"
+                  name="zip_code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
@@ -307,7 +334,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="legalRepName"
+                  name="legal_rep_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome do Representante Legal</FormLabel>
@@ -321,7 +348,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="legalRepCpf"
+                  name="legal_rep_cpf"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>CPF do Representante Legal</FormLabel>
@@ -335,7 +362,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="legalRepRole"
+                  name="legal_rep_role"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cargo do Representante Legal</FormLabel>
@@ -397,9 +424,22 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
             </div>
 
             <CardFooter className="flex justify-end px-0 pt-4">
-              <Button type="submit" className="w-full md:w-auto gap-2 bg-primary hover:bg-primary-dark">
-                <Save className="h-4 w-4" />
-                Cadastrar Pessoa Jurídica
+              <Button 
+                type="submit" 
+                className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Cadastrar Pessoa Jurídica
+                  </>
+                )}
               </Button>
             </CardFooter>
           </form>

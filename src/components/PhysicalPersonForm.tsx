@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import { 
   Card,
   CardHeader,
@@ -22,20 +22,23 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { UserPlus, Save } from "lucide-react";
+import { UserPlus, Save, Loader2 } from "lucide-react";
+import { physicalPersonsApi, PhysicalPersonInsert } from "@/services/physicalPersons";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
-  fullName: z.string().min(2, "Nome completo é obrigatório"),
+  full_name: z.string().min(2, "Nome completo é obrigatório"),
   cpf: z.string().min(11, "CPF inválido"),
-  rg: z.string().min(1, "RG é obrigatório"),
-  birthDate: z.string().min(1, "Data de nascimento é obrigatória"),
+  rg: z.string().optional(),
+  birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
   street: z.string().min(1, "Logradouro é obrigatório"),
   number: z.string().min(1, "Número é obrigatório"),
   complement: z.string().optional(),
   neighborhood: z.string().min(1, "Bairro é obrigatório"),
   city: z.string().min(1, "Cidade é obrigatória"),
   state: z.string().min(2, "Estado é obrigatório"),
-  zipCode: z.string().min(8, "CEP inválido"),
+  zip_code: z.string().min(8, "CEP inválido"),
   phone: z.string().min(10, "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
   role: z.string().optional(),
@@ -48,34 +51,58 @@ interface PhysicalPersonFormProps {
 }
 
 const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      fullName: "",
+      full_name: "",
       cpf: "",
       rg: "",
-      birthDate: "",
+      birth_date: "",
       street: "",
       number: "",
       complement: "",
       neighborhood: "",
       city: "",
       state: "",
-      zipCode: "",
+      zip_code: "",
       phone: "",
       email: "",
       role: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormData) => {
     try {
+      setIsSubmitting(true);
       console.log("Form submitted:", values);
-      // Here you would typically make an API call to save the data
-      toast.success("Pessoa física cadastrada com sucesso!");
+      
+      // Convertendo para o formato esperado pela API
+      const personData: PhysicalPersonInsert = {
+        ...values,
+        // Certos campos precisam ser convertidos ou formatados conforme necessário
+      };
+      
+      await physicalPersonsApi.create(personData);
+      
+      toast({
+        title: "Pessoa física cadastrada com sucesso!",
+        description: "Os dados foram salvos no banco de dados.",
+      });
+      
+      // Redirecionar para a lista após o cadastro
+      navigate("/physical-persons");
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Erro ao cadastrar pessoa física");
+      toast({
+        title: "Erro ao cadastrar pessoa física",
+        description: "Ocorreu um erro ao salvar os dados no banco de dados.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,7 +127,7 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="fullName"
+                  name="full_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome Completo</FormLabel>
@@ -142,7 +169,7 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="birthDate"
+                  name="birth_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Data de Nascimento</FormLabel>
@@ -245,7 +272,7 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="zipCode"
+                  name="zip_code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
@@ -307,9 +334,22 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
             </div>
 
             <CardFooter className="flex justify-end px-0 pt-4">
-              <Button type="submit" className="w-full md:w-auto gap-2 bg-primary hover:bg-primary-dark">
-                <Save className="h-4 w-4" />
-                Cadastrar Pessoa Física
+              <Button 
+                type="submit" 
+                className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Cadastrar Pessoa Física
+                  </>
+                )}
               </Button>
             </CardFooter>
           </form>
