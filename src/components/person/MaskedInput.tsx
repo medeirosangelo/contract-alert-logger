@@ -6,20 +6,29 @@ import { Input } from "@/components/ui/input";
 const MaskedInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { mask: string }
->(({ mask, className, ...props }, ref) => {
+>(({ mask, className, disabled, ...props }, ref) => {
   return (
     <InputMask 
       mask={mask} 
       maskChar={null}
-      {...props} // Garantindo que todas as props sejam passadas ao InputMask
+      disabled={disabled}
+      {...props}
     >
-      {(inputProps: any) => (
-        <Input
-          ref={ref}
-          className={className}
-          {...inputProps} // Usando as props transformadas pelo InputMask
-        />
-      )}
+      {(inputProps: any) => {
+        // Ensure proper handling of the disabled prop
+        const combinedProps = {
+          ...inputProps,
+          disabled: disabled || inputProps.disabled
+        };
+        
+        return (
+          <Input
+            ref={ref}
+            className={className}
+            {...combinedProps}
+          />
+        );
+      }}
     </InputMask>
   );
 });
