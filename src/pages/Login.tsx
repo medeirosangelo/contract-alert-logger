@@ -33,7 +33,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      console.log('User is authenticated, redirecting to dashboard');
+      console.log('Usuário autenticado, redirecionando para dashboard');
       navigate("/dashboard");
     }
   }, [isAuthenticated, isLoading, navigate]);
@@ -51,11 +51,17 @@ const Login = () => {
 
     try {
       setIsSubmitting(true);
-      console.log('Attempting login with:', loginEmail);
+      console.log('Tentando login com:', loginEmail);
       await login(loginEmail, loginPassword);
+      console.log('Login bem-sucedido, redirecionando para dashboard');
       navigate("/dashboard");
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Erro de login:", error);
+      toast({
+        title: "Erro ao fazer login",
+        description: "Verifique suas credenciais e tente novamente.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +89,7 @@ const Login = () => {
 
     try {
       setIsSubmitting(true);
-      console.log('Attempting signup with:', signupEmail);
+      console.log('Tentando cadastro com:', signupEmail);
       await signUp(signupEmail, signupPassword, signupName);
       toast({
         title: "Cadastro realizado com sucesso",
@@ -96,7 +102,12 @@ const Login = () => {
         setConfirmPassword("");
       }, 500);
     } catch (error) {
-      console.error("Signup error:", error);
+      console.error("Erro de cadastro:", error);
+      toast({
+        title: "Erro ao cadastrar",
+        description: "Verifique os dados e tente novamente.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }

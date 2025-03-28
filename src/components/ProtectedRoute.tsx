@@ -12,7 +12,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
   console.log('ProtectedRoute rendering:', { isAuthenticated, isLoading, role, allowedRoles });
 
-  // Show loading state while checking authentication
+  // Mostra estado de carregamento enquanto verifica a autenticação
   if (isLoading) {
     console.log('ProtectedRoute: Loading state');
     return (
@@ -27,20 +27,20 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     );
   }
 
-  // Redirect to login if not authenticated
+  // Redireciona para login se não estiver autenticado
   if (!isAuthenticated) {
-    console.log('User not authenticated, redirecting to login');
+    console.log('Usuário não autenticado, redirecionando para login');
     return <Navigate to="/login" replace />;
   }
 
-  // Check role-based access
+  // Verifica acesso baseado em papel/função
   if (allowedRoles && role && !allowedRoles.includes(role)) {
-    console.log('User not authorized, redirecting to unauthorized', { role, allowedRoles });
+    console.log('Usuário não autorizado, redirecionando para não autorizado', { role, allowedRoles });
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // If authenticated and authorized, render child routes
-  console.log('User authenticated and authorized, rendering child routes');
+  // Se autenticado e autorizado, renderiza as rotas filhas
+  console.log('Usuário autenticado e autorizado, renderizando rotas filhas');
   return <Outlet />;
 };
 

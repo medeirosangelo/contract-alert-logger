@@ -12,13 +12,14 @@ const Index = () => {
   console.log('Index page rendering', { isAuthenticated, isLoading });
 
   useEffect(() => {
-    // If authenticated and not loading, navigate to dashboard
+    // Se já estiver autenticado e não estiver carregando, redireciona para o dashboard
     if (isAuthenticated && !isLoading) {
-      console.log('User is authenticated, redirecting to dashboard');
+      console.log('Usuário autenticado, redirecionando para dashboard');
       navigate('/dashboard');
     }
   }, [isAuthenticated, isLoading, navigate]);
 
+  // Se estiver carregando, mostra o skeleton
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50 p-4">
@@ -33,7 +34,7 @@ const Index = () => {
     );
   }
 
-  // If not authenticated, show login button
+  // Se não estiver autenticado, mostra a página inicial
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50 p-4">
       <div className="max-w-3xl text-center">

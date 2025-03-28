@@ -24,62 +24,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log('AuthProvider initialized');
+    let mounted = true;
     
-    // Set up auth state listener FIRST
+    // Primeiro configura o listener de estado da autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, !!session);
         
-        setUser(session?.user || null);
-        setIsAuthenticated(!!session?.user);
-        
-        if (session?.user) {
-          try {
-            const userRole = await authApi.getUserRole();
-            console.log('User role fetched on auth change:', userRole);
-            setRole(userRole);
-          } catch (error) {
-            console.error('Error fetching user role in auth change:', error);
-            setRole('user');
+        if (mounted) {
+          setUser(session?.user || null);
+          setIsAuthenticated(!!session?.user);
+          
+          if (session?.user) {
+            // Use setTimeout para evitar deadlock com Supabase
+            setTimeout(async () => {
+              try {
+                if (mounted) {
+                  const userRole = await authApi.getUserRole();
+                  console.log('User role fetched on auth change:', userRole);
+                  setRole(userRole);
+                }
+              } catch (error) {
+                console.error('Error fetching user role in auth change:', error);
+                if (mounted) {
+                  setRole('user');
+                }
+              } finally {
+                if (mounted) {
+                  setIsLoading(false);
+                }
+              }
+            }, 0);
+          } else {
+            setRole(null);
+            setIsLoading(false);
           }
-        } else {
-          setRole(null);
         }
-        
-        setIsLoading(false);
       }
     );
 
-    // THEN check for existing session
+    // Depois verifica se existe uma sessão
     const fetchUser = async () => {
       try {
         console.log('Checking for existing session');
         const { data: { session } } = await supabase.auth.getSession();
         
         console.log('Existing session found:', !!session);
-        setUser(session?.user || null);
-        setIsAuthenticated(!!session?.user);
         
-        if (session?.user) {
-          try {
-            const userRole = await authApi.getUserRole();
-            console.log('User role fetched on init:', userRole);
-            setRole(userRole);
-          } catch (error) {
-            console.error('Error fetching user role:', error);
-            setRole('user');
+        if (mounted) {
+          setUser(session?.user || null);
+          setIsAuthenticated(!!session?.user);
+          
+          if (session?.user) {
+            try {
+              const userRole = await authApi.getUserRole();
+              console.log('User role fetched on init:', userRole);
+              if (mounted) {
+                setRole(userRole);
+              }
+            } catch (error) {
+              console.error('Error fetching user role:', error);
+              if (mounted) {
+                setRole('user');
+              }
+            }
+          } else {
+            setRole(null);
           }
-        } else {
-          setRole(null);
+          
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        setUser(null);
-        setRole(null);
-        setIsAuthenticated(false);
-      } finally {
-        console.log('Setting isLoading to false');
-        setIsLoading(false);
+        if (mounted) {
+          setUser(null);
+          setRole(null);
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        }
       }
     };
 
@@ -87,6 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       console.log('Cleaning up auth subscription');
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -96,26 +119,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (email: string, password: string) => {
-    const { session } = await authApi.login({ email, password });
-    if (session?.user) {
-      setUser(session.user);
-      setIsAuthenticated(true);
-      try {
-        const userRole = await authApi.getUserRole();
-        console.log('User role after login:', userRole);
-        setRole(userRole);
-      } catch (error) {
-        console.error('Error getting user role in login:', error);
-        setRole('user');
+    setIsLoading(true);
+    try {
+      const { session } = await authApi.login({ email, password });
+      if (session?.user) {
+        setUser(session.user);
+        setIsAuthenticated(true);
+        try {
+          const userRole = await authApi.getUserRole();
+          console.log('User role after login:', userRole);
+          setRole(userRole);
+        } catch (error) {
+          console.error('Error getting user role in login:', error);
+          setRole('user');
+        }
       }
+    } catch (error) {
+      console.error('Error in login function:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
-    await authApi.logout();
-    setUser(null);
-    setRole(null);
-    setIsAuthenticated(false);
+    setIsLoading(true);
+    try {
+      await authApi.logout();
+      setUser(null);
+      setRole(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error in logout function:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const value = {
@@ -128,6 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated,
   };
 
+  console.log('AuthProvider state:', { isAuthenticated, isLoading, user: !!user });
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
