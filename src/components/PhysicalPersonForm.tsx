@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
@@ -164,25 +163,20 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CPF</FormLabel>
                       <FormControl>
-                        <Controller
+                        <InputMask
+                          mask="999.999.999-99"
+                          maskChar={null}
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="cpf"
                           name="cpf"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="999.999.999-99"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                        >
+                          {() => (
+                            <Input 
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
-                        />
+                        </InputMask>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -313,25 +307,20 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <Controller
+                        <InputMask
+                          mask="99999-999"
+                          maskChar={null}
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="zip_code"
                           name="zip_code"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="99999-999"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                        >
+                          {() => (
+                            <Input 
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
-                        />
+                        </InputMask>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -350,25 +339,20 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Controller
+                        <InputMask
+                          mask="(99) 99999-9999"
+                          maskChar={null}
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="phone"
                           name="phone"
-                          control={form.control}
-                          render={({ field }) => (
-                            <InputMask
-                              mask="(99) 99999-9999"
-                              maskChar={null}
-                              value={field.value}
-                              onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                        >
+                          {() => (
+                            <Input 
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
-                        />
+                        </InputMask>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
