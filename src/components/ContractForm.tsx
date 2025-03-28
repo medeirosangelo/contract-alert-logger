@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Save, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -15,61 +15,114 @@ import PaymentInfo from "./contract/PaymentInfo";
 import BudgetClassification from "./contract/BudgetClassification";
 import PenaltiesInfo from "./contract/PenaltiesInfo";
 import AdditionalInfo from "./contract/AdditionalInfo";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useForm, Controller } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+// Schema de validação do contrato
+const contractSchema = z.object({
+  // Identification
+  contractNumber: z.string().min(1, "Número do contrato é obrigatório"),
+  object: z.string().min(5, "Descrição do objeto é obrigatória"),
+  
+  // Contractor
+  contractorCompanyName: z.string().min(3, "Nome da empresa contratante é obrigatório"),
+  contractorAddress: z.string().min(5, "Endereço do contratante é obrigatório"),
+  contractorCnpj: z.string().min(14, "CNPJ inválido"),
+  
+  // Contracted
+  contractedCompanyName: z.string().min(3, "Nome da empresa contratada é obrigatório"),
+  contractedAddress: z.string().min(5, "Endereço do contratado é obrigatório"),
+  contractedCnpj: z.string().min(14, "CNPJ inválido"),
+  legalRepName: z.string().min(3, "Nome do representante legal é obrigatório"),
+  legalRepCpf: z.string().min(11, "CPF inválido"),
+  email: z.string().email("Email inválido"),
+  
+  // Contract Details
+  totalValue: z.string().min(1, "Valor total é obrigatório"),
+  duration: z.string().min(1, "Duração é obrigatória"),
+  signatureDate: z.string().min(1, "Data de assinatura é obrigatória"),
+  publicationDate: z.string().optional(),
+  priceAdjustmentTerm: z.string().optional(),
+  adjustmentIndex: z.string().optional(),
+  
+  // Payment Info
+  bank: z.string().optional(),
+  agency: z.string().optional(),
+  account: z.string().optional(),
+  paymentTerm: z.string().optional(),
+  
+  // Budget Classification
+  budgetUnit: z.string().optional(),
+  workProgram: z.string().optional(),
+  expenseNature: z.string().optional(),
+  resourceSource: z.string().optional(),
+  
+  // Penalties
+  delayPenalty: z.string().optional(),
+  terminationPenalty: z.string().optional(),
+  
+  // Additional Info
+  witness1Name: z.string().optional(),
+  witness1Cpf: z.string().optional(),
+  witness2Name: z.string().optional(),
+  witness2Cpf: z.string().optional(),
+  signatureLocation: z.string().optional(),
+  generalObservations: z.string().optional()
+});
+
+type FormData = z.infer<typeof contractSchema>;
 
 const ContractForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Form state
-  const [formData, setFormData] = useState({
-    // Identification
-    contractNumber: "",
-    object: "",
-    
-    // Contractor
-    contractorCompanyName: "",
-    contractorAddress: "",
-    contractorCnpj: "",
-    
-    // Contracted
-    contractedCompanyName: "",
-    contractedAddress: "",
-    contractedCnpj: "",
-    legalRepName: "",
-    legalRepCpf: "",
-    email: "",
-    
-    // Contract Details
-    totalValue: "",
-    duration: "",
-    signatureDate: "",
-    publicationDate: "",
-    priceAdjustmentTerm: "",
-    adjustmentIndex: "",
-    
-    // Payment Info
-    bank: "",
-    agency: "",
-    account: "",
-    paymentTerm: "",
-    
-    // Budget Classification
-    budgetUnit: "",
-    workProgram: "",
-    expenseNature: "",
-    resourceSource: "",
-    
-    // Penalties
-    delayPenalty: "",
-    terminationPenalty: "",
-    
-    // Additional Info
-    witness1Name: "",
-    witness1Cpf: "",
-    witness2Name: "",
-    witness2Cpf: "",
-    signatureLocation: "",
-    generalObservations: ""
+  // Configurar o formulário com react-hook-form e zod
+  const form = useForm<FormData>({
+    resolver: zodResolver(contractSchema),
+    defaultValues: {
+      contractNumber: "",
+      object: "",
+      contractorCompanyName: "",
+      contractorAddress: "",
+      contractorCnpj: "",
+      contractedCompanyName: "",
+      contractedAddress: "",
+      contractedCnpj: "",
+      legalRepName: "",
+      legalRepCpf: "",
+      email: "",
+      totalValue: "",
+      duration: "",
+      signatureDate: "",
+      publicationDate: "",
+      priceAdjustmentTerm: "",
+      adjustmentIndex: "",
+      bank: "",
+      agency: "",
+      account: "",
+      paymentTerm: "",
+      budgetUnit: "",
+      workProgram: "",
+      expenseNature: "",
+      resourceSource: "",
+      delayPenalty: "",
+      terminationPenalty: "",
+      witness1Name: "",
+      witness1Cpf: "",
+      witness2Name: "",
+      witness2Cpf: "",
+      signatureLocation: "",
+      generalObservations: ""
+    }
   });
   
   // Fetch legal persons for dropdown selection
@@ -84,46 +137,36 @@ const ContractForm = () => {
     queryFn: physicalPersonsApi.getAll,
   });
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);
       
       // Format contract data to match database structure
       const contractData: ContractInsert = {
-        contract_number: formData.contractNumber,
-        object: formData.object,
-        total_value: Number(formData.totalValue),
-        duration: Number(formData.duration),
-        signature_date: formData.signatureDate,
-        publication_date: formData.publicationDate || null,
-        price_adjustment_term: formData.priceAdjustmentTerm ? Number(formData.priceAdjustmentTerm) : null,
-        adjustment_index: formData.adjustmentIndex || null,
-        bank: formData.bank || null,
-        agency: formData.agency || null,
-        account: formData.account || null,
-        payment_term: formData.paymentTerm || null,
-        budget_unit: formData.budgetUnit || null,
-        work_program: formData.workProgram || null,
-        expense_nature: formData.expenseNature || null,
-        resource_source: formData.resourceSource || null,
-        delay_penalty: formData.delayPenalty || null,
-        termination_penalty: formData.terminationPenalty || null,
-        signature_location: formData.signatureLocation || null,
-        general_observations: formData.generalObservations || null,
+        contract_number: data.contractNumber,
+        object: data.object,
+        total_value: Number(data.totalValue),
+        duration: Number(data.duration),
+        signature_date: data.signatureDate,
+        publication_date: data.publicationDate || null,
+        price_adjustment_term: data.priceAdjustmentTerm ? Number(data.priceAdjustmentTerm) : null,
+        adjustment_index: data.adjustmentIndex || null,
+        bank: data.bank || null,
+        agency: data.agency || null,
+        account: data.account || null,
+        payment_term: data.paymentTerm || null,
+        budget_unit: data.budgetUnit || null,
+        work_program: data.workProgram || null,
+        expense_nature: data.expenseNature || null,
+        resource_source: data.resourceSource || null,
+        delay_penalty: data.delayPenalty || null,
+        termination_penalty: data.terminationPenalty || null,
+        signature_location: data.signatureLocation || null,
+        general_observations: data.generalObservations || null,
         
         // Calculate start and end dates based on signature date and duration
-        start_date: formData.signatureDate,
-        end_date: calculateEndDate(formData.signatureDate, Number(formData.duration)),
+        start_date: data.signatureDate,
+        end_date: calculateEndDate(data.signatureDate, Number(data.duration)),
         
         // These would come from API lookups in a real implementation
         contractor_id: null, // To be replaced with actual lookup
@@ -178,111 +221,159 @@ const ContractForm = () => {
   }
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 mb-8">
-      <div className="bg-white rounded-lg shadow-md p-6 border border-warm-200">
-        <h2 className="text-2xl font-bold text-warm-800 mb-6">Cadastro de Contrato</h2>
-        
-        <div className="space-y-6">
-          {/* Contract Identification */}
-          <ContractIdentification 
-            contractNumber={formData.contractNumber} 
-            object={formData.object} 
-            onChange={handleInputChange} 
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-warm-200">
+          <h2 className="text-2xl font-bold text-warm-800 mb-6">Cadastro de Contrato</h2>
           
-          {/* Contractor Information */}
-          <ContractorInfo 
-            companyName={formData.contractorCompanyName}
-            address={formData.contractorAddress}
-            cnpj={formData.contractorCnpj}
-            legalRepName=""
-            legalRepCpf=""
-            email=""
-            onChange={handleInputChange}
-            type="contractor"
-          />
+          <div className="space-y-6">
+            {/* Contract Identification */}
+            <FormField
+              control={form.control}
+              name="contractNumber"
+              render={({ field }) => (
+                <ContractIdentification 
+                  contractNumber={field.value}
+                  formControl={form.control}
+                  errors={form.formState.errors}
+                  object={form.getValues("object")}
+                  onChange={(e) => {
+                    const { name, value } = e.target;
+                    form.setValue(name as any, value, { shouldValidate: true });
+                  }}
+                />
+              )}
+            />
+            
+            {/* Contractor Information */}
+            <ContractorInfo 
+              companyName={form.getValues("contractorCompanyName")}
+              address={form.getValues("contractorAddress")}
+              cnpj={form.getValues("contractorCnpj")}
+              legalRepName=""
+              legalRepCpf=""
+              email=""
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+              type="contractor"
+            />
+            
+            {/* Contracted Information */}
+            <ContractorInfo 
+              companyName={form.getValues("contractedCompanyName")}
+              address={form.getValues("contractedAddress")}
+              cnpj={form.getValues("contractedCnpj")}
+              legalRepName={form.getValues("legalRepName")}
+              legalRepCpf={form.getValues("legalRepCpf")}
+              email={form.getValues("email")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+              type="contracted"
+            />
+            
+            {/* Contract Details */}
+            <ContractDetails 
+              totalValue={form.getValues("totalValue")}
+              duration={form.getValues("duration")}
+              signatureDate={form.getValues("signatureDate")}
+              publicationDate={form.getValues("publicationDate")}
+              priceAdjustmentTerm={form.getValues("priceAdjustmentTerm")}
+              adjustmentIndex={form.getValues("adjustmentIndex")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+            />
+            
+            {/* Payment Information */}
+            <PaymentInfo 
+              bank={form.getValues("bank")}
+              agency={form.getValues("agency")}
+              account={form.getValues("account")}
+              paymentTerm={form.getValues("paymentTerm")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+            />
+            
+            {/* Budget Classification */}
+            <BudgetClassification 
+              budgetUnit={form.getValues("budgetUnit")}
+              workProgram={form.getValues("workProgram")}
+              expenseNature={form.getValues("expenseNature")}
+              resourceSource={form.getValues("resourceSource")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+            />
+            
+            {/* Penalties Information */}
+            <PenaltiesInfo 
+              delayPenalty={form.getValues("delayPenalty")}
+              terminationPenalty={form.getValues("terminationPenalty")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+            />
+            
+            {/* Additional Information */}
+            <AdditionalInfo 
+              witness1Name={form.getValues("witness1Name")}
+              witness1Cpf={form.getValues("witness1Cpf")}
+              witness2Name={form.getValues("witness2Name")}
+              witness2Cpf={form.getValues("witness2Cpf")}
+              signatureLocation={form.getValues("signatureLocation")}
+              generalObservations={form.getValues("generalObservations")}
+              formControl={form.control}
+              errors={form.formState.errors}
+              onChange={(e) => {
+                const { name, value } = e.target;
+                form.setValue(name as any, value, { shouldValidate: true });
+              }}
+            />
+          </div>
           
-          {/* Contracted Information */}
-          <ContractorInfo 
-            companyName={formData.contractedCompanyName}
-            address={formData.contractedAddress}
-            cnpj={formData.contractedCnpj}
-            legalRepName={formData.legalRepName}
-            legalRepCpf={formData.legalRepCpf}
-            email={formData.email}
-            onChange={handleInputChange}
-            type="contracted"
-          />
-          
-          {/* Contract Details */}
-          <ContractDetails 
-            totalValue={formData.totalValue}
-            duration={formData.duration}
-            signatureDate={formData.signatureDate}
-            publicationDate={formData.publicationDate}
-            priceAdjustmentTerm={formData.priceAdjustmentTerm}
-            adjustmentIndex={formData.adjustmentIndex}
-            onChange={handleInputChange}
-          />
-          
-          {/* Payment Information */}
-          <PaymentInfo 
-            bank={formData.bank}
-            agency={formData.agency}
-            account={formData.account}
-            paymentTerm={formData.paymentTerm}
-            onChange={handleInputChange}
-          />
-          
-          {/* Budget Classification */}
-          <BudgetClassification 
-            budgetUnit={formData.budgetUnit}
-            workProgram={formData.workProgram}
-            expenseNature={formData.expenseNature}
-            resourceSource={formData.resourceSource}
-            onChange={handleInputChange}
-          />
-          
-          {/* Penalties Information */}
-          <PenaltiesInfo 
-            delayPenalty={formData.delayPenalty}
-            terminationPenalty={formData.terminationPenalty}
-            onChange={handleInputChange}
-          />
-          
-          {/* Additional Information */}
-          <AdditionalInfo 
-            witness1Name={formData.witness1Name}
-            witness1Cpf={formData.witness1Cpf}
-            witness2Name={formData.witness2Name}
-            witness2Cpf={formData.witness2Cpf}
-            signatureLocation={formData.signatureLocation}
-            generalObservations={formData.generalObservations}
-            onChange={handleInputChange}
-          />
+          <div className="mt-8 flex justify-end">
+            <Button 
+              type="submit" 
+              className="bg-primary hover:bg-primary/90 text-white gap-2"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Salvar Contrato
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-        
-        <div className="mt-8 flex justify-end">
-          <Button 
-            type="submit" 
-            className="bg-primary hover:bg-primary/90 text-white gap-2"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Processando...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Salvar Contrato
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };
 

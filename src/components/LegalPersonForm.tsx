@@ -1,5 +1,6 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,11 +26,12 @@ import { Building2, Save, Loader2 } from "lucide-react";
 import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import InputMask from "react-input-mask";
 
 const formSchema = z.object({
   company_name: z.string().min(2, "Razão social é obrigatória"),
   trade_name: z.string().min(2, "Nome fantasia é obrigatório"),
-  cnpj: z.string().min(14, "CNPJ inválido"),
+  cnpj: z.string().min(14, "CNPJ inválido").max(18),
   state_registration: z.string().optional(),
   street: z.string().min(1, "Logradouro é obrigatório"),
   number: z.string().min(1, "Número é obrigatório"),
@@ -37,11 +39,11 @@ const formSchema = z.object({
   neighborhood: z.string().min(1, "Bairro é obrigatório"),
   city: z.string().min(1, "Cidade é obrigatória"),
   state: z.string().min(2, "Estado é obrigatório"),
-  zip_code: z.string().min(8, "CEP inválido"),
-  phone: z.string().min(10, "Telefone inválido"),
+  zip_code: z.string().min(8, "CEP inválido").max(9),
+  phone: z.string().min(10, "Telefone inválido").max(15),
   email: z.string().email("E-mail inválido"),
   legal_rep_name: z.string().min(2, "Nome do representante legal é obrigatório"),
-  legal_rep_cpf: z.string().min(11, "CPF do representante legal inválido"),
+  legal_rep_cpf: z.string().min(11, "CPF do representante legal inválido").max(14),
   legal_rep_role: z.string().min(2, "Cargo do representante legal é obrigatório"),
   bank: z.string().optional(),
   agency: z.string().optional(),
@@ -88,11 +90,17 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
       setIsSubmitting(true);
       console.log("Form submitted:", values);
       
+      // Remover máscaras antes de enviar para o backend
+      const cleanCnpj = values.cnpj.replace(/\D/g, '');
+      const cleanCpf = values.legal_rep_cpf.replace(/\D/g, '');
+      const cleanZipCode = values.zip_code.replace(/\D/g, '');
+      const cleanPhone = values.phone.replace(/\D/g, '');
+      
       // Create a properly typed object matching LegalPersonInsert
       const companyData: LegalPersonInsert = {
         company_name: values.company_name,
         trade_name: values.trade_name,
-        cnpj: values.cnpj,
+        cnpj: cleanCnpj,
         state_registration: values.state_registration,
         street: values.street,
         number: values.number,
@@ -100,11 +108,11 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
         neighborhood: values.neighborhood,
         city: values.city,
         state: values.state,
-        zip_code: values.zip_code,
-        phone: values.phone,
+        zip_code: cleanZipCode,
+        phone: cleanPhone,
         email: values.email,
         legal_rep_name: values.legal_rep_name,
-        legal_rep_cpf: values.legal_rep_cpf,
+        legal_rep_cpf: cleanCpf,
         legal_rep_role: values.legal_rep_role,
         bank: values.bank,
         agency: values.agency,
@@ -186,7 +194,25 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CNPJ</FormLabel>
                       <FormControl>
-                        <Input {...field} className="border-warm-300 focus:border-primary" />
+                        <Controller
+                          name="cnpj"
+                          control={form.control}
+                          render={({ field }) => (
+                            <InputMask
+                              mask="99.999.999/9999-99"
+                              maskChar={null}
+                              value={field.value}
+                              onChange={field.onChange}
+                            >
+                              {(inputProps: any) => (
+                                <Input 
+                                  {...inputProps}
+                                  className="border-warm-300 focus:border-primary"
+                                />
+                              )}
+                            </InputMask>
+                          )}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -303,7 +329,25 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <Input {...field} className="border-warm-300 focus:border-primary" />
+                        <Controller
+                          name="zip_code"
+                          control={form.control}
+                          render={({ field }) => (
+                            <InputMask
+                              mask="99999-999"
+                              maskChar={null}
+                              value={field.value}
+                              onChange={field.onChange}
+                            >
+                              {(inputProps: any) => (
+                                <Input 
+                                  {...inputProps}
+                                  className="border-warm-300 focus:border-primary"
+                                />
+                              )}
+                            </InputMask>
+                          )}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -322,7 +366,25 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Input {...field} className="border-warm-300 focus:border-primary" />
+                        <Controller
+                          name="phone"
+                          control={form.control}
+                          render={({ field }) => (
+                            <InputMask
+                              mask="(99) 99999-9999"
+                              maskChar={null}
+                              value={field.value}
+                              onChange={field.onChange}
+                            >
+                              {(inputProps: any) => (
+                                <Input 
+                                  {...inputProps}
+                                  className="border-warm-300 focus:border-primary"
+                                />
+                              )}
+                            </InputMask>
+                          )}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +431,25 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CPF do Representante Legal</FormLabel>
                       <FormControl>
-                        <Input {...field} className="border-warm-300 focus:border-primary" />
+                        <Controller
+                          name="legal_rep_cpf"
+                          control={form.control}
+                          render={({ field }) => (
+                            <InputMask
+                              mask="999.999.999-99"
+                              maskChar={null}
+                              value={field.value}
+                              onChange={field.onChange}
+                            >
+                              {(inputProps: any) => (
+                                <Input 
+                                  {...inputProps}
+                                  className="border-warm-300 focus:border-primary"
+                                />
+                              )}
+                            </InputMask>
+                          )}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

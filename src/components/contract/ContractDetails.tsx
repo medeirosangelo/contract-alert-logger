@@ -1,5 +1,9 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
+import InputMask from "react-input-mask";
+import { Control } from "react-hook-form";
 
 interface ContractDetailsProps {
   totalValue: string;
@@ -9,81 +13,153 @@ interface ContractDetailsProps {
   priceAdjustmentTerm: string;
   adjustmentIndex: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  formControl: Control<any>;
+  errors: any;
 }
 
-const ContractDetails = ({
-  totalValue,
-  duration,
-  signatureDate,
-  publicationDate,
-  priceAdjustmentTerm,
-  adjustmentIndex,
+const ContractDetails = ({ 
+  totalValue, 
+  duration, 
+  signatureDate, 
+  publicationDate, 
+  priceAdjustmentTerm, 
+  adjustmentIndex, 
   onChange,
+  formControl,
+  errors
 }: ContractDetailsProps) => {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold mb-4 text-warm-800">Detalhes do Contrato</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="totalValue">Valor Total do Contrato (R$)</Label>
-          <Input
-            id="totalValue"
-            name="totalValue"
-            type="number"
-            step="0.01"
-            value={totalValue}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label 
+              htmlFor="totalValue"
+              className={errors.totalValue ? "text-destructive" : ""}
+            >
+              Valor Total (R$)
+            </Label>
+            <FormControl>
+              <InputMask
+                mask="999999999.99"
+                maskChar={null}
+                value={totalValue}
+                onChange={onChange}
+              >
+                {(inputProps: any) => (
+                  <Input
+                    {...inputProps}
+                    id="totalValue"
+                    name="totalValue"
+                    type="text"
+                    className={errors.totalValue ? "border-destructive" : ""}
+                  />
+                )}
+              </InputMask>
+            </FormControl>
+            {errors.totalValue && (
+              <FormMessage>{errors.totalValue.message}</FormMessage>
+            )}
+          </FormItem>
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="duration">Prazo de Vigência (meses)</Label>
-          <Input
-            id="duration"
-            name="duration"
-            type="number"
-            value={duration}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label 
+              htmlFor="duration"
+              className={errors.duration ? "text-destructive" : ""}
+            >
+              Duração (meses)
+            </Label>
+            <FormControl>
+              <Input
+                id="duration"
+                name="duration"
+                type="number"
+                value={duration}
+                onChange={onChange}
+                className={errors.duration ? "border-destructive" : ""}
+              />
+            </FormControl>
+            {errors.duration && (
+              <FormMessage>{errors.duration.message}</FormMessage>
+            )}
+          </FormItem>
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="signatureDate">Data de Assinatura</Label>
-          <Input
-            id="signatureDate"
-            name="signatureDate"
-            type="date"
-            value={signatureDate}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label 
+              htmlFor="signatureDate"
+              className={errors.signatureDate ? "text-destructive" : ""}
+            >
+              Data de Assinatura
+            </Label>
+            <FormControl>
+              <Input
+                id="signatureDate"
+                name="signatureDate"
+                type="date"
+                value={signatureDate}
+                onChange={onChange}
+                className={errors.signatureDate ? "border-destructive" : ""}
+              />
+            </FormControl>
+            {errors.signatureDate && (
+              <FormMessage>{errors.signatureDate.message}</FormMessage>
+            )}
+          </FormItem>
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="publicationDate">Data de Publicação no Diário Oficial</Label>
-          <Input
-            id="publicationDate"
-            name="publicationDate"
-            type="date"
-            value={publicationDate}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label htmlFor="publicationDate">
+              Data de Publicação
+            </Label>
+            <FormControl>
+              <Input
+                id="publicationDate"
+                name="publicationDate"
+                type="date"
+                value={publicationDate}
+                onChange={onChange}
+              />
+            </FormControl>
+          </FormItem>
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="priceAdjustmentTerm">Prazo para Reajuste de Preço (anos)</Label>
-          <Input
-            id="priceAdjustmentTerm"
-            name="priceAdjustmentTerm"
-            type="number"
-            value={priceAdjustmentTerm}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label htmlFor="priceAdjustmentTerm">
+              Prazo para Reajuste (meses)
+            </Label>
+            <FormControl>
+              <Input
+                id="priceAdjustmentTerm"
+                name="priceAdjustmentTerm"
+                type="number"
+                value={priceAdjustmentTerm}
+                onChange={onChange}
+              />
+            </FormControl>
+          </FormItem>
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="adjustmentIndex">Índice de Reajuste</Label>
-          <Input
-            id="adjustmentIndex"
-            name="adjustmentIndex"
-            placeholder="Ex.: IGP-M"
-            value={adjustmentIndex}
-            onChange={onChange}
-          />
+          <FormItem className="space-y-1">
+            <Label htmlFor="adjustmentIndex">
+              Índice de Reajuste
+            </Label>
+            <FormControl>
+              <Input
+                id="adjustmentIndex"
+                name="adjustmentIndex"
+                value={adjustmentIndex}
+                onChange={onChange}
+              />
+            </FormControl>
+          </FormItem>
         </div>
       </div>
     </div>
