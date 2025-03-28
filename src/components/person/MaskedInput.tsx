@@ -7,18 +7,17 @@ const MaskedInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { mask: string }
 >(({ mask, className, ...props }, ref) => {
-  // Passando todas as props para o InputMask, inclusive as que podem ser undefined
   return (
     <InputMask 
       mask={mask} 
       maskChar={null}
-      {...props} // Passando todas as props para o InputMask
+      {...props} // Garantindo que todas as props sejam passadas ao InputMask
     >
       {(inputProps: any) => (
         <Input
           ref={ref}
           className={className}
-          {...inputProps}
+          {...inputProps} // Usando as props transformadas pelo InputMask
         />
       )}
     </InputMask>
