@@ -1,8 +1,7 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
-import InputMask from "react-input-mask";
+import MaskedInput from "@/components/person/MaskedInput";
 import { Control } from "react-hook-form";
 
 interface ContractDetailsProps {
@@ -41,22 +40,14 @@ const ContractDetails = ({
               Valor Total (R$)
             </Label>
             <FormControl>
-              <InputMask
+              <MaskedInput
                 mask="999999999.99"
-                maskChar={null}
-                value={totalValue}
-                onChange={onChange}
                 id="totalValue"
                 name="totalValue"
-              >
-                {(inputProps: any) => (
-                  <Input
-                    {...inputProps}
-                    type="text"
-                    className={errors.totalValue ? "border-destructive" : ""}
-                  />
-                )}
-              </InputMask>
+                value={totalValue}
+                onChange={onChange}
+                className={errors.totalValue ? "border-destructive" : ""}
+              />
             </FormControl>
             {errors.totalValue && (
               <FormMessage>{errors.totalValue.message}</FormMessage>
