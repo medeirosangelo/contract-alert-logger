@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,8 +29,11 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  console.log('Login page rendering', { isAuthenticated, isLoading });
+
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
+      console.log('User is authenticated, redirecting to dashboard');
       navigate("/dashboard");
     }
   }, [isAuthenticated, isLoading, navigate]);
@@ -47,6 +51,7 @@ const Login = () => {
 
     try {
       setIsSubmitting(true);
+      console.log('Attempting login with:', loginEmail);
       await login(loginEmail, loginPassword);
       navigate("/dashboard");
     } catch (error) {
@@ -78,6 +83,7 @@ const Login = () => {
 
     try {
       setIsSubmitting(true);
+      console.log('Attempting signup with:', signupEmail);
       await signUp(signupEmail, signupPassword, signupName);
       toast({
         title: "Cadastro realizado com sucesso",
@@ -99,7 +105,12 @@ const Login = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-warm-50">
-        <p>Carregando...</p>
+        <div className="w-full max-w-md space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-12 w-2/3 mx-auto" />
+          <p className="text-center text-gray-500">Carregando...</p>
+        </div>
       </div>
     );
   }

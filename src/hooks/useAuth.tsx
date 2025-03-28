@@ -23,15 +23,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    console.log('AuthProvider initialized');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, !!session);
+        
         setUser(session?.user || null);
         setIsAuthenticated(!!session?.user);
         
         if (session?.user) {
           try {
             const userRole = await authApi.getUserRole();
+            console.log('User role fetched on auth change:', userRole);
             setRole(userRole);
           } catch (error) {
             console.error('Error fetching user role in auth change:', error);
@@ -41,7 +46,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setRole(null);
         }
         
-        // Always make sure to turn off loading state
         setIsLoading(false);
       }
     );
@@ -49,13 +53,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // THEN check for existing session
     const fetchUser = async () => {
       try {
+        console.log('Checking for existing session');
         const { data: { session } } = await supabase.auth.getSession();
+        
+        console.log('Existing session found:', !!session);
         setUser(session?.user || null);
         setIsAuthenticated(!!session?.user);
         
         if (session?.user) {
           try {
             const userRole = await authApi.getUserRole();
+            console.log('User role fetched on init:', userRole);
             setRole(userRole);
           } catch (error) {
             console.error('Error fetching user role:', error);
@@ -70,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRole(null);
         setIsAuthenticated(false);
       } finally {
-        // Make sure isLoading is set to false regardless of outcome
+        console.log('Setting isLoading to false');
         setIsLoading(false);
       }
     };
@@ -78,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchUser();
 
     return () => {
+      console.log('Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
@@ -93,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       try {
         const userRole = await authApi.getUserRole();
+        console.log('User role after login:', userRole);
         setRole(userRole);
       } catch (error) {
         console.error('Error getting user role in login:', error);

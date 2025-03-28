@@ -38,9 +38,12 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<div className="flex items-center justify-center min-h-screen">Acesso negado</div>} />
             
+            {/* Protected routes - require authentication */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contracts" element={<ContractList />} />
@@ -56,11 +59,12 @@ function App() {
               <Route path="/alerts" element={<ContractAlerts />} />
             </Route>
             
+            {/* Admin routes - require authentication and admin role */}
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
               <Route path="/users" element={<UserPermissions />} />
             </Route>
 
-            <Route path="/unauthorized" element={<div>Acesso negado</div>} />
+            {/* Catch all route */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>

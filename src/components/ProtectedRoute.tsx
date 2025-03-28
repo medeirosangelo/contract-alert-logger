@@ -10,8 +10,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, role } = useAuth();
 
+  console.log('ProtectedRoute rendering:', { isAuthenticated, isLoading, role, allowedRoles });
+
   // Show loading state while checking authentication
   if (isLoading) {
+    console.log('ProtectedRoute: Loading state');
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md space-y-4">
