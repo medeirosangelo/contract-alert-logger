@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
 import MaskedInput from "./MaskedInput";
 import { Separator } from "@/components/ui/separator";
+import { PhysicalPersonFormData } from "./formSchema";
 
 interface PersonalInfoSectionProps {
-  control: Control<any>;
+  control: Control<PhysicalPersonFormData>;
 }
 
 const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ control }) => {
