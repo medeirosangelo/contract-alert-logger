@@ -32,6 +32,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  console.log('App rendering');
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -43,6 +44,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contracts" element={<ContractList />} />
+              <Route path="/contratos/finalizados" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
               <Route path="/contracts/template" element={<ContractTemplate />} />
               <Route path="/legal-persons" element={<LegalPersonList />} />

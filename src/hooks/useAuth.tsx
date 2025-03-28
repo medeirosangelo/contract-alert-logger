@@ -23,38 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setIsLoading(true);
-        const currentUser = await authApi.getCurrentUser();
-        setUser(currentUser);
-        setIsAuthenticated(!!currentUser);
-        
-        if (currentUser) {
-          try {
-            const userRole = await authApi.getUserRole();
-            setRole(userRole);
-          } catch (error) {
-            console.error('Error fetching user role:', error);
-            // Default to 'user' role if we can't fetch a specific role
-            setRole('user');
-          }
-        } else {
-          setRole(null);
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        setUser(null);
-        setRole(null);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUser();
-
-    // Set up auth state listener
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user || null);
@@ -66,14 +35,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setRole(userRole);
           } catch (error) {
             console.error('Error fetching user role in auth change:', error);
-            // Default to 'user' role if we can't fetch a specific role
             setRole('user');
           }
         } else {
           setRole(null);
         }
+        
+        // Always make sure to turn off loading state
+        setIsLoading(false);
       }
     );
+
+    // THEN check for existing session
+    const fetchUser = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+        setIsAuthenticated(!!session?.user);
+        
+        if (session?.user) {
+          try {
+            const userRole = await authApi.getUserRole();
+            setRole(userRole);
+          } catch (error) {
+            console.error('Error fetching user role:', error);
+            setRole('user');
+          }
+        } else {
+          setRole(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        setUser(null);
+        setRole(null);
+        setIsAuthenticated(false);
+      } finally {
+        // Make sure isLoading is set to false regardless of outcome
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
 
     return () => {
       subscription.unsubscribe();
@@ -94,7 +96,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRole(userRole);
       } catch (error) {
         console.error('Error getting user role in login:', error);
-        // Default to 'user' role if we can't fetch a specific role
         setRole('user');
       }
     }

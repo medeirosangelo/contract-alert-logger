@@ -2,9 +2,25 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  
+  console.log('Index page rendering', { isAuthenticated, isLoading });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50 p-4">
+        <div className="max-w-3xl text-center">
+          <Skeleton className="h-16 w-48 mx-auto mb-6" />
+          <Skeleton className="h-10 w-96 mx-auto mb-4" />
+          <Skeleton className="h-24 w-full mb-8" />
+          <Skeleton className="h-14 w-48 mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50 p-4">
