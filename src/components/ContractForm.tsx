@@ -1,257 +1,286 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Save, Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { contractsApi, ContractInsert } from "@/services/contracts";
+import { legalPersonsApi } from "@/services/legalPersons";
+import { physicalPersonsApi } from "@/services/physicalPersons";
+import { useQuery } from "@tanstack/react-query";
 import ContractIdentification from "./contract/ContractIdentification";
 import ContractorInfo from "./contract/ContractorInfo";
 import ContractDetails from "./contract/ContractDetails";
 import PaymentInfo from "./contract/PaymentInfo";
-import PenaltiesInfo from "./contract/PenaltiesInfo";
 import BudgetClassification from "./contract/BudgetClassification";
+import PenaltiesInfo from "./contract/PenaltiesInfo";
 import AdditionalInfo from "./contract/AdditionalInfo";
-import { generateContractPDF } from "@/utils/contractUtils";
-import { fetchCompanyByCNPJ } from "@/services/company";
-
-interface ContractFormData {
-  contractNumber: string;
-  object: string;
-  contractorCompanyName: string;
-  contractorAddress: string;
-  contractorCnpj: string;
-  contractedCompanyName: string;
-  contractedAddress: string;
-  contractedCnpj: string;
-  legalRepName: string;
-  legalRepCpf: string;
-  email: string;
-  totalValue: string;
-  duration: string;
-  signatureDate: string;
-  publicationDate: string;
-  priceAdjustmentTerm: string;
-  adjustmentIndex: string;
-  bank: string;
-  agency: string;
-  account: string;
-  paymentTerm: string;
-  delayPenalty: string;
-  terminationPenalty: string;
-  budgetUnit: string;
-  workProgram: string;
-  expenseNature: string;
-  resourceSource: string;
-  witness1Name: string;
-  witness1Cpf: string;
-  witness2Name: string;
-  witness2Cpf: string;
-  signatureLocation: string;
-  generalObservations: string;
-}
 
 const ContractForm = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState<ContractFormData>({
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    // Identification
     contractNumber: "",
     object: "",
+    
+    // Contractor
     contractorCompanyName: "",
     contractorAddress: "",
     contractorCnpj: "",
+    
+    // Contracted
     contractedCompanyName: "",
     contractedAddress: "",
     contractedCnpj: "",
     legalRepName: "",
     legalRepCpf: "",
     email: "",
+    
+    // Contract Details
     totalValue: "",
     duration: "",
     signatureDate: "",
     publicationDate: "",
     priceAdjustmentTerm: "",
     adjustmentIndex: "",
+    
+    // Payment Info
     bank: "",
     agency: "",
     account: "",
     paymentTerm: "",
-    delayPenalty: "",
-    terminationPenalty: "",
+    
+    // Budget Classification
     budgetUnit: "",
     workProgram: "",
     expenseNature: "",
     resourceSource: "",
+    
+    // Penalties
+    delayPenalty: "",
+    terminationPenalty: "",
+    
+    // Additional Info
     witness1Name: "",
     witness1Cpf: "",
     witness2Name: "",
     witness2Cpf: "",
     signatureLocation: "",
-    generalObservations: "",
+    generalObservations: ""
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Contrato salvo com sucesso!",
-      description: "O contrato foi cadastrado no sistema.",
-    });
-  };
-
-  const handleInputChange = async (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  
+  // Fetch legal persons for dropdown selection
+  const { data: legalPersons, isLoading: isLoadingLegalPersons } = useQuery({
+    queryKey: ["legalPersons"],
+    queryFn: legalPersonsApi.getAll,
+  });
+  
+  // Fetch physical persons for witnesses
+  const { data: physicalPersons, isLoading: isLoadingPhysicalPersons } = useQuery({
+    queryKey: ["physicalPersons"],
+    queryFn: physicalPersonsApi.getAll,
+  });
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Auto-fill data when CPF/CNPJ is entered
-    if (name === "contractorCnpj" || name === "contractedCnpj") {
-      console.log(`Fetching data for ${name}:`, value);
-      try {
-        const companyData = await fetchCompanyByCNPJ(value);
-        console.log('Received company data:', companyData);
-        
-        if (companyData.companyName) {
-          setFormData(prev => ({
-            ...prev,
-            [`${name === "contractorCnpj" ? "contractor" : "contracted"}CompanyName`]: companyData.companyName,
-            [`${name === "contractorCnpj" ? "contractor" : "contracted"}Address`]: companyData.address,
-            ...(name === "contractedCnpj" && {
-              legalRepName: companyData.legalRepName,
-              legalRepCpf: companyData.legalRepCpf,
-              email: companyData.email,
-            }),
-          }));
-
-          toast({
-            title: "Dados preenchidos automaticamente",
-            description: "Os dados da empresa foram carregados com sucesso.",
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching company data:', error);
-        toast({
-          title: "Erro ao carregar dados",
-          description: "Não foi possível carregar os dados da empresa.",
-          variant: "destructive",
-        });
-      }
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
-
-  const handleGenerateContract = async () => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
-      const contractNumber = formData.contractNumber || `${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`;
-      const contractData = {
-        contractNumber,
+      setIsSubmitting(true);
+      
+      // Format contract data to match database structure
+      const contractData: ContractInsert = {
+        contract_number: formData.contractNumber,
         object: formData.object,
-        contractorName: formData.contractorCompanyName,
-        contractorAddress: formData.contractorAddress,
-        contractorCnpj: formData.contractorCnpj,
-        contractedName: formData.contractedCompanyName,
-        contractedAddress: formData.contractedAddress,
-        contractedCnpj: formData.contractedCnpj,
-        legalRepName: formData.legalRepName,
-        legalRepCpf: formData.legalRepCpf,
-        totalValue: formData.totalValue,
-        duration: formData.duration,
-        signatureDate: formData.signatureDate,
-        witness1Name: formData.witness1Name,
-        witness1Cpf: formData.witness1Cpf,
-        witness2Name: formData.witness2Name,
-        witness2Cpf: formData.witness2Cpf,
-        signatureLocation: formData.signatureLocation,
+        total_value: Number(formData.totalValue),
+        duration: Number(formData.duration),
+        signature_date: formData.signatureDate,
+        publication_date: formData.publicationDate || null,
+        price_adjustment_term: formData.priceAdjustmentTerm ? Number(formData.priceAdjustmentTerm) : null,
+        adjustment_index: formData.adjustmentIndex || null,
+        bank: formData.bank || null,
+        agency: formData.agency || null,
+        account: formData.account || null,
+        payment_term: formData.paymentTerm || null,
+        budget_unit: formData.budgetUnit || null,
+        work_program: formData.workProgram || null,
+        expense_nature: formData.expenseNature || null,
+        resource_source: formData.resourceSource || null,
+        delay_penalty: formData.delayPenalty || null,
+        termination_penalty: formData.terminationPenalty || null,
+        signature_location: formData.signatureLocation || null,
+        general_observations: formData.generalObservations || null,
+        
+        // Calculate start and end dates based on signature date and duration
+        start_date: formData.signatureDate,
+        end_date: calculateEndDate(formData.signatureDate, Number(formData.duration)),
+        
+        // These would come from API lookups in a real implementation
+        contractor_id: null, // To be replaced with actual lookup
+        contracted_id: null, // To be replaced with actual lookup
+        legal_rep_id: null,  // To be replaced with actual lookup
+        witness1_id: null,   // To be replaced with actual lookup
+        witness2_id: null,   // To be replaced with actual lookup
+        
+        // Default status to active
+        status: 'active'
       };
-
-      await generateContractPDF(contractData);
+      
+      console.log("Submitting contract data:", contractData);
+      await contractsApi.create(contractData);
+      
       toast({
-        title: "Contrato gerado com sucesso!",
-        description: "O arquivo PDF foi baixado automaticamente.",
+        title: "Contrato cadastrado com sucesso!",
+        description: "Os dados do contrato foram salvos.",
       });
+      
+      // Navigate to contract list
+      navigate("/contracts");
     } catch (error) {
-      console.error("Error generating contract:", error);
+      console.error("Error creating contract:", error);
       toast({
-        title: "Erro ao gerar contrato",
-        description: "Não foi possível gerar o arquivo PDF.",
+        title: "Erro ao cadastrar contrato",
+        description: "Ocorreu um erro ao salvar os dados do contrato.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
+  
+  // Helper function to calculate end date
+  const calculateEndDate = (startDateStr: string, durationMonths: number): string => {
+    if (!startDateStr || isNaN(durationMonths)) return '';
+    
+    const startDate = new Date(startDateStr);
+    startDate.setMonth(startDate.getMonth() + durationMonths);
+    
+    return startDate.toISOString().split('T')[0];
+  };
+  
+  if (isLoadingLegalPersons || isLoadingPhysicalPersons) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-lg">Carregando dados...</span>
+      </div>
+    );
+  }
+  
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
-      <ContractIdentification
-        contractNumber={formData.contractNumber}
-        object={formData.object}
-        onChange={handleInputChange}
-      />
-
-      <ContractorInfo
-        type="contractor"
-        companyName={formData.contractorCompanyName}
-        address={formData.contractorAddress}
-        cnpj={formData.contractorCnpj}
-        legalRepName=""
-        legalRepCpf=""
-        email=""
-        onChange={handleInputChange}
-      />
-
-      <ContractorInfo
-        type="contracted"
-        companyName={formData.contractedCompanyName}
-        address={formData.contractedAddress}
-        cnpj={formData.contractedCnpj}
-        legalRepName={formData.legalRepName}
-        legalRepCpf={formData.legalRepCpf}
-        email={formData.email}
-        onChange={handleInputChange}
-      />
-
-      <ContractDetails
-        totalValue={formData.totalValue}
-        duration={formData.duration}
-        signatureDate={formData.signatureDate}
-        publicationDate={formData.publicationDate}
-        priceAdjustmentTerm={formData.priceAdjustmentTerm}
-        adjustmentIndex={formData.adjustmentIndex}
-        onChange={handleInputChange}
-      />
-
-      <PaymentInfo
-        bank={formData.bank}
-        agency={formData.agency}
-        account={formData.account}
-        paymentTerm={formData.paymentTerm}
-        onChange={handleInputChange}
-      />
-
-      <PenaltiesInfo
-        delayPenalty={formData.delayPenalty}
-        terminationPenalty={formData.terminationPenalty}
-        onChange={handleInputChange}
-      />
-
-      <BudgetClassification
-        budgetUnit={formData.budgetUnit}
-        workProgram={formData.workProgram}
-        expenseNature={formData.expenseNature}
-        resourceSource={formData.resourceSource}
-        onChange={handleInputChange}
-      />
-
-      <AdditionalInfo
-        witness1Name={formData.witness1Name}
-        witness1Cpf={formData.witness1Cpf}
-        witness2Name={formData.witness2Name}
-        witness2Cpf={formData.witness2Cpf}
-        signatureLocation={formData.signatureLocation}
-        generalObservations={formData.generalObservations}
-        onChange={handleInputChange}
-      />
-
-      <div className="flex justify-end gap-4">
-        <Button variant="outline">Cancelar</Button>
-        <Button onClick={handleGenerateContract} type="button" variant="outline" className="bg-green-500 text-white hover:bg-green-600">
-          Gerar Contrato
-        </Button>
-        <Button type="submit">Salvar Contrato</Button>
+    <form onSubmit={handleSubmit} className="space-y-6 mb-8">
+      <div className="bg-white rounded-lg shadow-md p-6 border border-warm-200">
+        <h2 className="text-2xl font-bold text-warm-800 mb-6">Cadastro de Contrato</h2>
+        
+        <div className="space-y-6">
+          {/* Contract Identification */}
+          <ContractIdentification 
+            contractNumber={formData.contractNumber} 
+            object={formData.object} 
+            onChange={handleInputChange} 
+          />
+          
+          {/* Contractor Information */}
+          <ContractorInfo 
+            companyName={formData.contractorCompanyName}
+            address={formData.contractorAddress}
+            cnpj={formData.contractorCnpj}
+            legalRepName=""
+            legalRepCpf=""
+            email=""
+            onChange={handleInputChange}
+            type="contractor"
+          />
+          
+          {/* Contracted Information */}
+          <ContractorInfo 
+            companyName={formData.contractedCompanyName}
+            address={formData.contractedAddress}
+            cnpj={formData.contractedCnpj}
+            legalRepName={formData.legalRepName}
+            legalRepCpf={formData.legalRepCpf}
+            email={formData.email}
+            onChange={handleInputChange}
+            type="contracted"
+          />
+          
+          {/* Contract Details */}
+          <ContractDetails 
+            totalValue={formData.totalValue}
+            duration={formData.duration}
+            signatureDate={formData.signatureDate}
+            publicationDate={formData.publicationDate}
+            priceAdjustmentTerm={formData.priceAdjustmentTerm}
+            adjustmentIndex={formData.adjustmentIndex}
+            onChange={handleInputChange}
+          />
+          
+          {/* Payment Information */}
+          <PaymentInfo 
+            bank={formData.bank}
+            agency={formData.agency}
+            account={formData.account}
+            paymentTerm={formData.paymentTerm}
+            onChange={handleInputChange}
+          />
+          
+          {/* Budget Classification */}
+          <BudgetClassification 
+            budgetUnit={formData.budgetUnit}
+            workProgram={formData.workProgram}
+            expenseNature={formData.expenseNature}
+            resourceSource={formData.resourceSource}
+            onChange={handleInputChange}
+          />
+          
+          {/* Penalties Information */}
+          <PenaltiesInfo 
+            delayPenalty={formData.delayPenalty}
+            terminationPenalty={formData.terminationPenalty}
+            onChange={handleInputChange}
+          />
+          
+          {/* Additional Information */}
+          <AdditionalInfo 
+            witness1Name={formData.witness1Name}
+            witness1Cpf={formData.witness1Cpf}
+            witness2Name={formData.witness2Name}
+            witness2Cpf={formData.witness2Cpf}
+            signatureLocation={formData.signatureLocation}
+            generalObservations={formData.generalObservations}
+            onChange={handleInputChange}
+          />
+        </div>
+        
+        <div className="mt-8 flex justify-end">
+          <Button 
+            type="submit" 
+            className="bg-primary hover:bg-primary/90 text-white gap-2"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Processando...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Salvar Contrato
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   );
