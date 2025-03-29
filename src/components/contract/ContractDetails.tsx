@@ -1,8 +1,9 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
-import InputMask from "react-input-mask";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Control } from "react-hook-form";
 
 interface ContractDetailsProps {
@@ -16,35 +17,6 @@ interface ContractDetailsProps {
   formControl: Control<any>;
   errors: any;
 }
-
-// Create a MaskedInput component that handles the disabled prop properly
-const MaskedInput = ({ mask, value, onChange, id, name, className, disabled = false }: {
-  mask: string;
-  value: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id: string;
-  name: string;
-  className?: string;
-  disabled?: boolean;
-}) => {
-  return (
-    <InputMask
-      mask={mask}
-      maskChar={null}
-      value={value}
-      onChange={onChange}
-      id={id}
-      name={name}
-      disabled={disabled}
-    >
-      {(inputProps: any) => {
-        // Make sure we correctly handle the disabled prop here
-        const props = { ...inputProps, disabled: disabled || false };
-        return <Input {...props} type="text" className={className} />;
-      }}
-    </InputMask>
-  );
-};
 
 const ContractDetails = ({ 
   totalValue, 

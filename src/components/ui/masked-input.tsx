@@ -22,7 +22,7 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         {...props}
       >
         {(inputProps: any) => {
-          // Ensure disabled prop is explicitly passed to Input
+          // Make sure we explicitly set disabled prop to avoid undefined errors
           const inputPropsWithDisabled = { 
             ...inputProps, 
             disabled: disabled || false,

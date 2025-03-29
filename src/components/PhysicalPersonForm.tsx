@@ -27,7 +27,7 @@ import { UserPlus, Save, Loader2 } from "lucide-react";
 import { physicalPersonsApi, PhysicalPersonInsert } from "@/services/physicalPersons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import InputMask from "react-input-mask";
+import { MaskedInput } from "@/components/ui/masked-input";
 
 const formSchema = z.object({
   full_name: z.string().min(2, "Nome completo é obrigatório"),
@@ -124,25 +124,6 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
       setIsSubmitting(false);
     }
   };
-
-  // Create a custom component to wrap InputMask with proper props
-  const MaskedInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { mask: string }>(
-    ({ mask, className, ...props }, ref) => {
-      // Ensure the disabled prop is properly passed
-      const disabled = props.disabled || false;
-      
-      return (
-        <InputMask mask={mask} maskChar={null} {...props} disabled={disabled}>
-          {(inputProps: any) => {
-            // Ensure disabled prop is passed to the Input component
-            const inputPropsWithDisabled = { ...inputProps, disabled };
-            return <Input ref={ref} className={className} {...inputPropsWithDisabled} />;
-          }}
-        </InputMask>
-      );
-    }
-  );
-  MaskedInput.displayName = "MaskedInput";
 
   return (
     <Card className="shadow-lg border-warm-200 animate-fadeIn">

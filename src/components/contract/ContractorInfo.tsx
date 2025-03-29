@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
-import InputMask from "react-input-mask";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Control } from "react-hook-form";
 
 interface ContractorInfoProps {
@@ -95,21 +95,14 @@ const ContractorInfo = ({
               CNPJ
             </Label>
             <FormControl>
-              <InputMask
+              <MaskedInput
                 mask="99.999.999/9999-99"
-                maskChar={null}
                 value={cnpj}
                 onChange={onChange}
                 id={`${prefix}Cnpj`}
                 name={`${prefix}Cnpj`}
-              >
-                {(inputProps: any) => (
-                  <Input
-                    {...inputProps}
-                    className={errors[`${prefix}Cnpj`] ? "border-destructive" : ""}
-                  />
-                )}
-              </InputMask>
+                className={errors[`${prefix}Cnpj`] ? "border-destructive" : ""}
+              />
             </FormControl>
             {errors[`${prefix}Cnpj`] && (
               <FormMessage>{errors[`${prefix}Cnpj`].message}</FormMessage>
@@ -151,21 +144,14 @@ const ContractorInfo = ({
                   CPF do Representante
                 </Label>
                 <FormControl>
-                  <InputMask
+                  <MaskedInput
                     mask="999.999.999-99"
-                    maskChar={null}
                     value={legalRepCpf}
                     onChange={onChange}
                     id="legalRepCpf"
                     name="legalRepCpf"
-                  >
-                    {(inputProps: any) => (
-                      <Input
-                        {...inputProps}
-                        className={errors.legalRepCpf ? "border-destructive" : ""}
-                      />
-                    )}
-                  </InputMask>
+                    className={errors.legalRepCpf ? "border-destructive" : ""}
+                  />
                 </FormControl>
                 {errors.legalRepCpf && (
                   <FormMessage>{errors.legalRepCpf.message}</FormMessage>

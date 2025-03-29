@@ -27,50 +27,7 @@ import { Building2, Save, Loader2 } from "lucide-react";
 import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import InputMask from "react-input-mask";
-
-// Create a MaskedInput component that properly handles props
-const MaskedInput = ({ 
-  mask, 
-  value, 
-  onChange, 
-  id, 
-  name, 
-  className, 
-  disabled = false 
-}: {
-  mask: string;
-  value: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id: string;
-  name: string;
-  className?: string;
-  disabled?: boolean;
-}) => {
-  return (
-    <InputMask
-      mask={mask}
-      maskChar={null}
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-    >
-      {(inputProps: any) => {
-        // Make sure we correctly handle the disabled prop
-        const props = { ...inputProps, disabled: disabled || false };
-        return (
-          <Input
-            {...props}
-            id={id}
-            name={name}
-            type="text"
-            className={className}
-          />
-        );
-      }}
-    </InputMask>
-  );
-};
+import { MaskedInput } from "@/components/ui/masked-input";
 
 const formSchema = z.object({
   company_name: z.string().min(2, "Razão social é obrigatória"),
@@ -239,19 +196,13 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CNPJ</FormLabel>
                       <FormControl>
-                        <Controller
+                        <MaskedInput
+                          mask="99.999.999/9999-99"
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="cnpj"
                           name="cnpj"
-                          control={form.control}
-                          render={({ field }) => (
-                            <MaskedInput
-                              mask="99.999.999/9999-99"
-                              value={field.value}
-                              onChange={field.onChange}
-                              id="cnpj"
-                              name="cnpj"
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
+                          className="border-warm-300 focus:border-primary"
                         />
                       </FormControl>
                       <FormMessage />
@@ -370,19 +321,13 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <Controller
+                        <MaskedInput
+                          mask="99999-999"
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="zip_code"
                           name="zip_code"
-                          control={form.control}
-                          render={({ field }) => (
-                            <MaskedInput
-                              mask="99999-999"
-                              value={field.value}
-                              onChange={field.onChange}
-                              id="zip_code"
-                              name="zip_code"
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
+                          className="border-warm-300 focus:border-primary"
                         />
                       </FormControl>
                       <FormMessage />
@@ -403,19 +348,13 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Controller
+                        <MaskedInput
+                          mask="(99) 99999-9999"
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="phone"
                           name="phone"
-                          control={form.control}
-                          render={({ field }) => (
-                            <MaskedInput
-                              mask="(99) 99999-9999"
-                              value={field.value}
-                              onChange={field.onChange}
-                              id="phone"
-                              name="phone"
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
+                          className="border-warm-300 focus:border-primary"
                         />
                       </FormControl>
                       <FormMessage />
@@ -464,19 +403,13 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CPF do Representante Legal</FormLabel>
                       <FormControl>
-                        <Controller
+                        <MaskedInput
+                          mask="999.999.999-99"
+                          value={field.value}
+                          onChange={field.onChange}
+                          id="legal_rep_cpf"
                           name="legal_rep_cpf"
-                          control={form.control}
-                          render={({ field }) => (
-                            <MaskedInput
-                              mask="999.999.999-99"
-                              value={field.value}
-                              onChange={field.onChange}
-                              id="legal_rep_cpf"
-                              name="legal_rep_cpf"
-                              className="border-warm-300 focus:border-primary"
-                            />
-                          )}
+                          className="border-warm-300 focus:border-primary"
                         />
                       </FormControl>
                       <FormMessage />
