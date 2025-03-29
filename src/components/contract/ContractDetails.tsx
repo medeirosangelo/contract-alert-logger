@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
@@ -16,6 +17,38 @@ interface ContractDetailsProps {
   formControl: Control<any>;
   errors: any;
 }
+
+// Create a MaskedInput component that handles the disabled prop properly
+const MaskedInput = ({ mask, value, onChange, id, name, className, disabled = false }: {
+  mask: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  id: string;
+  name: string;
+  className?: string;
+  disabled?: boolean;
+}) => {
+  return (
+    <InputMask
+      mask={mask}
+      maskChar={null}
+      value={value}
+      onChange={onChange}
+      id={id}
+      name={name}
+      disabled={disabled}
+    >
+      {(inputProps: any) => (
+        <Input
+          {...inputProps}
+          type="text"
+          className={className}
+          disabled={disabled}
+        />
+      )}
+    </InputMask>
+  );
+};
 
 const ContractDetails = ({ 
   totalValue, 
@@ -41,22 +74,14 @@ const ContractDetails = ({
               Valor Total (R$)
             </Label>
             <FormControl>
-              <InputMask
+              <MaskedInput
                 mask="999999999.99"
-                maskChar={null}
                 value={totalValue}
                 onChange={onChange}
                 id="totalValue"
                 name="totalValue"
-              >
-                {(inputProps: any) => (
-                  <Input
-                    {...inputProps}
-                    type="text"
-                    className={errors.totalValue ? "border-destructive" : ""}
-                  />
-                )}
-              </InputMask>
+                className={errors.totalValue ? "border-destructive" : ""}
+              />
             </FormControl>
             {errors.totalValue && (
               <FormMessage>{errors.totalValue.message}</FormMessage>
