@@ -1,4 +1,5 @@
 
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
@@ -27,6 +28,46 @@ import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputMask from "react-input-mask";
+
+// Create a MaskedInput component that properly handles props
+const MaskedInput = ({ 
+  mask, 
+  value, 
+  onChange, 
+  id, 
+  name, 
+  className, 
+  disabled = false 
+}: {
+  mask: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  id: string;
+  name: string;
+  className?: string;
+  disabled?: boolean;
+}) => {
+  return (
+    <InputMask
+      mask={mask}
+      maskChar={null}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+    >
+      {(inputProps: any) => (
+        <Input
+          {...inputProps}
+          id={id}
+          name={name}
+          type="text"
+          className={className}
+          disabled={disabled}
+        />
+      )}
+    </InputMask>
+  );
+};
 
 const formSchema = z.object({
   company_name: z.string().min(2, "Razão social é obrigatória"),
@@ -159,6 +200,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Company Info Fields */}
                 <FormField
                   control={form.control}
                   name="company_name"
@@ -198,19 +240,14 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                           name="cnpj"
                           control={form.control}
                           render={({ field }) => (
-                            <InputMask
+                            <MaskedInput
                               mask="99.999.999/9999-99"
-                              maskChar={null}
                               value={field.value}
                               onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                              id="cnpj"
+                              name="cnpj"
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
                         />
                       </FormControl>
@@ -238,6 +275,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Address Fields */}
                 <FormField
                   control={form.control}
                   name="street"
@@ -333,19 +371,14 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                           name="zip_code"
                           control={form.control}
                           render={({ field }) => (
-                            <InputMask
+                            <MaskedInput
                               mask="99999-999"
-                              maskChar={null}
                               value={field.value}
                               onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                              id="zip_code"
+                              name="zip_code"
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
                         />
                       </FormControl>
@@ -359,6 +392,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Contact Fields */}
                 <FormField
                   control={form.control}
                   name="phone"
@@ -370,19 +404,14 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                           name="phone"
                           control={form.control}
                           render={({ field }) => (
-                            <InputMask
+                            <MaskedInput
                               mask="(99) 99999-9999"
-                              maskChar={null}
                               value={field.value}
                               onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                              id="phone"
+                              name="phone"
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
                         />
                       </FormControl>
@@ -410,6 +439,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Legal Representative Fields */}
                 <FormField
                   control={form.control}
                   name="legal_rep_name"
@@ -435,19 +465,14 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                           name="legal_rep_cpf"
                           control={form.control}
                           render={({ field }) => (
-                            <InputMask
+                            <MaskedInput
                               mask="999.999.999-99"
-                              maskChar={null}
                               value={field.value}
                               onChange={field.onChange}
-                            >
-                              {(inputProps: any) => (
-                                <Input 
-                                  {...inputProps}
-                                  className="border-warm-300 focus:border-primary"
-                                />
-                              )}
-                            </InputMask>
+                              id="legal_rep_cpf"
+                              name="legal_rep_cpf"
+                              className="border-warm-300 focus:border-primary"
+                            />
                           )}
                         />
                       </FormControl>
@@ -475,6 +500,7 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Banking Fields */}
                 <FormField
                   control={form.control}
                   name="bank"
