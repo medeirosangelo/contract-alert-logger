@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,14 +37,11 @@ const MaskedInput = ({ mask, value, onChange, id, name, className, disabled = fa
       name={name}
       disabled={disabled}
     >
-      {(inputProps: any) => (
-        <Input
-          {...inputProps}
-          type="text"
-          className={className}
-          disabled={disabled}
-        />
-      )}
+      {(inputProps: any) => {
+        // Make sure we correctly handle the disabled prop here
+        const props = { ...inputProps, disabled: disabled || false };
+        return <Input {...props} type="text" className={className} />;
+      }}
     </InputMask>
   );
 };

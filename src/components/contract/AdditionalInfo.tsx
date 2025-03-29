@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,35 @@ interface AdditionalInfoProps {
   formControl: Control<any>;
   errors: any;
 }
+
+// Create a MaskedInput component to properly handle InputMask
+const MaskedInput = ({ mask, value, onChange, id, name, className, disabled = false }: {
+  mask: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  id: string;
+  name: string;
+  className?: string;
+  disabled?: boolean;
+}) => {
+  return (
+    <InputMask
+      mask={mask}
+      maskChar={null}
+      value={value}
+      onChange={onChange}
+      id={id}
+      name={name}
+      disabled={disabled}
+    >
+      {(inputProps: any) => {
+        // Make sure we explicitly set disabled prop
+        const props = { ...inputProps, disabled: disabled || false };
+        return <Input {...props} type="text" className={className} />;
+      }}
+    </InputMask>
+  );
+};
 
 const AdditionalInfo = ({
   witness1Name,
@@ -59,20 +89,13 @@ const AdditionalInfo = ({
                   CPF da Testemunha 1
                 </Label>
                 <FormControl>
-                  <InputMask
+                  <MaskedInput
                     mask="999.999.999-99"
-                    maskChar={null}
                     value={witness1Cpf}
                     onChange={onChange}
                     id="witness1Cpf"
                     name="witness1Cpf"
-                  >
-                    {(inputProps: any) => (
-                      <Input
-                        {...inputProps}
-                      />
-                    )}
-                  </InputMask>
+                  />
                 </FormControl>
               </FormItem>
             </div>
@@ -99,20 +122,13 @@ const AdditionalInfo = ({
                   CPF da Testemunha 2
                 </Label>
                 <FormControl>
-                  <InputMask
+                  <MaskedInput
                     mask="999.999.999-99"
-                    maskChar={null}
                     value={witness2Cpf}
                     onChange={onChange}
                     id="witness2Cpf"
                     name="witness2Cpf"
-                  >
-                    {(inputProps: any) => (
-                      <Input
-                        {...inputProps}
-                      />
-                    )}
-                  </InputMask>
+                  />
                 </FormControl>
               </FormItem>
             </div>

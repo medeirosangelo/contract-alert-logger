@@ -128,9 +128,16 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
   // Create a custom component to wrap InputMask with proper props
   const MaskedInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { mask: string }>(
     ({ mask, className, ...props }, ref) => {
+      // Ensure the disabled prop is properly passed
+      const disabled = props.disabled || false;
+      
       return (
-        <InputMask mask={mask} maskChar={null} {...props}>
-          {() => <Input ref={ref} className={className} />}
+        <InputMask mask={mask} maskChar={null} {...props} disabled={disabled}>
+          {(inputProps: any) => {
+            // Ensure disabled prop is passed to the Input component
+            const inputPropsWithDisabled = { ...inputProps, disabled };
+            return <Input ref={ref} className={className} {...inputPropsWithDisabled} />;
+          }}
         </InputMask>
       );
     }

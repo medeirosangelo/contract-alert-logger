@@ -55,16 +55,19 @@ const MaskedInput = ({
       onChange={onChange}
       disabled={disabled}
     >
-      {(inputProps: any) => (
-        <Input
-          {...inputProps}
-          id={id}
-          name={name}
-          type="text"
-          className={className}
-          disabled={disabled}
-        />
-      )}
+      {(inputProps: any) => {
+        // Make sure we correctly handle the disabled prop
+        const props = { ...inputProps, disabled: disabled || false };
+        return (
+          <Input
+            {...props}
+            id={id}
+            name={name}
+            type="text"
+            className={className}
+          />
+        );
+      }}
     </InputMask>
   );
 };
