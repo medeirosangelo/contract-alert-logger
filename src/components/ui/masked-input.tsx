@@ -21,14 +21,22 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         disabled={disabled}
         {...props}
       >
-        {(inputProps: any) => (
-          <Input 
-            ref={ref} 
-            disabled={disabled}  // Explicitly pass disabled here
-            className={cn(className)}
-            {...inputProps} 
-          />
-        )}
+        {(inputProps: any) => {
+          // Garantir que estamos passando o disabled corretamente
+          const safeInputProps = {
+            ...inputProps,
+            disabled: disabled // Explicitamente definir disabled
+          };
+          
+          return (
+            <Input 
+              ref={ref} 
+              className={cn(className)}
+              disabled={disabled} // Garantir que disabled é passado para o Input
+              {...safeInputProps} 
+            />
+          );
+        }}
       </InputMask>
     );
   }
