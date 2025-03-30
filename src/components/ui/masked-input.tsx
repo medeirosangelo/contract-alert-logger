@@ -12,7 +12,7 @@ interface MaskedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
-  ({ className, mask, maskChar = null, disabled = false, ...props }, ref) => {
+  ({ className, mask, maskChar = null, disabled, ...props }, ref) => {
     return (
       <InputMask
         mask={mask}
