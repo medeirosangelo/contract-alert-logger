@@ -16,6 +16,21 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
     // Garantir que disabled seja sempre um booleano
     const isDisabled = Boolean(disabled);
     
+    // Criar uma função de renderização para o InputMask
+    const renderInput = (inputProps: any) => {
+      const safeInputProps = inputProps || {};
+      
+      return (
+        <Input 
+          ref={ref} 
+          className={cn(className)}
+          disabled={isDisabled}
+          {...props}
+          {...safeInputProps}
+        />
+      );
+    };
+    
     return (
       <InputMask
         mask={mask}
@@ -24,22 +39,7 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         alwaysShowMask={false}
         {...props}
       >
-        {(inputProps: any) => {
-          // Garantir que inputProps não é undefined
-          const safeInputProps = inputProps || {};
-          
-          return (
-            <Input 
-              ref={ref} 
-              className={cn(className)}
-              disabled={isDisabled}
-              onChange={safeInputProps.onChange}
-              onBlur={safeInputProps.onBlur}
-              value={safeInputProps.value || ''}
-              type={safeInputProps.type || 'text'}
-            />
-          );
-        }}
+        {renderInput}
       </InputMask>
     );
   }
