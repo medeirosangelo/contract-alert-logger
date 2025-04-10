@@ -1,9 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { LegalPerson, LegalPersonInsert } from "./types";
+import type { LegalPerson, LegalPersonInsert } from "./types";
 
-export { LegalPerson, LegalPersonInsert };
+export type { LegalPerson, LegalPersonInsert };
 
 export const legalPersonsApi = {
   getAll: async () => {
