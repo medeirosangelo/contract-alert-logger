@@ -16,6 +16,32 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
     // Garantir que disabled seja sempre um booleano
     const isDisabled = Boolean(disabled);
     
+    // Função de renderização segura para o children do InputMask
+    const renderInput = (inputProps: any) => {
+      // Se inputProps for undefined ou null, retorna componente com propriedades mínimas
+      if (!inputProps) {
+        return <Input ref={ref} className={cn(className)} disabled={isDisabled} />;
+      }
+      
+      // Define propriedades seguras com valores padrão para evitar undefined
+      const safeProps = {
+        onChange: typeof inputProps.onChange === 'function' ? inputProps.onChange : undefined,
+        onBlur: typeof inputProps.onBlur === 'function' ? inputProps.onBlur : undefined,
+        value: inputProps.value !== undefined ? inputProps.value : '',
+        type: inputProps.type || 'text',
+      };
+      
+      return (
+        <Input 
+          ref={ref} 
+          className={cn(className)}
+          disabled={isDisabled}
+          {...safeProps}
+        />
+      );
+    };
+    
+    // Passando o renderInput como children em vez de usar uma função inline
     return (
       <InputMask
         mask={mask}
@@ -24,29 +50,7 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         alwaysShowMask={false}
         {...props}
       >
-        {(inputProps: any) => {
-          // Se inputProps for undefined, retorna componente com propriedades mínimas
-          if (!inputProps) {
-            return <Input ref={ref} className={cn(className)} disabled={isDisabled} />;
-          }
-          
-          // Define propriedades seguras com valores padrão para evitar undefined
-          const safeProps = {
-            onChange: typeof inputProps.onChange === 'function' ? inputProps.onChange : undefined,
-            onBlur: typeof inputProps.onBlur === 'function' ? inputProps.onBlur : undefined,
-            value: inputProps.value !== undefined ? inputProps.value : '',
-            type: inputProps.type || 'text',
-          };
-          
-          return (
-            <Input 
-              ref={ref} 
-              className={cn(className)}
-              disabled={isDisabled}
-              {...safeProps}
-            />
-          );
-        }}
+        {renderInput}
       </InputMask>
     );
   }
