@@ -16,25 +16,6 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
     // Garantir que disabled seja sempre um booleano
     const isDisabled = Boolean(disabled);
     
-    // Função de renderização separada para o InputMask
-    // Esta abordagem garante que as props sejam tratadas corretamente
-    const renderInput = (inputProps: any) => {
-      // Evitar props undefined
-      const safeProps = { ...props };
-      const safeInputProps = inputProps || {};
-      
-      // Não passar as props diretamente para o Input para evitar duplicação
-      // O InputMask já cria props com handlers para onChange, onBlur, etc.
-      return (
-        <Input 
-          ref={ref} 
-          className={cn(className)}
-          disabled={isDisabled}
-          {...safeInputProps}
-        />
-      );
-    };
-    
     return (
       <InputMask
         mask={mask}
@@ -43,7 +24,26 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         alwaysShowMask={false}
         {...props}
       >
-        {renderInput}
+        {(inputProps: any) => {
+          // Criar cópia segura das props em vez de usar a referência direta
+          const safeInputProps = { ...inputProps };
+          
+          // Verificar se as props estão definidas
+          if (!safeInputProps) {
+            // Se inputProps for undefined, criar um objeto vazio
+            return <Input ref={ref} className={cn(className)} disabled={isDisabled} />;
+          }
+          
+          // Garantir que disabled seja passado corretamente
+          return (
+            <Input 
+              ref={ref} 
+              className={cn(className)}
+              disabled={isDisabled}
+              {...safeInputProps}
+            />
+          );
+        }}
       </InputMask>
     );
   }
