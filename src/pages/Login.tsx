@@ -16,17 +16,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, signUp, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
-  const [loginEmail, setLoginEmail] = useState("");
+  // Dados de login
+  const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [isUsernameLogin, setIsUsernameLogin] = useState(false);
+  
+  // Dados de cadastro
   const [signupName, setSignupName] = useState("");
+  const [signupUsername, setSignupUsername] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   console.log('Login page rendering', { isAuthenticated, isLoading });
@@ -40,7 +47,7 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail || !loginPassword) {
+    if (!loginIdentifier || !loginPassword) {
       toast({
         title: "Erro de validação",
         description: "Por favor, preencha todos os campos.",
@@ -51,8 +58,8 @@ const Login = () => {
 
     try {
       setIsSubmitting(true);
-      console.log('Tentando login com:', loginEmail);
-      await login(loginEmail, loginPassword);
+      console.log('Tentando login com:', loginIdentifier, 'Modo username:', isUsernameLogin);
+      await login(loginIdentifier, loginPassword, isUsernameLogin);
       console.log('Login bem-sucedido, redirecionando para dashboard');
       navigate("/dashboard");
     } catch (error) {
@@ -90,13 +97,14 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       console.log('Tentando cadastro com:', signupEmail);
-      await signUp(signupEmail, signupPassword, signupName);
+      await signUp(signupEmail, signupPassword, signupName, signupUsername);
       toast({
         title: "Cadastro realizado com sucesso",
         description: "Você será direcionado para a página de login.",
       });
       setTimeout(() => {
         setSignupName("");
+        setSignupUsername("");
         setSignupEmail("");
         setSignupPassword("");
         setConfirmPassword("");
@@ -149,14 +157,25 @@ const Login = () => {
               </CardHeader>
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between space-x-2">
+                    <Label htmlFor="login-mode">Usar nome de usuário</Label>
+                    <Switch 
+                      id="login-mode"
+                      checked={isUsernameLogin}
+                      onCheckedChange={setIsUsernameLogin}
+                    />
+                  </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
+                    <Label htmlFor="identifier">
+                      {isUsernameLogin ? "Nome de usuário" : "E-mail"}
+                    </Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
+                      id="identifier"
+                      type={isUsernameLogin ? "text" : "email"}
+                      placeholder={isUsernameLogin ? "seu.usuario" : "seu@email.com"}
+                      value={loginIdentifier}
+                      onChange={(e) => setLoginIdentifier(e.target.value)}
                       required
                     />
                   </div>
@@ -199,6 +218,19 @@ const Login = () => {
                       onChange={(e) => setSignupName(e.target.value)}
                       required
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-username">Nome de usuário</Label>
+                    <Input
+                      id="signup-username"
+                      type="text"
+                      placeholder="seu.usuario"
+                      value={signupUsername}
+                      onChange={(e) => setSignupUsername(e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Opcional. Se não informado, será gerado a partir do seu e-mail.
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">E-mail</Label>

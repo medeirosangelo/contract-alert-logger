@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
@@ -6,11 +5,13 @@ export interface SignUpCredentials {
   email: string;
   password: string;
   name: string;
+  username?: string; // Nome de usuário opcional
 }
 
 export interface LoginCredentials {
-  email: string;
+  identifier: string; // Pode ser email ou nome de usuário
   password: string;
+  isUsername?: boolean; // Indica se o identificador é um nome de usuário
 }
 
 export const authApi = {
@@ -20,6 +21,11 @@ export const authApi = {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
+        options: {
+          data: {
+            username: credentials.username || credentials.email.split('@')[0], // Usa parte do email como nome de usuário padrão
+          }
+        }
       });
 
       if (authError) throw authError;
@@ -32,6 +38,7 @@ export const authApi = {
             id: authData.user.id,
             email: credentials.email,
             name: credentials.name,
+            username: credentials.username || credentials.email.split('@')[0], // Usa parte do email como nome de usuário padrão
           });
 
         if (userError) throw userError;
@@ -58,10 +65,46 @@ export const authApi = {
   login: async (credentials: LoginCredentials) => {
     try {
       console.log('Logging in...');
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
-      });
+      let data;
+      let error;
+      
+      if (credentials.isUsername) {
+        // Se estiver usando nome de usuário, primeiro precisamos encontrar o email associado
+        console.log('Login with username:', credentials.identifier);
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('email')
+          .eq('username', credentials.identifier)
+          .single();
+        
+        if (userError) {
+          console.error('Username lookup error:', userError);
+          throw new Error('Usuário não encontrado');
+        }
+        
+        if (!userData?.email) {
+          throw new Error('Usuário não encontrado');
+        }
+        
+        // Agora fazemos login com o email encontrado
+        const authResponse = await supabase.auth.signInWithPassword({
+          email: userData.email,
+          password: credentials.password,
+        });
+        
+        data = authResponse.data;
+        error = authResponse.error;
+      } else {
+        // Login normal com email
+        console.log('Login with email:', credentials.identifier);
+        const authResponse = await supabase.auth.signInWithPassword({
+          email: credentials.identifier,
+          password: credentials.password,
+        });
+        
+        data = authResponse.data;
+        error = authResponse.error;
+      }
 
       if (error) throw error;
       console.log('Login successful');
@@ -76,7 +119,7 @@ export const authApi = {
       console.error('Login error:', error);
       toast({
         title: "Erro ao fazer login",
-        description: "E-mail ou senha inválidos.",
+        description: "Usuário ou senha inválidos.",
         variant: "destructive",
       });
       throw error;
