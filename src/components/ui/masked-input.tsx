@@ -25,12 +25,15 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         {...props}
       >
         {(inputProps: any) => {
-          // Extrair apenas as propriedades que precisamos e que são seguras
+          // Certifica-se de que estamos lidando com um objeto não nulo/undefined
+          const safeInputProps = inputProps || {};
+          
+          // Extrair apenas as propriedades necessárias
           const safeProps = {
-            ...(inputProps?.onChange ? { onChange: inputProps.onChange } : {}),
-            ...(inputProps?.onBlur ? { onBlur: inputProps.onBlur } : {}),
-            ...(inputProps?.value !== undefined ? { value: inputProps.value } : {}),
-            ...(inputProps?.type ? { type: inputProps.type } : {})
+            onChange: safeInputProps.onChange,
+            onBlur: safeInputProps.onBlur,
+            value: safeInputProps.value,
+            type: safeInputProps.type
           };
           
           return (
