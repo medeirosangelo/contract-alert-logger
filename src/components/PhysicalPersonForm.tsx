@@ -1,7 +1,7 @@
 
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -169,7 +169,10 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                         <MaskedInput
                           mask="999.999.999-99"
                           className="border-warm-300 focus:border-primary"
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -304,7 +307,10 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                         <MaskedInput
                           mask="99999-999"
                           className="border-warm-300 focus:border-primary"
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -327,7 +333,10 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
                         <MaskedInput
                           mask="(99) 99999-9999"
                           className="border-warm-300 focus:border-primary"
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
