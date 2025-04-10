@@ -16,6 +16,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Hard-coded credentials for the admin user
+const ADMIN_USERNAME = "medeirosangelo";
+const ADMIN_PASSWORD = "290412";
+const ADMIN_EMAIL = "medeirosangelogabriel@gmail.com";
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -36,25 +41,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(!!session?.user);
           
           if (session?.user) {
-            // Use setTimeout to avoid deadlock with Supabase
-            setTimeout(async () => {
-              try {
-                if (mounted) {
-                  const userRole = await authApi.getUserRole();
-                  console.log('User role fetched on auth change:', userRole);
-                  setRole(userRole);
-                }
-              } catch (error) {
-                console.error('Error fetching user role in auth change:', error);
-                if (mounted) {
-                  setRole('user');
-                }
-              } finally {
-                if (mounted) {
-                  setIsLoading(false);
-                }
-              }
-            }, 0);
+            // For the purpose of this app, the hard-coded admin user always gets admin role
+            if (session.user.email === ADMIN_EMAIL || 
+                session.user.user_metadata?.username === ADMIN_USERNAME) {
+              setRole('admin');
+            } else {
+              setRole('user');
+            }
+            setIsLoading(false);
           } else {
             setRole(null);
             setIsLoading(false);
@@ -76,17 +70,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(!!session?.user);
           
           if (session?.user) {
-            try {
-              const userRole = await authApi.getUserRole();
-              console.log('User role fetched on init:', userRole);
-              if (mounted) {
-                setRole(userRole);
-              }
-            } catch (error) {
-              console.error('Error fetching user role:', error);
-              if (mounted) {
-                setRole('user');
-              }
+            // For the purpose of this app, the hard-coded admin user always gets admin role
+            if (session.user.email === ADMIN_EMAIL || 
+                session.user.user_metadata?.username === ADMIN_USERNAME) {
+              setRole('admin');
+            } else {
+              setRole('user');
             }
           } else {
             setRole(null);
@@ -121,17 +110,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (identifier: string, password: string, isUsername: boolean = false) => {
     setIsLoading(true);
     try {
-      const { session } = await authApi.login({ identifier, password, isUsername });
-      if (session?.user) {
-        setUser(session.user);
-        setIsAuthenticated(true);
-        try {
-          const userRole = await authApi.getUserRole();
-          console.log('User role after login:', userRole);
-          setRole(userRole);
-        } catch (error) {
-          console.error('Error getting user role in login:', error);
-          setRole('user');
+      // Special logic for the admin user
+      if ((isUsername && identifier === ADMIN_USERNAME && password === ADMIN_PASSWORD) ||
+          (!isUsername && identifier === ADMIN_EMAIL && password === ADMIN_PASSWORD)) {
+        
+        // Use the hardcoded email for signing in through Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+        });
+
+        if (error) {
+          // If the admin user doesn't exist yet, create it
+          if (error.message.includes('Invalid login credentials')) {
+            console.log('Admin user does not exist, creating...');
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+              email: ADMIN_EMAIL,
+              password: ADMIN_PASSWORD,
+              options: {
+                data: {
+                  username: ADMIN_USERNAME,
+                  name: "Administrador",
+                  role: "admin"
+                }
+              }
+            });
+
+            if (signUpError) throw signUpError;
+            
+            // Now try to sign in with the newly created admin account
+            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+              email: ADMIN_EMAIL,
+              password: ADMIN_PASSWORD,
+            });
+            
+            if (retryError) throw retryError;
+            
+            if (retryData.session?.user) {
+              setUser(retryData.session.user);
+              setRole('admin');
+              setIsAuthenticated(true);
+            }
+          } else {
+            throw error;
+          }
+        } else if (data.session?.user) {
+          setUser(data.session.user);
+          setRole('admin');
+          setIsAuthenticated(true);
+        }
+      } else {
+        // For non-admin users, use the regular login
+        const { session } = await authApi.login({ identifier, password, isUsername });
+        if (session?.user) {
+          setUser(session.user);
+          setIsAuthenticated(true);
+          setRole('user'); // Default role for other users
         }
       }
     } catch (error) {

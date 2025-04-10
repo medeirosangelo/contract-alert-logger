@@ -16,3 +16,12 @@ export type ContractAlertInsert = Database["public"]["Tables"]["contract_alerts"
 
 export type User = Database["public"]["Tables"]["users"]["Row"];
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
+
+// Export all types explicitly for services
+export {
+  PhysicalPerson, PhysicalPersonInsert,
+  LegalPerson, LegalPersonInsert,
+  Contract, ContractInsert,
+  ContractAlert, ContractAlertInsert,
+  User, UserInsert
+};

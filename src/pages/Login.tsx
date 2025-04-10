@@ -17,24 +17,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, signUp, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   // Dados de login
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [isUsernameLogin, setIsUsernameLogin] = useState(false);
   
-  // Dados de cadastro
-  const [signupName, setSignupName] = useState("");
-  const [signupUsername, setSignupUsername] = useState("");
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   console.log('Login page rendering', { isAuthenticated, isLoading });
 
@@ -47,12 +44,11 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setShowError(false);
+    
     if (!loginIdentifier || !loginPassword) {
-      toast({
-        title: "Erro de validação",
-        description: "Por favor, preencha todos os campos.",
-        variant: "destructive",
-      });
+      setErrorMessage("Por favor, preencha todos os campos.");
+      setShowError(true);
       return;
     }
 
@@ -64,58 +60,8 @@ const Login = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error("Erro de login:", error);
-      toast({
-        title: "Erro ao fazer login",
-        description: "Verifique suas credenciais e tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signupName || !signupEmail || !signupPassword || !confirmPassword) {
-      toast({
-        title: "Erro de validação",
-        description: "Por favor, preencha todos os campos.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (signupPassword !== confirmPassword) {
-      toast({
-        title: "Erro de validação",
-        description: "As senhas não coincidem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      console.log('Tentando cadastro com:', signupEmail);
-      await signUp(signupEmail, signupPassword, signupName, signupUsername);
-      toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Você será direcionado para a página de login.",
-      });
-      setTimeout(() => {
-        setSignupName("");
-        setSignupUsername("");
-        setSignupEmail("");
-        setSignupPassword("");
-        setConfirmPassword("");
-      }, 500);
-    } catch (error) {
-      console.error("Erro de cadastro:", error);
-      toast({
-        title: "Erro ao cadastrar",
-        description: "Verifique os dados e tente novamente.",
-        variant: "destructive",
-      });
+      setErrorMessage("Verifique suas credenciais e tente novamente.");
+      setShowError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -142,137 +88,71 @@ const Login = () => {
           <p className="text-warm-700">Sistema Web de Controle de Instrumentos</p>
         </div>
 
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-          </TabsList>
-          <TabsContent value="login">
-            <Card>
-              <CardHeader>
-                <CardTitle>Login</CardTitle>
-                <CardDescription>
-                  Entre com suas credenciais para acessar o sistema.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleLogin}>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between space-x-2">
-                    <Label htmlFor="login-mode">Usar nome de usuário</Label>
-                    <Switch 
-                      id="login-mode"
-                      checked={isUsernameLogin}
-                      onCheckedChange={setIsUsernameLogin}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="identifier">
-                      {isUsernameLogin ? "Nome de usuário" : "E-mail"}
-                    </Label>
-                    <Input
-                      id="identifier"
-                      type={isUsernameLogin ? "text" : "email"}
-                      placeholder={isUsernameLogin ? "seu.usuario" : "seu@email.com"}
-                      value={loginIdentifier}
-                      onChange={(e) => setLoginIdentifier(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Senha</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Entrando..." : "Entrar"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-          <TabsContent value="signup">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cadastrar</CardTitle>
-                <CardDescription>
-                  Crie sua conta para acessar o sistema.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignUp}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome completo</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder="Seu nome completo"
-                      value={signupName}
-                      onChange={(e) => setSignupName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">Nome de usuário</Label>
-                    <Input
-                      id="signup-username"
-                      type="text"
-                      placeholder="seu.usuario"
-                      value={signupUsername}
-                      onChange={(e) => setSignupUsername(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500">
-                      Opcional. Se não informado, será gerado a partir do seu e-mail.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">E-mail</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={signupEmail}
-                      onChange={(e) => setSignupEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirmar senha</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Cadastrando..." : "Cadastrar"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <Card>
+          <CardHeader>
+            <CardTitle>Login</CardTitle>
+            <CardDescription>
+              Entre com suas credenciais para acessar o sistema.
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleLogin}>
+            <CardContent className="space-y-4">
+              {showError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Erro ao fazer login</AlertTitle>
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="login-mode">Usar nome de usuário</Label>
+                <Switch 
+                  id="login-mode"
+                  checked={isUsernameLogin}
+                  onCheckedChange={setIsUsernameLogin}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="identifier">
+                  {isUsernameLogin ? "Nome de usuário" : "E-mail"}
+                </Label>
+                <Input
+                  id="identifier"
+                  type={isUsernameLogin ? "text" : "email"}
+                  placeholder={isUsernameLogin ? "seu.usuario" : "seu@email.com"}
+                  value={loginIdentifier}
+                  onChange={(e) => setLoginIdentifier(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Entrando..." : "Entrar"}
+              </Button>
+            </CardFooter>
+          </form>
+
+          <div className="px-6 pb-6 pt-2">
+            <p className="text-center text-sm text-muted-foreground">
+              Cadastro desabilitado temporariamente.
+              <br />
+              Entre em contato com um administrador para acesso ao sistema.
+            </p>
+          </div>
+        </Card>
       </div>
     </div>
   );

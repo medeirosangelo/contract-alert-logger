@@ -35,89 +35,22 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
 
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/contracts" element={
-              <ProtectedRoute>
-                <ContractList />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/contracts/new" element={
-              <ProtectedRoute>
-                <ContractRegistration />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/contracts/alerts" element={
-              <ProtectedRoute>
-                <ContractAlerts />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/physical-persons" element={
-              <ProtectedRoute>
-                <PhysicalPersonList />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/physical-persons/:id" element={
-              <ProtectedRoute>
-                <PhysicalPersonDetails />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/physical-persons/new" element={
-              <ProtectedRoute>
-                <PhysicalPersonRegistration />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/legal-persons" element={
-              <ProtectedRoute>
-                <LegalPersonList />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/legal-persons/:id" element={
-              <ProtectedRoute>
-                <LegalPersonDetails />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/legal-persons/new" element={
-              <ProtectedRoute>
-                <LegalPersonRegistration />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/user-permissions" element={
-              <ProtectedRoute>
-                <UserPermissions />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/contract-template" element={
-              <ProtectedRoute>
-                <ContractTemplate />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/documentation" element={
-              <ProtectedRoute>
-                <Documentation />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/support" element={
-              <ProtectedRoute>
-                <Support />
-              </ProtectedRoute>
-            } />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contracts" element={<ContractList />} />
+              <Route path="/contracts/new" element={<ContractRegistration />} />
+              <Route path="/contracts/alerts" element={<ContractAlerts />} />
+              <Route path="/physical-persons" element={<PhysicalPersonList />} />
+              <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
+              <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />
+              <Route path="/legal-persons" element={<LegalPersonList />} />
+              <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
+              <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
+              <Route path="/user-permissions" element={<UserPermissions />} />
+              <Route path="/contract-template" element={<ContractTemplate />} />
+              <Route path="/documentation" element={<Documentation />} />
+              <Route path="/support" element={<Support />} />
+            </Route>
           </Routes>
           <SonnerToaster />
           <Toaster />
