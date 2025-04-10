@@ -1,7 +1,6 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -161,7 +160,6 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Company Info Fields */}
                 <FormField
                   control={form.control}
                   name="company_name"
@@ -199,11 +197,11 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                       <FormControl>
                         <MaskedInput
                           mask="99.999.999/9999-99"
+                          className="border-warm-300 focus:border-primary"
                           value={field.value}
                           onChange={field.onChange}
-                          id="cnpj"
-                          name="cnpj"
-                          className="border-warm-300 focus:border-primary"
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -230,7 +228,6 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Address Fields */}
                 <FormField
                   control={form.control}
                   name="street"
@@ -324,11 +321,11 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                       <FormControl>
                         <MaskedInput
                           mask="99999-999"
+                          className="border-warm-300 focus:border-primary"
                           value={field.value}
                           onChange={field.onChange}
-                          id="zip_code"
-                          name="zip_code"
-                          className="border-warm-300 focus:border-primary"
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -341,7 +338,6 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Contact Fields */}
                 <FormField
                   control={form.control}
                   name="phone"
@@ -351,11 +347,11 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                       <FormControl>
                         <MaskedInput
                           mask="(99) 99999-9999"
+                          className="border-warm-300 focus:border-primary"
                           value={field.value}
                           onChange={field.onChange}
-                          id="phone"
-                          name="phone"
-                          className="border-warm-300 focus:border-primary"
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -382,7 +378,6 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Legal Representative Fields */}
                 <FormField
                   control={form.control}
                   name="legal_rep_name"
@@ -406,11 +401,11 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                       <FormControl>
                         <MaskedInput
                           mask="999.999.999-99"
+                          className="border-warm-300 focus:border-primary"
                           value={field.value}
                           onChange={field.onChange}
-                          id="legal_rep_cpf"
-                          name="legal_rep_cpf"
-                          className="border-warm-300 focus:border-primary"
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -437,7 +432,6 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
               <Separator className="bg-warm-200" />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Banking Fields */}
                 <FormField
                   control={form.control}
                   name="bank"

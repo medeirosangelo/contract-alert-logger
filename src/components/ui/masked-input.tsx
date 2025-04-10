@@ -16,7 +16,6 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
     // Garantir que disabled seja sempre um booleano
     const isDisabled = Boolean(disabled);
     
-    // Não usamos mais children diretamente, esta é a mudança crítica
     return (
       <InputMask
         mask={mask}
@@ -26,15 +25,18 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         {...props}
       >
         {(inputProps: any) => {
+          // Garantir que inputProps não é undefined
+          const safeInputProps = inputProps || {};
+          
           return (
             <Input 
               ref={ref} 
               className={cn(className)}
               disabled={isDisabled}
-              onChange={inputProps?.onChange}
-              onBlur={inputProps?.onBlur}
-              value={inputProps?.value || ''}
-              type={inputProps?.type || 'text'}
+              onChange={safeInputProps.onChange}
+              onBlur={safeInputProps.onBlur}
+              value={safeInputProps.value || ''}
+              type={safeInputProps.type || 'text'}
             />
           );
         }}
