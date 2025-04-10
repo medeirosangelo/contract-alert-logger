@@ -13,21 +13,29 @@ interface MaskedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
   ({ className, mask, maskChar = null, disabled, ...props }, ref) => {
+    // Garantir que disabled seja sempre um booleano
+    const isDisabled = Boolean(disabled);
+    
     return (
       <InputMask
         mask={mask}
         maskChar={maskChar}
-        disabled={!!disabled}
+        disabled={isDisabled}
         {...props}
       >
-        {(inputProps: any) => (
-          <Input 
-            ref={ref} 
-            className={cn(className)}
-            disabled={!!disabled}
-            {...inputProps}
-          />
-        )}
+        {(inputProps: any) => {
+          // Removendo inputProps.disabled para evitar conflitos
+          const { disabled: _, ...restInputProps } = inputProps;
+          
+          return (
+            <Input 
+              ref={ref} 
+              className={cn(className)}
+              disabled={isDisabled}
+              {...restInputProps}
+            />
+          );
+        }}
       </InputMask>
     );
   }
