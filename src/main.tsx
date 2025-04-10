@@ -24,6 +24,11 @@ window.addEventListener('error', (event) => {
       
       // Adicionar mais informações de depuração para este tipo específico de erro
       console.error('Este erro geralmente ocorre quando um componente tenta acessar uma propriedade de um objeto que é undefined ou null.');
+      console.error('Verifique se todas as props obrigatórias estão sendo passadas para os componentes.');
+    }
+    
+    if (event.error.message.includes("InputMask") || event.error.stack?.includes("InputMask")) {
+      console.error('Erro relacionado ao InputMask detectado. Verifique se as props necessárias estão sendo corretamente passadas.');
     }
   }
 });
