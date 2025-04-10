@@ -25,22 +25,27 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         {...props}
       >
         {(inputProps: any) => {
-          // Criar cópia segura das props em vez de usar a referência direta
-          const safeInputProps = { ...inputProps };
-          
-          // Verificar se as props estão definidas
-          if (!safeInputProps) {
-            // Se inputProps for undefined, criar um objeto vazio
+          // Proteger contra inputProps undefined
+          if (!inputProps) {
             return <Input ref={ref} className={cn(className)} disabled={isDisabled} />;
           }
           
-          // Garantir que disabled seja passado corretamente
+          // Criar uma cópia segura das props para evitar problemas de referência
+          const safeInputProps = { ...inputProps };
+          
+          // Garantir que disabled seja explicitamente definido
+          safeInputProps.disabled = isDisabled;
+          
+          // Remover props duplicadas ou problemáticas
+          delete safeInputProps.mask;
+          delete safeInputProps.maskChar;
+          delete safeInputProps.alwaysShowMask;
+          
           return (
             <Input 
               ref={ref} 
-              className={cn(className)}
-              disabled={isDisabled}
-              {...safeInputProps}
+              className={cn(className)} 
+              {...safeInputProps} 
             />
           );
         }}
