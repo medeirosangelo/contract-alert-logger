@@ -24,20 +24,15 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         alwaysShowMask={false}
         {...props}
       >
-        {/* Usar uma função que retorna explicitamente o Input component */}
-        {(inputProps: any) => {
-          // Remover a propriedade disabled do inputProps para evitar conflitos
-          const { disabled: _disabledProp, ...restInputProps } = inputProps || {};
-          
-          return (
-            <Input 
-              ref={ref} 
-              className={cn(className)}
-              disabled={isDisabled}
-              {...restInputProps}
-            />
-          );
-        }}
+        {() => (
+          <Input 
+            ref={ref} 
+            className={cn(className)}
+            disabled={isDisabled}
+            // Não passamos mais as props do InputMask para o Input,
+            // para evitar conflitos e problemas com propriedades undefined
+          />
+        )}
       </InputMask>
     );
   }
