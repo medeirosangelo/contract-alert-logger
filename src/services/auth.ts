@@ -34,15 +34,17 @@ export const authApi = {
 
       if (authData.user) {
         // Create user record in the users table
+        const userData: UserInsert = {
+          id: authData.user.id,
+          email: credentials.email,
+          name: credentials.name,
+          username: credentials.username || credentials.email.split('@')[0],
+          role: 'user'
+        };
+        
         const { error: userError } = await supabase
           .from('users')
-          .insert({
-            id: authData.user.id,
-            email: credentials.email,
-            name: credentials.name,
-            username: credentials.username || credentials.email.split('@')[0],
-            role: 'user'
-          } as Partial<User>);
+          .insert(userData);
 
         if (userError) throw userError;
       }
