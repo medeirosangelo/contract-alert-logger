@@ -16,5 +16,3 @@ export type ContractAlertInsert = Database["public"]["Tables"]["contract_alerts"
 
 export type User = Database["public"]["Tables"]["users"]["Row"];
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
-
-// No re-export needed as we've already exported the types above

@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { LegalPerson, LegalPersonInsert } from "./types";
 
+export { LegalPerson, LegalPersonInsert };
+
 export const legalPersonsApi = {
   getAll: async () => {
     try {

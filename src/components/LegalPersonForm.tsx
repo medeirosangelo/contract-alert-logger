@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Building2, Save, Loader2 } from "lucide-react";
-import { legalPersonsApi, LegalPersonInsert } from "@/services/legalPersons";
+import { legalPersonsApi } from "@/services/legalPersons";
+import { LegalPersonInsert } from "@/services/types";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MaskedInput } from "@/components/ui/masked-input";
