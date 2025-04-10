@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
+import { LegalPerson } from "@/services/types";
 
 const LegalPersonList = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const LegalPersonList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {companies.map((company) => (
+                  {(companies as LegalPerson[]).map((company) => (
                     <TableRow 
                       key={company.id}
                       className="cursor-pointer hover:bg-gray-100"

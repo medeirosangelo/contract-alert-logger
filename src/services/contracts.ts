@@ -1,10 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { Database } from "@/integrations/supabase/types";
-
-export type Contract = Database["public"]["Tables"]["contracts"]["Row"];
-export type ContractInsert = Database["public"]["Tables"]["contracts"]["Insert"];
+import { Contract, ContractInsert } from "./types";
 
 export const contractsApi = {
   getAll: async () => {

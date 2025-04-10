@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { UserPlus, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { physicalPersonsApi } from "@/services/physicalPersons";
+import { PhysicalPerson } from "@/services/types";
 
 const PhysicalPersonList = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const PhysicalPersonList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {people.map((person) => (
+                  {(people as PhysicalPerson[]).map((person) => (
                     <TableRow 
                       key={person.id}
                       className="cursor-pointer hover:bg-gray-100"

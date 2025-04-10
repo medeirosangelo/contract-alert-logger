@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('AuthProvider initialized');
     let mounted = true;
     
-    // Primeiro configura o listener de estado da autenticação
+    // First set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, !!session);
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(!!session?.user);
           
           if (session?.user) {
-            // Use setTimeout para evitar deadlock com Supabase
+            // Use setTimeout to avoid deadlock with Supabase
             setTimeout(async () => {
               try {
                 if (mounted) {
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Depois verifica se existe uma sessão
+    // Then check for an existing session
     const fetchUser = async () => {
       try {
         console.log('Checking for existing session');

@@ -1,10 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { Database } from "@/integrations/supabase/types";
-
-export type LegalPerson = Database["public"]["Tables"]["legal_persons"]["Row"];
-export type LegalPersonInsert = Database["public"]["Tables"]["legal_persons"]["Insert"];
+import { LegalPerson, LegalPersonInsert } from "./types";
 
 export const legalPersonsApi = {
   getAll: async () => {
@@ -17,7 +14,7 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log('Legal persons fetched:', data);
-      return data;
+      return data as LegalPerson[];
     } catch (error) {
       console.error('Error fetching legal persons:', error);
       toast({
@@ -40,7 +37,7 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log('Legal person fetched:', data);
-      return data;
+      return data as LegalPerson;
     } catch (error) {
       console.error(`Error fetching legal person ${id}:`, error);
       toast({
@@ -63,7 +60,7 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log('Legal person fetched by CNPJ:', data);
-      return data;
+      return data as LegalPerson | null;
     } catch (error) {
       console.error(`Error fetching legal person by CNPJ ${cnpj}:`, error);
       toast({
@@ -90,7 +87,7 @@ export const legalPersonsApi = {
         title: "Pessoa jurídica cadastrada",
         description: "A pessoa jurídica foi cadastrada com sucesso.",
       });
-      return newPerson;
+      return newPerson as LegalPerson;
     } catch (error) {
       console.error('Error creating legal person:', error);
       toast({
@@ -118,7 +115,7 @@ export const legalPersonsApi = {
         title: "Pessoa jurídica atualizada",
         description: "A pessoa jurídica foi atualizada com sucesso.",
       });
-      return updatedPerson;
+      return updatedPerson as LegalPerson;
     } catch (error) {
       console.error(`Error updating legal person ${id}:`, error);
       toast({

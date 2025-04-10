@@ -1,17 +1,19 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { User } from "./types";
 
 export interface SignUpCredentials {
   email: string;
   password: string;
   name: string;
-  username?: string; // Nome de usuário opcional
+  username?: string;
 }
 
 export interface LoginCredentials {
-  identifier: string; // Pode ser email ou nome de usuário
+  identifier: string;
   password: string;
-  isUsername?: boolean; // Indica se o identificador é um nome de usuário
+  isUsername?: boolean;
 }
 
 export const authApi = {
@@ -23,7 +25,7 @@ export const authApi = {
         password: credentials.password,
         options: {
           data: {
-            username: credentials.username || credentials.email.split('@')[0], // Usa parte do email como nome de usuário padrão
+            username: credentials.username || credentials.email.split('@')[0],
           }
         }
       });
@@ -38,8 +40,8 @@ export const authApi = {
             id: authData.user.id,
             email: credentials.email,
             name: credentials.name,
-            username: credentials.username || credentials.email.split('@')[0], // Usa parte do email como nome de usuário padrão
-          });
+            username: credentials.username || credentials.email.split('@')[0],
+          } as any); // Using 'as any' to bypass type checking for this operation
 
         if (userError) throw userError;
       }
@@ -69,7 +71,7 @@ export const authApi = {
       let error;
       
       if (credentials.isUsername) {
-        // Se estiver usando nome de usuário, primeiro precisamos encontrar o email associado
+        // If using username, first find the associated email
         console.log('Login with username:', credentials.identifier);
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -86,7 +88,7 @@ export const authApi = {
           throw new Error('Usuário não encontrado');
         }
         
-        // Agora fazemos login com o email encontrado
+        // Now login with the found email
         const authResponse = await supabase.auth.signInWithPassword({
           email: userData.email,
           password: credentials.password,
@@ -95,7 +97,7 @@ export const authApi = {
         data = authResponse.data;
         error = authResponse.error;
       } else {
-        // Login normal com email
+        // Normal login with email
         console.log('Login with email:', credentials.identifier);
         const authResponse = await supabase.auth.signInWithPassword({
           email: credentials.identifier,

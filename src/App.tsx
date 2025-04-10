@@ -1,74 +1,127 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/hooks/useAuth";
-import { Toaster } from "@/components/ui/toaster";
-
-import Login from "@/pages/Login";
-import Dashboard from "@/pages/Dashboard";
-import ContractList from "@/pages/ContractList";
-import ContractRegistration from "@/pages/ContractRegistration";
-import LegalPersonList from "@/pages/LegalPersonList";
-import LegalPersonRegistration from "@/pages/LegalPersonRegistration";
-import LegalPersonDetails from "@/pages/LegalPersonDetails";
-import PhysicalPersonList from "@/pages/PhysicalPersonList";
-import PhysicalPersonRegistration from "@/pages/PhysicalPersonRegistration";
-import PhysicalPersonDetails from "@/pages/PhysicalPersonDetails";
-import ContractAlerts from "@/pages/ContractAlerts";
-import UserPermissions from "@/pages/UserPermissions";
-import ContractTemplate from "@/pages/ContractTemplate";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import ContractList from "./pages/ContractList";
+import ContractRegistration from "./pages/ContractRegistration";
+import ContractAlerts from './pages/ContractAlerts';
+import PhysicalPersonList from './pages/PhysicalPersonList';
+import PhysicalPersonDetails from './pages/PhysicalPersonDetails';
+import PhysicalPersonRegistration from './pages/PhysicalPersonRegistration';
+import LegalPersonList from './pages/LegalPersonList';
+import LegalPersonDetails from './pages/LegalPersonDetails';
+import LegalPersonRegistration from './pages/LegalPersonRegistration';
+import UserPermissions from './pages/UserPermissions';
+import Documentation from './pages/Documentation';
+import Support from './pages/Support';
+import ContractTemplate from './pages/ContractTemplate';
+import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from './hooks/useAuth';
+import { Toaster as SonnerToaster } from "sonner";
 
-import "./App.css";
+import './App.css';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
-  console.log('App rendering');
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
+        <BrowserRouter>
           <Routes>
-            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/unauthorized" element={<div className="flex items-center justify-center min-h-screen">Acesso negado</div>} />
-            
-            {/* Protected routes - require authentication */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/contracts" element={<ContractList />} />
-              <Route path="/contratos/finalizados" element={<ContractList />} />
-              <Route path="/contracts/new" element={<ContractRegistration />} />
-              <Route path="/contracts/template" element={<ContractTemplate />} />
-              <Route path="/legal-persons" element={<LegalPersonList />} />
-              <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
-              <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
-              <Route path="/physical-persons" element={<PhysicalPersonList />} />
-              <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />
-              <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
-              <Route path="/alerts" element={<ContractAlerts />} />
-            </Route>
-            
-            {/* Admin routes - require authentication and admin role */}
-            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-              <Route path="/users" element={<UserPermissions />} />
-            </Route>
 
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/contracts" element={
+              <ProtectedRoute>
+                <ContractList />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/contracts/new" element={
+              <ProtectedRoute>
+                <ContractRegistration />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/contracts/alerts" element={
+              <ProtectedRoute>
+                <ContractAlerts />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/physical-persons" element={
+              <ProtectedRoute>
+                <PhysicalPersonList />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/physical-persons/:id" element={
+              <ProtectedRoute>
+                <PhysicalPersonDetails />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/physical-persons/new" element={
+              <ProtectedRoute>
+                <PhysicalPersonRegistration />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/legal-persons" element={
+              <ProtectedRoute>
+                <LegalPersonList />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/legal-persons/:id" element={
+              <ProtectedRoute>
+                <LegalPersonDetails />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/legal-persons/new" element={
+              <ProtectedRoute>
+                <LegalPersonRegistration />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/user-permissions" element={
+              <ProtectedRoute>
+                <UserPermissions />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/contract-template" element={
+              <ProtectedRoute>
+                <ContractTemplate />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/documentation" element={
+              <ProtectedRoute>
+                <Documentation />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/support" element={
+              <ProtectedRoute>
+                <Support />
+              </ProtectedRoute>
+            } />
           </Routes>
-        </Router>
-        <Toaster />
+          <SonnerToaster />
+          <Toaster />
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   );

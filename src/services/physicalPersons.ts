@@ -1,10 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { Database } from "@/integrations/supabase/types";
-
-export type PhysicalPerson = Database["public"]["Tables"]["physical_persons"]["Row"];
-export type PhysicalPersonInsert = Database["public"]["Tables"]["physical_persons"]["Insert"];
+import { PhysicalPerson, PhysicalPersonInsert } from "./types";
 
 export const physicalPersonsApi = {
   getAll: async () => {
@@ -17,7 +14,7 @@ export const physicalPersonsApi = {
 
       if (error) throw error;
       console.log('Physical persons fetched:', data);
-      return data;
+      return data as PhysicalPerson[];
     } catch (error) {
       console.error('Error fetching physical persons:', error);
       toast({
@@ -40,7 +37,7 @@ export const physicalPersonsApi = {
 
       if (error) throw error;
       console.log('Physical person fetched:', data);
-      return data;
+      return data as PhysicalPerson;
     } catch (error) {
       console.error(`Error fetching physical person ${id}:`, error);
       toast({
@@ -67,7 +64,7 @@ export const physicalPersonsApi = {
         title: "Pessoa física cadastrada",
         description: "A pessoa física foi cadastrada com sucesso.",
       });
-      return newPerson;
+      return newPerson as PhysicalPerson;
     } catch (error) {
       console.error('Error creating physical person:', error);
       toast({
@@ -95,7 +92,7 @@ export const physicalPersonsApi = {
         title: "Pessoa física atualizada",
         description: "A pessoa física foi atualizada com sucesso.",
       });
-      return updatedPerson;
+      return updatedPerson as PhysicalPerson;
     } catch (error) {
       console.error(`Error updating physical person ${id}:`, error);
       toast({

@@ -1,10 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { Database } from "@/integrations/supabase/types";
-
-export type ContractAlert = Database["public"]["Tables"]["contract_alerts"]["Row"];
-export type ContractAlertInsert = Database["public"]["Tables"]["contract_alerts"]["Insert"];
+import { ContractAlert, ContractAlertInsert } from "./types";
 
 export const contractAlertsApi = {
   getAll: async () => {
@@ -96,7 +93,7 @@ export const contractAlertsApi = {
         title: "Alerta criado",
         description: "O alerta de contrato foi criado com sucesso.",
       });
-      return newAlert;
+      return newAlert as ContractAlert;
     } catch (error) {
       console.error('Error creating contract alert:', error);
       toast({
@@ -124,7 +121,7 @@ export const contractAlertsApi = {
         title: "Alerta atualizado",
         description: "O alerta de contrato foi atualizado com sucesso.",
       });
-      return updatedAlert;
+      return updatedAlert as ContractAlert;
     } catch (error) {
       console.error(`Error updating contract alert ${id}:`, error);
       toast({
@@ -152,7 +149,7 @@ export const contractAlertsApi = {
         title: "Alerta resolvido",
         description: "O alerta de contrato foi marcado como resolvido.",
       });
-      return data;
+      return data as ContractAlert;
     } catch (error) {
       console.error(`Error marking contract alert ${id} as resolved:`, error);
       toast({
