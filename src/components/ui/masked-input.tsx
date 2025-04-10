@@ -25,26 +25,20 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         {...props}
       >
         {(inputProps: any) => {
-          // Garantir que inputProps não seja undefined
           if (!inputProps) {
-            // Se inputProps for undefined, retorna input com propriedades mínimas
             return <Input ref={ref} className={cn(className)} disabled={isDisabled} />;
           }
           
-          // Criar um objeto com propriedades seguras, garantindo que nenhuma seja undefined
-          const safeProps = {
-            onChange: inputProps.onChange || undefined,
-            onBlur: inputProps.onBlur || undefined,
-            value: inputProps.value !== undefined ? inputProps.value : '',
-            type: inputProps.type || 'text'
-          };
-          
+          // Criar um objeto de props seguro para passar para o componente Input
           return (
             <Input 
               ref={ref} 
               className={cn(className)}
               disabled={isDisabled}
-              {...safeProps}
+              onChange={inputProps.onChange}
+              onBlur={inputProps.onBlur}
+              value={inputProps.value !== undefined ? inputProps.value : ''}
+              type={inputProps.type || 'text'}
             />
           );
         }}
