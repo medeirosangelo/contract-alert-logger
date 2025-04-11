@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Clock, AlertTriangle } from "lucide-react";
@@ -8,144 +9,127 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Contract {
-  id: number;
-  contractNumber: string;
-  companyName: string;
-  expirationDate: string;
-  daysUntilExpiration: number;
-  status: "pending" | "renewed" | "finished";
-  currentValue: number;
-}
-
-const fetchContractAlerts = async (): Promise<Contract[]> => {
-  console.log("Fetching contract alerts...");
-  return [
-    {
-      id: 1,
-      contractNumber: "2024/001",
-      companyName: "Tech Solutions Ltd",
-      expirationDate: "2024-03-15",
-      daysUntilExpiration: 15,
-      status: "pending" as const,
-      currentValue: 150000,
-    },
-    {
-      id: 2,
-      contractNumber: "2024/002",
-      companyName: "Marketing Pro Inc",
-      expirationDate: "2024-03-30",
-      daysUntilExpiration: 30,
-      status: "pending" as const,
-      currentValue: 75000,
-    },
-    {
-      id: 3,
-      contractNumber: "2024/003",
-      companyName: "Global Services SA",
-      expirationDate: "2024-04-15",
-      daysUntilExpiration: 45,
-      status: "pending" as const,
-      currentValue: 200000,
-    },
-    {
-      id: 4,
-      contractNumber: "2024/004",
-      companyName: "Consultoria XYZ",
-      expirationDate: "2024-05-01",
-      daysUntilExpiration: 60,
-      status: "pending" as const,
-      currentValue: 180000,
-    },
-    {
-      id: 5,
-      contractNumber: "2024/005",
-      companyName: "Manutenção ABC",
-      expirationDate: "2024-06-15",
-      daysUntilExpiration: 90,
-      status: "pending" as const,
-      currentValue: 95000,
-    },
-    {
-      id: 6,
-      contractNumber: "2024/006",
-      companyName: "Serviços Gerais Ltda",
-      expirationDate: "2024-07-01",
-      daysUntilExpiration: 105,
-      status: "pending" as const,
-      currentValue: 120000,
-    },
-    {
-      id: 7,
-      contractNumber: "2024/007",
-      companyName: "Limpeza & Cia",
-      expirationDate: "2024-07-15",
-      daysUntilExpiration: 120,
-      status: "pending" as const,
-      currentValue: 85000,
-    },
-    {
-      id: 8,
-      contractNumber: "2024/008",
-      companyName: "Segurança Total",
-      expirationDate: "2024-08-01",
-      daysUntilExpiration: 135,
-      status: "pending" as const,
-      currentValue: 250000,
-    },
-  ].sort((a, b) => a.daysUntilExpiration - b.daysUntilExpiration);
-};
-
-interface RenewalFormData {
-  newExpirationDate: string;
-  newValue: number;
-}
+import { contractAlertsApi } from "@/services/contractAlerts";
+import { contractsApi } from "@/services/contracts";
 
 const ContractAlerts = () => {
   const { toast } = useToast();
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
-  const [renewalData, setRenewalData] = useState<RenewalFormData>({
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(null);
+  const [renewalData, setRenewalData] = useState({
     newExpirationDate: "",
     newValue: 0,
   });
 
-  const { data: contracts, isLoading } = useQuery({
+  // Fetch all contract alerts
+  const { data: alerts, isLoading: isLoadingAlerts, refetch: refetchAlerts } = useQuery({
     queryKey: ["contractAlerts"],
-    queryFn: fetchContractAlerts,
+    queryFn: contractAlertsApi.getPending,
   });
 
-  const handleRenewal = () => {
-    console.log("Renewing contract with data:", renewalData);
-    toast({
-      title: "Contrato renovado com sucesso!",
-      description: `O contrato ${selectedContract?.contractNumber} foi renovado até ${renewalData.newExpirationDate}`,
-    });
-    setSelectedContract(null);
+  // Fetch the selected contract details when a contract is selected
+  const { data: selectedContract } = useQuery({
+    queryKey: ["contract", selectedContractId],
+    queryFn: () => selectedContractId ? contractsApi.getById(selectedContractId) : null,
+    enabled: !!selectedContractId
+  });
+
+  const handleRenewal = async () => {
+    if (!selectedContract || !selectedContractId) return;
+    
+    try {
+      // Calculate new end date based on the contract start date and the new duration
+      const startDate = new Date(selectedContract.start_date);
+      const newEndDate = new Date(renewalData.newExpirationDate);
+      
+      // Calculate duration in days
+      const durationInDays = Math.floor((newEndDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Update the contract with new end date, duration, and value
+      await contractsApi.update(selectedContractId, {
+        end_date: renewalData.newExpirationDate,
+        duration: durationInDays,
+        total_value: renewalData.newValue
+      });
+      
+      // Mark the alert as resolved
+      const alert = alerts?.find(a => a.contract_id === selectedContractId);
+      if (alert) {
+        await contractAlertsApi.markAsResolved(alert.id);
+      }
+      
+      toast({
+        title: "Contrato renovado com sucesso!",
+        description: `O contrato foi renovado até ${renewalData.newExpirationDate}`,
+      });
+      
+      // Refetch alerts to update the list
+      refetchAlerts();
+      setSelectedContractId(null);
+    } catch (error) {
+      console.error("Error renewing contract:", error);
+      toast({
+        title: "Erro ao renovar contrato",
+        description: "Ocorreu um erro ao tentar renovar o contrato.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleFinish = (contractId: number) => {
-    console.log("Finishing contract:", contractId);
-    toast({
-      title: "Contrato finalizado",
-      description: "O contrato foi marcado como finalizado.",
-    });
+  const handleFinishContract = async (alertId: string, contractId: string) => {
+    try {
+      // Update contract status to "finished"
+      await contractsApi.update(contractId, { status: "finished" });
+      
+      // Mark alert as resolved
+      await contractAlertsApi.markAsResolved(alertId);
+      
+      toast({
+        title: "Contrato finalizado",
+        description: "O contrato foi marcado como finalizado.",
+      });
+      
+      // Refetch alerts to update the list
+      refetchAlerts();
+    } catch (error) {
+      console.error("Error finishing contract:", error);
+      toast({
+        title: "Erro ao finalizar contrato",
+        description: "Ocorreu um erro ao tentar finalizar o contrato.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getAlertVariant = (days: number) => {
+  const getAlertVariant = (alertDate: string) => {
+    const days = Math.floor((new Date(alertDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     if (days <= 30) return "bg-red-100 border-red-500 text-red-800";
     if (days <= 60) return "bg-orange-100 border-orange-500 text-orange-800";
     return "bg-green-100 border-green-500 text-green-800";
   };
 
-  const getAlertIcon = (days: number) => {
+  const getAlertIcon = (alertDate: string) => {
+    const days = Math.floor((new Date(alertDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     if (days <= 30) return <AlertTriangle className="h-5 w-5 text-red-500" />;
     if (days <= 60) return <Clock className="h-5 w-5 text-orange-500" />;
     return <Check className="h-5 w-5 text-green-500" />;
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  const getDaysUntilExpiration = (endDate: string) => {
+    return Math.floor((new Date(endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  if (isLoadingAlerts) {
+    return (
+      <div className="min-h-screen bg-warm-50">
+        <Navigation />
+        <Header />
+        <main className="ml-64 pt-16 p-6">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-lg">Carregando alertas de contratos...</p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -156,60 +140,77 @@ const ContractAlerts = () => {
         <div className="max-w-7xl mx-auto space-y-6">
           <h2 className="text-2xl font-bold text-warm-900">Alertas de Contratos</h2>
           
-          <div className="space-y-4">
-            {contracts?.map((contract) => (
-              <Alert
-                key={contract.id}
-                className={`${getAlertVariant(contract.daysUntilExpiration)} border-l-4`}
-              >
-                <div className="flex items-start">
-                  {getAlertIcon(contract.daysUntilExpiration)}
-                  <div className="ml-3 flex-1">
-                    <AlertTitle className="text-lg font-semibold">
-                      Contrato {contract.contractNumber} - {contract.companyName}
-                    </AlertTitle>
-                    <AlertDescription className="mt-2">
-                      <p className="mb-2">
-                        {contract.daysUntilExpiration} dias para a expiração deste contrato
-                        (vence em {new Date(contract.expirationDate).toLocaleDateString()})
-                      </p>
-                      <p className="mb-2">
-                        Valor atual: {contract.currentValue.toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL'
-                        })}
-                      </p>
-                      {contract.status === "pending" && (
-                        <div className="flex gap-3 mt-3">
-                          <Button
-                            variant="outline"
-                            onClick={() => setSelectedContract(contract)}
-                            className="bg-green-500 text-white hover:bg-green-600"
-                          >
-                            Renovar Contrato
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => handleFinish(contract.id)}
-                            className="bg-red-500 text-white hover:bg-red-600"
-                          >
-                            Finalizar Contrato
-                          </Button>
-                        </div>
-                      )}
-                    </AlertDescription>
-                  </div>
-                </div>
-              </Alert>
-            ))}
-          </div>
+          {alerts && alerts.length > 0 ? (
+            <div className="space-y-4">
+              {alerts.map((alert) => {
+                if (!alert.contract) return null;
+                
+                const contract = alert.contract;
+                const daysUntilExpiration = getDaysUntilExpiration(contract.end_date);
+                
+                return (
+                  <Alert
+                    key={alert.id}
+                    className={`${getAlertVariant(contract.end_date)} border-l-4`}
+                  >
+                    <div className="flex items-start">
+                      {getAlertIcon(contract.end_date)}
+                      <div className="ml-3 flex-1">
+                        <AlertTitle className="text-lg font-semibold">
+                          Contrato {contract.contract_number} - {contract.object}
+                        </AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <p className="mb-2">
+                            {daysUntilExpiration} dias para a expiração deste contrato
+                            (vence em {new Date(contract.end_date).toLocaleDateString()})
+                          </p>
+                          {contract.total_value && (
+                            <p className="mb-2">
+                              Valor atual: {Number(contract.total_value).toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              })}
+                            </p>
+                          )}
+                          {alert.status === "pending" && (
+                            <div className="flex gap-3 mt-3">
+                              <Button
+                                variant="outline"
+                                onClick={() => setSelectedContractId(contract.id)}
+                                className="bg-green-500 text-white hover:bg-green-600"
+                              >
+                                Renovar Contrato
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => handleFinishContract(alert.id, contract.id)}
+                                className="bg-red-500 text-white hover:bg-red-600"
+                              >
+                                Finalizar Contrato
+                              </Button>
+                            </div>
+                          )}
+                        </AlertDescription>
+                      </div>
+                    </div>
+                  </Alert>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-white p-6 rounded-lg shadow text-center">
+              <p>Nenhum alerta de contrato pendente encontrado.</p>
+            </div>
+          )}
         </div>
       </main>
 
-      <Dialog open={!!selectedContract} onOpenChange={() => setSelectedContract(null)}>
+      <Dialog open={!!selectedContractId} onOpenChange={() => setSelectedContractId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Renovar Contrato {selectedContract?.contractNumber}</DialogTitle>
+            <DialogTitle>
+              Renovar Contrato {selectedContract?.contract_number}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -237,7 +238,7 @@ const ContractAlerts = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedContract(null)}>
+            <Button variant="outline" onClick={() => setSelectedContractId(null)}>
               Cancelar
             </Button>
             <Button onClick={handleRenewal}>

@@ -11,7 +11,7 @@ export const contractAlertsApi = {
         .from('contract_alerts')
         .select(`
           *,
-          contract:contract_id(id, contract_number, object, end_date, status)
+          contract:contract_id(id, contract_number, object, end_date, status, total_value, start_date)
         `)
         .order('alert_date', { ascending: true });
 
@@ -36,7 +36,7 @@ export const contractAlertsApi = {
         .from('contract_alerts')
         .select(`
           *,
-          contract:contract_id(id, contract_number, object, end_date, status)
+          contract:contract_id(id, contract_number, object, end_date, status, total_value, start_date)
         `)
         .eq('status', 'pending')
         .order('alert_date', { ascending: true });
