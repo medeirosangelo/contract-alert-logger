@@ -46,7 +46,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contracts" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
-              <Route path="/contracts/alerts" element={<ContractAlerts />} />
+              <Route path="/alerts/contracts" element={<ContractAlerts />} />
               <Route path="/physical-persons" element={<PhysicalPersonList />} />
               <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
               <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />

@@ -43,7 +43,7 @@ export const contractAlertsApi = {
 
       if (error) throw error;
       console.log('Pending contract alerts fetched:', data);
-      return data;
+      return data || [];
     } catch (error) {
       console.error('Error fetching pending contract alerts:', error);
       toast({
@@ -51,7 +51,7 @@ export const contractAlertsApi = {
         description: "Não foi possível carregar a lista de alertas pendentes.",
         variant: "destructive",
       });
-      throw error;
+      return [];
     }
   },
 

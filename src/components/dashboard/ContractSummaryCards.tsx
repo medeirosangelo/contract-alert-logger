@@ -1,16 +1,47 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContractSummaryCards = () => {
-  const { data: summaryData } = useQuery({
+  const { data: summaryData, isLoading } = useQuery({
     queryKey: ['contractSummary'],
     queryFn: async () => {
-      // This will be replaced with actual API call
+      // Fetch total contracts count
+      const { count: totalContracts, error: totalError } = await supabase
+        .from('contracts')
+        .select('*', { count: 'exact', head: true });
+
+      if (totalError) throw totalError;
+
+      // Fetch active contracts count
+      const { count: activeContracts, error: activeError } = await supabase
+        .from('contracts')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      if (activeError) throw activeError;
+
+      // Fetch sum of contract values
+      const { data: valueData, error: valueError } = await supabase
+        .from('contracts')
+        .select('total_value');
+
+      if (valueError) throw valueError;
+
+      // Calculate total value
+      const totalValue = valueData.reduce((sum, contract) => {
+        return sum + (Number(contract.total_value) || 0);
+      }, 0);
+
+      // Calculate average value
+      const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
+
       return {
-        totalContracts: 45,
-        activeContracts: 38,
-        totalValue: 15750000,
-        averageValue: 414473.68
+        totalContracts: totalContracts || 0,
+        activeContracts: activeContracts || 0,
+        totalValue,
+        averageValue
       };
     }
   });
@@ -22,7 +53,9 @@ const ContractSummaryCards = () => {
           <CardTitle className="text-sm font-medium">Total de Contratos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{summaryData?.totalContracts}</div>
+          <div className="text-2xl font-bold">
+            {isLoading ? '...' : summaryData?.totalContracts}
+          </div>
         </CardContent>
       </Card>
       <Card>
@@ -30,7 +63,9 @@ const ContractSummaryCards = () => {
           <CardTitle className="text-sm font-medium">Contratos Ativos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{summaryData?.activeContracts}</div>
+          <div className="text-2xl font-bold">
+            {isLoading ? '...' : summaryData?.activeContracts}
+          </div>
         </CardContent>
       </Card>
       <Card>
@@ -39,7 +74,7 @@ const ContractSummaryCards = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {summaryData?.totalValue?.toLocaleString('pt-BR', {
+            {isLoading ? '...' : summaryData?.totalValue?.toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BRL'
             })}
@@ -52,7 +87,7 @@ const ContractSummaryCards = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {summaryData?.averageValue?.toLocaleString('pt-BR', {
+            {isLoading ? '...' : summaryData?.averageValue?.toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BRL'
             })}
