@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -12,19 +13,20 @@ const PhysicalPersonDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // Mock data - in a real app, this would come from an API
+  // Adaptado para corresponder à estrutura esperada pelo componente PhysicalPersonForm
   const person = {
     id: 1,
-    fullName: "João Silva",
+    full_name: "João Silva",
     cpf: "123.456.789-00",
     rg: "12.345.678-9",
-    birthDate: "1990-01-01",
+    birth_date: "1990-01-01",
     street: "Rua das Flores",
     number: "123",
     complement: "Apto 45",
     neighborhood: "Centro",
     city: "São Paulo",
     state: "SP",
-    zipCode: "01234-567",
+    zip_code: "01234-567",
     phone: "(11) 98765-4321",
     email: "joao@email.com",
     role: "Gerente",
@@ -55,7 +57,7 @@ const PhysicalPersonDetails = () => {
           ) : (
             <div className="bg-white rounded-lg shadow p-6 space-y-6">
               <h2 className="text-2xl font-bold text-warm-800">
-                {person.fullName}
+                {person.full_name}
               </h2>
               
               <div className="grid grid-cols-2 gap-6">
@@ -72,7 +74,7 @@ const PhysicalPersonDetails = () => {
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">Data de Nascimento</dt>
-                      <dd>{person.birthDate}</dd>
+                      <dd>{person.birth_date}</dd>
                     </div>
                   </dl>
                 </div>
@@ -120,7 +122,7 @@ const PhysicalPersonDetails = () => {
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">CEP</dt>
-                      <dd>{person.zipCode}</dd>
+                      <dd>{person.zip_code}</dd>
                     </div>
                   </dl>
                 </div>

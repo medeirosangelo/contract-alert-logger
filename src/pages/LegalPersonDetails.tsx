@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -12,24 +13,25 @@ const LegalPersonDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // Mock data - in a real app, this would come from an API
+  // Adaptado para corresponder à estrutura esperada pelo componente LegalPersonForm
   const company = {
     id: 1,
-    companyName: "Empresa ABC Ltda",
-    tradeName: "ABC Comercial",
+    company_name: "Empresa ABC Ltda",
+    trade_name: "ABC Comercial",
     cnpj: "12.345.678/0001-90",
-    stateRegistration: "123.456.789.000",
+    state_registration: "123.456.789.000",
     street: "Av. Comercial",
     number: "1000",
     complement: "Sala 123",
     neighborhood: "Centro",
     city: "São Paulo",
     state: "SP",
-    zipCode: "01234-567",
+    zip_code: "01234-567",
     phone: "(11) 3456-7890",
     email: "contato@empresaabc.com",
-    legalRepName: "José Silva",
-    legalRepCpf: "123.456.789-00",
-    legalRepRole: "Diretor",
+    legal_rep_name: "José Silva",
+    legal_rep_cpf: "123.456.789-00",
+    legal_rep_role: "Diretor",
     bank: "Banco do Brasil",
     agency: "1234-5",
     account: "12345-6",
@@ -60,7 +62,7 @@ const LegalPersonDetails = () => {
           ) : (
             <div className="bg-white rounded-lg shadow p-6 space-y-6">
               <h2 className="text-2xl font-bold text-warm-800">
-                {company.companyName}
+                {company.company_name}
               </h2>
               
               <div className="grid grid-cols-2 gap-6">
@@ -69,7 +71,7 @@ const LegalPersonDetails = () => {
                   <dl className="space-y-2">
                     <div>
                       <dt className="text-sm text-gray-500">Nome Fantasia</dt>
-                      <dd>{company.tradeName}</dd>
+                      <dd>{company.trade_name}</dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">CNPJ</dt>
@@ -77,7 +79,7 @@ const LegalPersonDetails = () => {
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">Inscrição Estadual</dt>
-                      <dd>{company.stateRegistration}</dd>
+                      <dd>{company.state_registration}</dd>
                     </div>
                   </dl>
                 </div>
@@ -125,7 +127,7 @@ const LegalPersonDetails = () => {
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">CEP</dt>
-                      <dd>{company.zipCode}</dd>
+                      <dd>{company.zip_code}</dd>
                     </div>
                   </dl>
                 </div>
@@ -135,15 +137,15 @@ const LegalPersonDetails = () => {
                   <dl className="space-y-2">
                     <div>
                       <dt className="text-sm text-gray-500">Nome</dt>
-                      <dd>{company.legalRepName}</dd>
+                      <dd>{company.legal_rep_name}</dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">CPF</dt>
-                      <dd>{company.legalRepCpf}</dd>
+                      <dd>{company.legal_rep_cpf}</dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">Cargo</dt>
-                      <dd>{company.legalRepRole}</dd>
+                      <dd>{company.legal_rep_role}</dd>
                     </div>
                   </dl>
                 </div>
