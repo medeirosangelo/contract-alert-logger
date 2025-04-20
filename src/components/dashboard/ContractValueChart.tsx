@@ -8,74 +8,64 @@ const ContractValueChart = () => {
   const { data: chartData, isLoading } = useQuery({
     queryKey: ['contractProjections'],
     queryFn: async () => {
-      // Fetch all active contracts
       const { data: contracts, error } = await supabase
         .from('contracts')
-        .select('start_date, end_date, total_value')
+        .select('start_date, end_date, total_value, status')
         .eq('status', 'active');
 
       if (error) throw error;
 
-      // Group contract values by year
-      const yearlyData = {};
-      
-      // Current year and next 2 years
+      const yearlyData = new Map();
       const currentYear = new Date().getFullYear();
-      const years = [currentYear, currentYear + 1, currentYear + 2];
       
-      // Initialize yearly data
-      years.forEach(year => {
-        yearlyData[year] = 0;
-      });
-      
-      // Calculate prorated values for each contract per year
+      // Initialize next 3 years
+      for (let i = 0; i <= 2; i++) {
+        yearlyData.set(currentYear + i, { year: currentYear + i, planned: 0, executed: 0 });
+      }
+
       contracts?.forEach(contract => {
         if (!contract.start_date || !contract.end_date || !contract.total_value) return;
-        
+
         const startDate = new Date(contract.start_date);
         const endDate = new Date(contract.end_date);
         const contractValue = Number(contract.total_value);
-        
-        // Calculate total days of contract
-        const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-        if (totalDays <= 0) return;
-        
-        // Calculate daily value
-        const dailyValue = contractValue / totalDays;
-        
-        // Assign value to each year
-        years.forEach(year => {
+        const durationInDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const valuePerDay = contractValue / durationInDays;
+
+        for (let year = currentYear; year <= currentYear + 2; year++) {
           const yearStart = new Date(year, 0, 1);
           const yearEnd = new Date(year, 11, 31);
-          
-          // Skip if contract ends before this year or starts after this year
-          if (endDate < yearStart || startDate > yearEnd) return;
-          
-          // Calculate overlap days
-          const overlapStart = startDate > yearStart ? startDate : yearStart;
-          const overlapEnd = endDate < yearEnd ? endDate : yearEnd;
-          const overlapDays = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
-          
-          // Add prorated value for this year
-          yearlyData[year] += dailyValue * overlapDays;
-        });
+
+          if (startDate <= yearEnd && endDate >= yearStart) {
+            const daysInYear = Math.min(
+              Math.ceil((yearEnd.getTime() - Math.max(startDate.getTime(), yearStart.getTime())) / (1000 * 60 * 60 * 24)) + 1,
+              Math.ceil((Math.min(endDate.getTime(), yearEnd.getTime()) - yearStart.getTime()) / (1000 * 60 * 60 * 24)) + 1
+            );
+
+            const yearData = yearlyData.get(year);
+            const yearValue = valuePerDay * daysInYear;
+            
+            if (yearData) {
+              if (year < currentYear || (year === currentYear && new Date() > startDate)) {
+                yearData.executed += yearValue;
+              } else {
+                yearData.planned += yearValue;
+              }
+            }
+          }
+        }
       });
-      
-      // Convert to array format for chart
-      return years.map(year => ({
-        year: year.toString(),
-        value: Math.round(yearlyData[year]),
-        label: `${year}`
-      }));
-    },
+
+      return Array.from(yearlyData.values());
+    }
   });
 
   const formatCurrency = (value: number) => {
-    return value.toLocaleString('pt-BR', {
+    return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-      maximumFractionDigits: 0,
-    });
+      maximumFractionDigits: 0
+    }).format(value);
   };
 
   return (
@@ -91,10 +81,10 @@ const ContractValueChart = () => {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-warm-200" />
-                <XAxis
-                  dataKey="label"
+              <BarChart data={chartData} barGap={0}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="year"
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
@@ -108,17 +98,21 @@ const ContractValueChart = () => {
                   tickFormatter={formatCurrency}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatCurrency(value), 'Valor Previsto']}
-                  cursor={{ fill: 'rgba(139, 69, 19, 0.1)' }}
+                  formatter={(value: number) => [formatCurrency(value)]}
+                  labelFormatter={(label) => `Ano: ${label}`}
                 />
                 <Legend />
                 <Bar
-                  name="Valor Projetado"
-                  dataKey="value"
-                  fill="#8B4513"
+                  name="Valor Executado"
+                  dataKey="executed"
+                  fill="#22c55e"
                   radius={[4, 4, 0, 0]}
-                  className="fill-primary"
-                  background={{ fill: '#eee' }}
+                />
+                <Bar
+                  name="Valor Previsto"
+                  dataKey="planned"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>

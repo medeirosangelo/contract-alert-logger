@@ -2,49 +2,57 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 const ContractSummaryCards = () => {
   const { data: summaryData, isLoading } = useQuery({
     queryKey: ['contractSummary'],
     queryFn: async () => {
-      // Fetch total contracts count
-      const { count: totalContracts, error: totalError } = await supabase
+      const now = new Date();
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      
+      // Fetch current month's data
+      const { data: currentMonthData, error: currentError } = await supabase
         .from('contracts')
-        .select('*', { count: 'exact', head: true });
+        .select('total_value, status')
+        .gte('created_at', lastMonth.toISOString());
+
+      if (currentError) throw currentError;
+
+      // Fetch total contracts data
+      const { data: totalData, error: totalError } = await supabase
+        .from('contracts')
+        .select('total_value, status');
 
       if (totalError) throw totalError;
 
-      // Fetch active contracts count
-      const { count: activeContracts, error: activeError } = await supabase
-        .from('contracts')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
-
-      if (activeError) throw activeError;
-
-      // Fetch sum of contract values
-      const { data: valueData, error: valueError } = await supabase
-        .from('contracts')
-        .select('total_value');
-
-      if (valueError) throw valueError;
-
-      // Calculate total value
-      const totalValue = valueData.reduce((sum, contract) => {
-        return sum + (Number(contract.total_value) || 0);
-      }, 0);
-
-      // Calculate average value
+      const totalContracts = totalData?.length || 0;
+      const activeContracts = totalData?.filter(c => c.status === 'active').length || 0;
+      const totalValue = totalData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
       const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
+      
+      // Calculate month-over-month growth
+      const currentMonthTotal = currentMonthData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
+      const previousMonthTotal = totalValue - currentMonthTotal;
+      const growth = previousMonthTotal ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100 : 0;
 
       return {
-        totalContracts: totalContracts || 0,
-        activeContracts: activeContracts || 0,
+        totalContracts,
+        activeContracts,
         totalValue,
-        averageValue
+        averageValue,
+        growth
       };
     }
   });
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0
+    }).format(value);
+  };
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -53,44 +61,57 @@ const ContractSummaryCards = () => {
           <CardTitle className="text-sm font-medium">Total de Contratos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {isLoading ? '...' : summaryData?.totalContracts}
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-bold">
+              {isLoading ? '...' : summaryData?.totalContracts}
+            </div>
           </div>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Contratos Ativos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {isLoading ? '...' : summaryData?.activeContracts}
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-bold">
+              {isLoading ? '...' : summaryData?.activeContracts}
+            </div>
           </div>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {isLoading ? '...' : summaryData?.totalValue?.toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })}
+          <div className="flex flex-col gap-1">
+            <div className="text-2xl font-bold">
+              {isLoading ? '...' : formatCurrency(summaryData?.totalValue || 0)}
+            </div>
+            {!isLoading && summaryData?.growth !== 0 && (
+              <div className={`text-xs flex items-center ${summaryData?.growth && summaryData.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {summaryData?.growth && summaryData.growth > 0 ? (
+                  <ArrowUp className="w-4 h-4 mr-1" />
+                ) : (
+                  <ArrowDown className="w-4 h-4 mr-1" />
+                )}
+                {Math.abs(summaryData?.growth || 0).toFixed(1)}% em relação ao mês anterior
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Valor Médio</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {isLoading ? '...' : summaryData?.averageValue?.toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })}
+            {isLoading ? '...' : formatCurrency(summaryData?.averageValue || 0)}
           </div>
         </CardContent>
       </Card>
