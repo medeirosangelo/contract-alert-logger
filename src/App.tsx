@@ -46,7 +46,12 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contracts" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
+              <Route path="/contract-template" element={<ContractTemplate />} />
+              
+              {/* Redirecionar /alerts para /alerts/contracts */}
+              <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="/alerts/contracts" element={<ContractAlerts />} />
+              
               <Route path="/physical-persons" element={<PhysicalPersonList />} />
               <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
               <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />
@@ -54,9 +59,11 @@ function App() {
               <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
               <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
               <Route path="/user-permissions" element={<UserPermissions />} />
-              <Route path="/contract-template" element={<ContractTemplate />} />
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/support" element={<Support />} />
+              
+              {/* Redirecionar rotas que não existem para o dashboard */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
           <SonnerToaster />
