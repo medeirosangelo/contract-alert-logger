@@ -3,45 +3,70 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ContractSummaryCards = () => {
   const { data: summaryData, isLoading } = useQuery({
     queryKey: ['contractSummary'],
     queryFn: async () => {
-      const now = new Date();
-      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-      
-      // Fetch current month's data
-      const { data: currentMonthData, error: currentError } = await supabase
-        .from('contracts')
-        .select('total_value, status')
-        .gte('created_at', lastMonth.toISOString());
-
-      if (currentError) throw currentError;
-
-      // Fetch total contracts data
+      // Get all contracts
       const { data: totalData, error: totalError } = await supabase
         .from('contracts')
-        .select('total_value, status');
+        .select('id, total_value, status, created_at');
 
       if (totalError) throw totalError;
 
+      // Get current and previous month dates
+      const now = new Date();
+      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+      
+      // Format dates for Supabase
+      const currentMonthStartStr = currentMonthStart.toISOString();
+      const previousMonthStartStr = previousMonthStart.toISOString();
+      const previousMonthEndStr = previousMonthEnd.toISOString();
+      
+      // Calculate statistics
       const totalContracts = totalData?.length || 0;
       const activeContracts = totalData?.filter(c => c.status === 'active').length || 0;
       const totalValue = totalData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
       const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
       
-      // Calculate month-over-month growth
-      const currentMonthTotal = currentMonthData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
-      const previousMonthTotal = totalValue - currentMonthTotal;
-      const growth = previousMonthTotal ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100 : 0;
+      // Calculate contracts created in current month
+      const currentMonthContracts = totalData?.filter(contract => 
+        contract.created_at && new Date(contract.created_at) >= currentMonthStart
+      ) || [];
+      const currentMonthValue = currentMonthContracts.reduce(
+        (sum, contract) => sum + (Number(contract.total_value) || 0), 0
+      );
+
+      // Calculate contracts created in previous month
+      const previousMonthContracts = totalData?.filter(contract => 
+        contract.created_at && 
+        new Date(contract.created_at) >= previousMonthStart && 
+        new Date(contract.created_at) <= previousMonthEnd
+      ) || [];
+      const previousMonthValue = previousMonthContracts.reduce(
+        (sum, contract) => sum + (Number(contract.total_value) || 0), 0
+      );
+
+      // Calculate growth
+      let growth = 0;
+      if (previousMonthValue > 0) {
+        growth = ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
+      } else if (currentMonthValue > 0) {
+        growth = 100; // If previous month was 0 and current month has value, that's 100% growth
+      }
 
       return {
         totalContracts,
         activeContracts,
         totalValue,
         averageValue,
-        growth
+        growth,
+        currentMonthContracts: currentMonthContracts.length,
+        previousMonthContracts: previousMonthContracts.length
       };
     }
   });
@@ -56,63 +81,83 @@ const ContractSummaryCards = () => {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card className="shadow-sm border border-warm-200 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total de Contratos</CardTitle>
+          <CardTitle className="text-sm font-medium text-warm-700">Total de Contratos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : summaryData?.totalContracts}
+          {isLoading ? (
+            <Skeleton className="h-8 w-16" />
+          ) : (
+            <div className="text-2xl font-bold text-warm-800">
+              {summaryData?.totalContracts || 0}
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="shadow-sm border border-warm-200 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Contratos Ativos</CardTitle>
+          <CardTitle className="text-sm font-medium text-warm-700">Contratos Ativos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : summaryData?.activeContracts}
+          {isLoading ? (
+            <Skeleton className="h-8 w-16" />
+          ) : (
+            <div className="text-2xl font-bold text-warm-800">
+              {summaryData?.activeContracts || 0}
             </div>
-          </div>
+          )}
+          {!isLoading && summaryData && (
+            <p className="text-xs text-warm-500 mt-1">
+              {Math.round((summaryData.activeContracts / Math.max(summaryData.totalContracts, 1)) * 100)}% do total
+            </p>
+          )}
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="shadow-sm border border-warm-200 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
+          <CardTitle className="text-sm font-medium text-warm-700">Valor Total</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-1">
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : formatCurrency(summaryData?.totalValue || 0)}
+          {isLoading ? (
+            <div>
+              <Skeleton className="h-8 w-24 mb-2" />
+              <Skeleton className="h-4 w-32" />
             </div>
-            {!isLoading && summaryData?.growth !== 0 && (
-              <div className={`text-xs flex items-center ${summaryData?.growth && summaryData.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {summaryData?.growth && summaryData.growth > 0 ? (
-                  <ArrowUp className="w-4 h-4 mr-1" />
-                ) : (
-                  <ArrowDown className="w-4 h-4 mr-1" />
-                )}
-                {Math.abs(summaryData?.growth || 0).toFixed(1)}% em relação ao mês anterior
+          ) : (
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl font-bold text-warm-800">
+                {formatCurrency(summaryData?.totalValue || 0)}
               </div>
-            )}
-          </div>
+              {summaryData?.growth !== 0 && (
+                <div className={`text-xs flex items-center ${summaryData?.growth && summaryData.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {summaryData?.growth && summaryData.growth > 0 ? (
+                    <ArrowUp className="w-3 h-3 mr-1" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3 mr-1" />
+                  )}
+                  {Math.abs(summaryData?.growth || 0).toFixed(1)}% em relação ao mês anterior
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="shadow-sm border border-warm-200 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Valor Médio</CardTitle>
+          <CardTitle className="text-sm font-medium text-warm-700">Valor Médio</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {isLoading ? '...' : formatCurrency(summaryData?.averageValue || 0)}
-          </div>
+          {isLoading ? (
+            <Skeleton className="h-8 w-24" />
+          ) : (
+            <div className="text-2xl font-bold text-warm-800">
+              {formatCurrency(summaryData?.averageValue || 0)}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

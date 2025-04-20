@@ -32,7 +32,7 @@ const ContractStatusCard = ({
         <p className="text-sm opacity-90 mt-1">{subtitle}</p>
         <Link
           to={link}
-          className={`inline-block mt-4 ${textColor} hover:underline text-sm`}
+          className={`inline-block mt-4 ${textColor} hover:underline text-sm font-medium`}
         >
           Ver Contratos →
         </Link>

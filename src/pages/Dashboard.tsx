@@ -7,68 +7,78 @@ import ContractSummaryCards from "@/components/dashboard/ContractSummaryCards";
 import ContractValueChart from "@/components/dashboard/ContractValueChart";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AlertCircle, Calendar, FileText, RefreshCw } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
   const { data: contractStats, isLoading } = useQuery({
     queryKey: ["contractStats"],
     queryFn: async () => {
-      // Calculate date ranges
-      const today = new Date();
-      const fiveDaysAgo = new Date();
-      fiveDaysAgo.setDate(today.getDate() - 5);
-      
-      const thirtyDaysAhead = new Date();
-      thirtyDaysAhead.setDate(today.getDate() + 30);
-      
-      // Format dates for Supabase
-      const todayStr = today.toISOString().split('T')[0];
-      const fiveDaysAgoStr = fiveDaysAgo.toISOString().split('T')[0];
-      const thirtyDaysAheadStr = thirtyDaysAhead.toISOString().split('T')[0];
-      
-      // Get new contracts in last 5 days
-      const { data: newContracts, error: newError } = await supabase
-        .from('contracts')
-        .select('id')
-        .gte('created_at', fiveDaysAgoStr)
-        .lte('created_at', todayStr);
+      try {
+        // Calculate date ranges
+        const today = new Date();
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(today.getDate() - 5);
         
-      if (newError) throw newError;
-      
-      // Get updated contracts in last 5 days
-      const { data: updatedContracts, error: updateError } = await supabase
-        .from('contracts')
-        .select('id')
-        .gte('updated_at', fiveDaysAgoStr)
-        .lte('updated_at', todayStr)
-        .neq('status', 'finished');
+        const thirtyDaysAhead = new Date();
+        thirtyDaysAhead.setDate(today.getDate() + 30);
         
-      if (updateError) throw updateError;
-      
-      // Get expired contracts
-      const { data: expiredContracts, error: expiredError } = await supabase
-        .from('contracts')
-        .select('id')
-        .lt('end_date', todayStr)
-        .eq('status', 'active');
+        // Format dates for Supabase
+        const todayStr = today.toISOString().split('T')[0];
+        const fiveDaysAgoStr = fiveDaysAgo.toISOString().split('T')[0];
+        const thirtyDaysAheadStr = thirtyDaysAhead.toISOString().split('T')[0];
         
-      if (expiredError) throw expiredError;
-      
-      // Get expiring contracts
-      const { data: expiringContracts, error: expiringError } = await supabase
-        .from('contracts')
-        .select('id')
-        .gte('end_date', todayStr)
-        .lte('end_date', thirtyDaysAheadStr)
-        .eq('status', 'active');
+        // Get new contracts in last 5 days
+        const { data: newContracts, error: newError } = await supabase
+          .from('contracts')
+          .select('id')
+          .gte('created_at', fiveDaysAgoStr);
+          
+        if (newError) throw newError;
         
-      if (expiringError) throw expiringError;
-      
-      return {
-        newContracts: newContracts?.length || 0,
-        updatedContracts: updatedContracts?.length || 0,
-        expiredContracts: expiredContracts?.length || 0,
-        expiringContracts: expiringContracts?.length || 0,
-      };
+        // Get updated contracts in last 5 days
+        const { data: updatedContracts, error: updateError } = await supabase
+          .from('contracts')
+          .select('id')
+          .gte('updated_at', fiveDaysAgoStr)
+          .neq('status', 'finished');
+          
+        if (updateError) throw updateError;
+        
+        // Get expired contracts
+        const { data: expiredContracts, error: expiredError } = await supabase
+          .from('contracts')
+          .select('id')
+          .lt('end_date', todayStr)
+          .eq('status', 'active');
+          
+        if (expiredError) throw expiredError;
+        
+        // Get expiring contracts
+        const { data: expiringContracts, error: expiringError } = await supabase
+          .from('contracts')
+          .select('id')
+          .gte('end_date', todayStr)
+          .lte('end_date', thirtyDaysAheadStr)
+          .eq('status', 'active');
+          
+        if (expiringError) throw expiringError;
+        
+        return {
+          newContracts: newContracts?.length || 0,
+          updatedContracts: updatedContracts?.length || 0,
+          expiredContracts: expiredContracts?.length || 0,
+          expiringContracts: expiringContracts?.length || 0,
+        };
+      } catch (error) {
+        console.error("Error fetching contract stats:", error);
+        return {
+          newContracts: 0,
+          updatedContracts: 0,
+          expiredContracts: 0,
+          expiringContracts: 0,
+        };
+      }
     },
   });
 
@@ -81,44 +91,56 @@ const Dashboard = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-warm-800">Dashboard</h1>
             <span className="text-sm text-warm-600">
-              Atualizado em: {new Date().toLocaleString()}
+              Atualizado em: {new Date().toLocaleString('pt-BR')}
             </span>
           </div>
 
           <ContractSummaryCards />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ContractStatusCard
-              count={isLoading ? 0 : contractStats?.newContracts || 0}
-              title="Novos Contratos"
-              subtitle="(Últimos 5 dias)"
-              link="/contracts"
-              bgColor="bg-cyan-500"
-            />
-            <ContractStatusCard
-              count={isLoading ? 0 : contractStats?.updatedContracts || 0}
-              title="Contratos Atualizados"
-              subtitle="(Últimos 5 dias)"
-              link="/contracts"
-              bgColor="bg-green-500"
-            />
-            <ContractStatusCard
-              count={isLoading ? 0 : contractStats?.expiredContracts || 0}
-              title="Contratos vencidos"
-              subtitle="(Últimos 5 dias)"
-              link="/contracts"
-              bgColor="bg-red-500"
-            />
-            <ContractStatusCard
-              count={isLoading ? 0 : contractStats?.expiringContracts || 0}
-              title="Contratos a vencer"
-              subtitle="(Próximos 30 dias)"
-              link="/alerts/contracts"
-              bgColor="bg-orange-500"
-            />
+            {isLoading ? (
+              Array(4).fill(0).map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))
+            ) : (
+              <>
+                <ContractStatusCard
+                  count={contractStats?.newContracts || 0}
+                  title="Novos Contratos"
+                  subtitle="(Últimos 5 dias)"
+                  link="/contracts"
+                  bgColor="bg-cyan-500"
+                  icon={<FileText size={28} />}
+                />
+                <ContractStatusCard
+                  count={contractStats?.updatedContracts || 0}
+                  title="Contratos Atualizados"
+                  subtitle="(Últimos 5 dias)"
+                  link="/contracts"
+                  bgColor="bg-green-500"
+                  icon={<RefreshCw size={28} />}
+                />
+                <ContractStatusCard
+                  count={contractStats?.expiredContracts || 0}
+                  title="Contratos vencidos"
+                  subtitle="(Necessita atenção)"
+                  link="/contracts"
+                  bgColor="bg-red-500"
+                  icon={<AlertCircle size={28} />}
+                />
+                <ContractStatusCard
+                  count={contractStats?.expiringContracts || 0}
+                  title="Contratos a vencer"
+                  subtitle="(Próximos 30 dias)"
+                  link="/alerts/contracts"
+                  bgColor="bg-orange-500"
+                  icon={<Calendar size={28} />}
+                />
+              </>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
             <ContractValueChart />
             <ContractCalendar />
           </div>
