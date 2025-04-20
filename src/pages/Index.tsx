@@ -13,11 +13,8 @@ const Index = () => {
   console.log('Index page rendering', { isAuthenticated, isLoading });
 
   useEffect(() => {
-    // Se já estiver autenticado e não estiver carregando, redireciona para o dashboard
-    if (isAuthenticated && !isLoading) {
-      console.log('Usuário autenticado, redirecionando para dashboard');
-      navigate('/dashboard');
-    }
+    // Se já estiver autenticado e não estiver carregando, NÃO redireciona para o dashboard
+    // Removido redirecionamento automático para que a página inicial seja mostrada sempre
   }, [isAuthenticated, isLoading, navigate]);
 
   // Se estiver carregando, mostra o skeleton
@@ -35,7 +32,7 @@ const Index = () => {
     );
   }
 
-  // Se não estiver autenticado, mostra a página inicial
+  // Sempre mostra a página inicial, independentemente do status de autenticação
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-50 to-warm-100 p-4">
       <div className="max-w-4xl text-center">
@@ -78,12 +75,14 @@ const Index = () => {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {isAuthenticated ? (
-            <Link to="/dashboard">
-              <Button className="text-lg px-6 py-6 group bg-primary hover:bg-primary-dark transition-all">
-                Ir para o Dashboard
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
+            <div className="space-x-4">
+              <Link to="/dashboard">
+                <Button className="text-lg px-6 py-6 group bg-primary hover:bg-primary-dark transition-all">
+                  Ir para o Dashboard
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Link to="/login">
               <Button className="text-lg px-6 py-6 group bg-primary hover:bg-primary-dark transition-all">

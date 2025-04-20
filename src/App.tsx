@@ -39,6 +39,7 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            {/* Rota pública que só vai para o dashboard se estiver autenticado */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
 

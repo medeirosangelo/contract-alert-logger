@@ -59,13 +59,13 @@ const menuItems: MenuItem[] = [
     subItems: [
       { name: "Cadastro de Contratos", path: "/contracts/new" },
       { name: "Lista de Contratos", path: "/contracts" },
-      { name: "Editor de Modelos", path: "/contracts/template" },
+      { name: "Editor de Modelos", path: "/contract-template" },
     ],
   },
   {
     name: "Alertas de Contratos",
     icon: <Bell className="w-5 h-5" />,
-    path: "/alerts",
+    path: "/alerts/contracts",
   },
   {
     name: "UML",
