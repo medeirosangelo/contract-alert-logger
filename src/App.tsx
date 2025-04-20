@@ -39,18 +39,16 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Rota pública que só vai para o dashboard se estiver autenticado */}
+            {/* Rotas públicas */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
 
+            {/* Rotas protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contracts" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
               <Route path="/contract-template" element={<ContractTemplate />} />
-              
-              {/* Redirecionar /alerts para /alerts/contracts */}
-              <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="/alerts/contracts" element={<ContractAlerts />} />
               
               <Route path="/physical-persons" element={<PhysicalPersonList />} />
@@ -63,7 +61,8 @@ function App() {
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/support" element={<Support />} />
               
-              {/* Redirecionar rotas que não existem para o dashboard */}
+              {/* Redirecionamentos */}
+              <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
