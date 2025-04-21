@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -69,7 +68,7 @@ const UserPermissions = () => {
     if (!user) return;
     
     // Obter permissões atuais ou criar objeto padrão
-    const currentPermissions = user.permissions as Record<string, boolean> || {
+    const currentPermissions = user.permissions || {
       dashboard: true,
       contracts: false,
       users: false,
@@ -90,8 +89,8 @@ const UserPermissions = () => {
   };
 
   // Função para obter o valor atual da permissão
-  const getPermissionValue = (user: any, permission: string): boolean => {
-    const permissions = user.permissions as Record<string, boolean> || {};
+  const getPermissionValue = (user: User, permission: string): boolean => {
+    const permissions = user.permissions || {};
     
     // Valores padrão caso não exista
     const defaults = {

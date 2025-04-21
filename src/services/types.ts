@@ -14,5 +14,8 @@ export type ContractInsert = Database["public"]["Tables"]["contracts"]["Insert"]
 export type ContractAlert = Database["public"]["Tables"]["contract_alerts"]["Row"];
 export type ContractAlertInsert = Database["public"]["Tables"]["contract_alerts"]["Insert"];
 
-export type User = Database["public"]["Tables"]["users"]["Row"];
+// Modificar a definição de User para incluir a propriedade permissions
+export type User = Database["public"]["Tables"]["users"]["Row"] & {
+  permissions?: Record<string, boolean>;
+};
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];

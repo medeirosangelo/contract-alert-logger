@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -47,7 +46,6 @@ import { Pencil, Trash2, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 
-// Esquema de validação para criação de usuário
 const userFormSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
@@ -65,13 +63,11 @@ const UserManagement = () => {
   const { role } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Consultar a lista de usuários
   const { data: users, isLoading, isError } = useQuery({
     queryKey: ["users"],
     queryFn: userApi.getAll,
   });
 
-  // Configuração do formulário
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
@@ -82,7 +78,6 @@ const UserManagement = () => {
     },
   });
 
-  // Mutation para criar usuário
   const createUserMutation = useMutation({
     mutationFn: (userData: UserCreateRequest) => userApi.create(userData),
     onSuccess: () => {
@@ -92,25 +87,23 @@ const UserManagement = () => {
     },
   });
 
-  // Mutation para excluir usuário
-  const deleteUserMutation = useMutation({
-    mutationFn: (userId: string) => userApi.delete(userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
-  });
-
-  const onSubmit = (data: UserFormValues) => {
-    createUserMutation.mutate(data);
-  };
-
   const handleDeleteUser = (userId: string) => {
     if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
       deleteUserMutation.mutate(userId);
     }
   };
 
-  // Cor do badge de acordo com o perfil
+  const onSubmit = (data: UserFormValues) => {
+    const userData: UserCreateRequest = {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      role: data.role
+    };
+    
+    createUserMutation.mutate(userData);
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
@@ -124,7 +117,6 @@ const UserManagement = () => {
     }
   };
 
-  // Tradução do papel do usuário
   const translateRole = (role: string) => {
     switch (role) {
       case "admin":
@@ -138,7 +130,6 @@ const UserManagement = () => {
     }
   };
 
-  // Verificar se usuário é admin
   const isAdmin = role === "admin";
 
   return (
