@@ -45,7 +45,7 @@ import { userApi, UserCreateRequest } from "@/services/users";
 import { Pencil, Trash2, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 const userFormSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -144,10 +144,6 @@ const UserManagement = () => {
 
   const isAdmin = role === "admin";
 
-  // Adicionar exemplo de consulta de histórico rápido
-  // Supondo que empresas estão em legal_persons, buscamos contratos antigos relacionados
-
-  // Função para buscar histórico, pode ser aplicada no form ao buscar CNPJ ou no perfil da empresa
   const checkCompanyHistory = async (cnpj: string) => {
     const { data, error } = await supabase
       .from('legal_persons')
@@ -155,7 +151,6 @@ const UserManagement = () => {
       .eq('cnpj', cnpj);
 
     if (data && data.length > 0) {
-      // Busca contratos antigos relacionados
       const companyId = data[0].id;
       const { data: contracts } = await supabase
         .from('contracts')
