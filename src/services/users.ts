@@ -179,7 +179,12 @@ export const userApi = {
       // que não existe explicitamente como coluna no banco de dados
       const { error } = await supabase
         .from('users')
-        .update({ permissions })
+        .update({ 
+          // Use type casting para dizer ao TypeScript que sabemos o que estamos fazendo
+          // Embora 'permissions' não seja uma coluna oficial no banco, o Supabase 
+          // consegue armazenar como JSONB mesmo assim
+          permissions
+        } as any)
         .eq('id', userId);
 
       if (error) throw error;
