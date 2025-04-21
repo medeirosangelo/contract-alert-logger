@@ -47,6 +47,7 @@ import { Pencil, Trash2, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@/services/types";
 
 // Password policy regex example: Minimum 6 chars, at least one uppercase, one lowercase, one number
 const PASSWORD_POLICY = z.string()
@@ -157,13 +158,21 @@ const UserManagement = () => {
     }
   };
 
-  const onEditUser = (user: { id: string; name: string; email: string; role: "admin" | "gestor" | "colaborador" }) => {
+  // Na API TanStack v5, usamos isPending em vez de isLoading
+  const isMutationLoading = createUserMutation.isPending || updateUserMutation.isPending;
+
+  const onEditUser = (user: { id: string; name: string; email: string; role: string }) => {
+    // Garantir que role seja um dos tipos válidos antes de passar para o form
+    const safeRole = user.role === "admin" || user.role === "gestor" || user.role === "colaborador" 
+      ? user.role 
+      : "colaborador";
+      
     setEditingUserId(user.id);
     form.reset({
       name: user.name,
       email: user.email,
       password: '',
-      role: user.role
+      role: safeRole as "admin" | "gestor" | "colaborador"
     });
     setIsDialogOpen(true);
   };
@@ -293,9 +302,9 @@ const UserManagement = () => {
                       <Button
                         type="submit"
                         className="w-full"
-                        disabled={createUserMutation.isLoading || updateUserMutation.isLoading}
+                        disabled={isMutationLoading}
                       >
-                        {(createUserMutation.isLoading || updateUserMutation.isLoading) && (
+                        {isMutationLoading && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
                         {editingUserId ? "Salvar Alterações" : "Criar Usuário"}
