@@ -50,11 +50,16 @@ function App() {
             {/* Rotas protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Rotas de Contratos */}
               <Route path="/contracts" element={<ContractList />} />
+              <Route path="/contracts/ativos" element={<ContractList />} />
+              <Route path="/contracts/finalizados" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
               <Route path="/contract-template" element={<ContractTemplate />} />
               <Route path="/alerts/contracts" element={<ContractAlerts />} />
               
+              {/* Rotas de Pessoas */}
               <Route path="/physical-persons" element={<PhysicalPersonList />} />
               <Route path="/physical-persons/:id" element={<PhysicalPersonDetails />} />
               <Route path="/physical-persons/new" element={<PhysicalPersonRegistration />} />

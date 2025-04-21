@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +14,6 @@ import {
   ChevronLeft,
   Boxes,
   LogOut,
-  User,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -146,6 +146,13 @@ const Navigation = () => {
       .substring(0, 2);
   };
 
+  // Ajusta a navegação para evitar o comportamento padrão
+  const handleSubItemClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => {
+    e.preventDefault();
+    console.log(`Navegando para: ${path}`);
+    navigate(path);
+  };
+
   return (
     <nav 
       className={`fixed left-0 top-0 h-screen bg-warm-50 border-r border-warm-200 transition-all duration-300 ease-in-out ${
@@ -223,9 +230,10 @@ const Navigation = () => {
                   {isExpanded && openMenus.includes(item.name) && (
                     <div className="bg-warm-100/30 py-1 pl-4 pr-2 border-l-2 border-warm-300 ml-4">
                       {item.subItems.map((subItem) => (
-                        <Link
+                        <a
                           key={subItem.path}
-                          to={subItem.path}
+                          href={subItem.path}
+                          onClick={(e) => handleSubItemClick(e, subItem.path)}
                           className={`block px-4 py-2 text-sm rounded-md my-1 transition-colors ${
                             location.pathname === subItem.path
                               ? "bg-primary text-white"
@@ -233,7 +241,7 @@ const Navigation = () => {
                           }`}
                         >
                           {subItem.name}
-                        </Link>
+                        </a>
                       ))}
                     </div>
                   )}
