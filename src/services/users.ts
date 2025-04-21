@@ -175,6 +175,8 @@ export const userApi = {
   
   updatePermissions: async (userId: string, permissions: Record<string, boolean>): Promise<boolean> => {
     try {
+      // Quando atualizamos a permissions, precisamos usar um metafield na tabela users
+      // que não existe explicitamente como coluna no banco de dados
       const { error } = await supabase
         .from('users')
         .update({ permissions })

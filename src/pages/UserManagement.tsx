@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -84,6 +85,18 @@ const UserManagement = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       form.reset();
       setIsDialogOpen(false);
+    },
+  });
+  
+  // Adicionar a mutation para excluir usuário
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: string) => userApi.delete(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast({
+        title: "Usuário removido",
+        description: "O usuário foi removido com sucesso.",
+      });
     },
   });
 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -17,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi } from "@/services/users";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@/services/types";
 
 interface Permission {
   dashboard: boolean;
