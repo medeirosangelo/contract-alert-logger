@@ -80,11 +80,20 @@ const UserPermissions = () => {
     };
     
     // Converter permissions de Json para objeto ou usar padrão
-    const currentPermissions: UserPermissions = user.permissions 
-      ? (typeof user.permissions === 'object' && user.permissions !== null 
-          ? (user.permissions as Record<string, boolean>) 
-          : defaultPermissions)
-      : defaultPermissions;
+    let currentPermissions: UserPermissions;
+    
+    if (user.permissions && typeof user.permissions === 'object' && user.permissions !== null) {
+      // Assegurar que todas as propriedades existem no objeto
+      const permObj = user.permissions as Record<string, boolean>;
+      currentPermissions = {
+        dashboard: 'dashboard' in permObj ? Boolean(permObj.dashboard) : defaultPermissions.dashboard,
+        contracts: 'contracts' in permObj ? Boolean(permObj.contracts) : defaultPermissions.contracts,
+        users: 'users' in permObj ? Boolean(permObj.users) : defaultPermissions.users,
+        edit: 'edit' in permObj ? Boolean(permObj.edit) : defaultPermissions.edit
+      };
+    } else {
+      currentPermissions = { ...defaultPermissions };
+    }
     
     // Atualizar permissão específica
     const updatedPermissions = {
@@ -119,7 +128,7 @@ const UserPermissions = () => {
     }
     
     // Retornar valor padrão se não encontrar a permissão
-    return defaults[permission as keyof typeof defaults];
+    return defaults[permission as keyof UserPermissions];
   };
 
   return (
