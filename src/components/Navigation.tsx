@@ -81,7 +81,8 @@ const menuItems: MenuItem[] = [
     name: "Configurações",
     icon: <Settings className="w-5 h-5" />,
     subItems: [
-      { name: "Usuários e Permissões", path: "/users" },
+      { name: "Gerenciamento de Usuários", path: "/users/management" },
+      { name: "Permissões de Usuários", path: "/users/permissions" },
       { name: "Preferências do Sistema", path: "/settings" },
     ],
   },

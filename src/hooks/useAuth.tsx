@@ -41,12 +41,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(!!session?.user);
           
           if (session?.user) {
-            // For the purpose of this app, the hard-coded admin user always gets admin role
-            if (session.user.email === ADMIN_EMAIL || 
+            // Verificando se o usuário tem role definido nos metadados
+            const userRole = session.user.user_metadata?.role;
+            
+            if (userRole) {
+              setRole(userRole);
+            } else if (session.user.email === ADMIN_EMAIL || 
                 session.user.user_metadata?.username === ADMIN_USERNAME) {
               setRole('admin');
             } else {
-              setRole('user');
+              setRole('colaborador'); // Default role
             }
             setIsLoading(false);
           } else {
@@ -70,12 +74,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(!!session?.user);
           
           if (session?.user) {
-            // For the purpose of this app, the hard-coded admin user always gets admin role
-            if (session.user.email === ADMIN_EMAIL || 
+            // Verificando se o usuário tem role definido nos metadados
+            const userRole = session.user.user_metadata?.role;
+            
+            if (userRole) {
+              setRole(userRole);
+            } else if (session.user.email === ADMIN_EMAIL || 
                 session.user.user_metadata?.username === ADMIN_USERNAME) {
               setRole('admin');
             } else {
-              setRole('user');
+              setRole('colaborador'); // Default role
             }
           } else {
             setRole(null);
@@ -165,7 +173,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           setUser(session.user);
           setIsAuthenticated(true);
-          setRole('user'); // Default role for other users
+          
+          // Verificando se o usuário tem role definido nos metadados
+          const userRole = session.user.user_metadata?.role;
+          if (userRole) {
+            setRole(userRole);
+          } else {
+            setRole('colaborador'); // Default role for other users
+          }
         }
       }
     } catch (error) {
@@ -212,3 +227,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

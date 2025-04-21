@@ -14,6 +14,7 @@ import LegalPersonList from './pages/LegalPersonList';
 import LegalPersonDetails from './pages/LegalPersonDetails';
 import LegalPersonRegistration from './pages/LegalPersonRegistration';
 import UserPermissions from './pages/UserPermissions';
+import UserManagement from './pages/UserManagement';
 import Documentation from './pages/Documentation';
 import Support from './pages/Support';
 import ContractTemplate from './pages/ContractTemplate';
@@ -74,7 +75,8 @@ function App() {
               <Route path="/uml/diagrama-casos-de-uso" element={<UseCaseDiagram />} />
               
               {/* Rotas de Configurações */}
-              <Route path="/users" element={<UserPermissions />} />
+              <Route path="/users/permissions" element={<UserPermissions />} />
+              <Route path="/users/management" element={<UserManagement />} />
               <Route path="/settings" element={<Documentation />} />
               
               <Route path="/documentation" element={<Documentation />} />
@@ -83,6 +85,7 @@ function App() {
               {/* Redirecionamentos */}
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="/uml" element={<Navigate to="/uml/casos-de-uso" replace />} />
+              <Route path="/users" element={<Navigate to="/users/management" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
