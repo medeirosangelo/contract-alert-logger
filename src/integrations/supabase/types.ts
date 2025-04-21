@@ -368,6 +368,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          permissions: Json | null
           role: string
           username: string
         }
@@ -376,6 +377,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          permissions?: Json | null
           role?: string
           username?: string
         }
@@ -384,6 +386,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          permissions?: Json | null
           role?: string
           username?: string
         }

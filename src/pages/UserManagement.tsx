@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import {
@@ -47,10 +48,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+// Password policy regex example: Minimum 6 chars, at least one uppercase, one lowercase, one number
+const PASSWORD_POLICY = z.string()
+  .min(6, { message: "Senha deve ter pelo menos 6 caracteres" })
+  .regex(/[A-Z]/, { message: "Senha deve conter ao menos uma letra maiúscula" })
+  .regex(/[a-z]/, { message: "Senha deve conter ao menos uma letra minúscula" })
+  .regex(/[0-9]/, { message: "Senha deve conter ao menos um número" });
+
 const userFormSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
-  password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
+  password: PASSWORD_POLICY.optional().or(z.literal('')), // Password optional on edit (empty = no change)
   role: z.enum(["admin", "gestor", "colaborador"], {
     required_error: "Selecione um perfil para o usuário",
   }),
@@ -63,6 +71,7 @@ const UserManagement = () => {
   const queryClient = useQueryClient();
   const { role } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
   const { data: users, isLoading, isError } = useQuery({
     queryKey: ["users"],
@@ -79,15 +88,34 @@ const UserManagement = () => {
     },
   });
 
+  // Prepare mutation for create or update depending on editing state
   const createUserMutation = useMutation({
     mutationFn: (userData: UserCreateRequest) => userApi.create(userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       form.reset();
       setIsDialogOpen(false);
+      setEditingUserId(null);
     },
   });
-  
+
+  const updateUserMutation = useMutation({
+    mutationFn: (data: {id: string, updateData: Partial<UserCreateRequest>}) => {
+      const { id, updateData } = data;
+      // Remove password if empty (assume no change)
+      if (updateData.password === '') {
+        delete updateData.password;
+      }
+      return userApi.update(id, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      form.reset();
+      setIsDialogOpen(false);
+      setEditingUserId(null);
+    },
+  });
+
   const deleteUserMutation = useMutation({
     mutationFn: (userId: string) => userApi.delete(userId),
     onSuccess: () => {
@@ -106,14 +134,38 @@ const UserManagement = () => {
   };
 
   const onSubmit = (data: UserFormValues) => {
-    const userData: UserCreateRequest = {
-      email: data.email,
-      password: data.password,
-      name: data.name,
-      role: data.role
-    };
-    
-    createUserMutation.mutate(userData);
+    if (editingUserId) {
+      // Update existing user
+      const updateData: Partial<UserCreateRequest> = {
+        email: data.email,
+        name: data.name,
+        role: data.role,
+      };
+      if (data.password && data.password.length > 0) {
+        updateData.password = data.password; // update password only if provided
+      }
+      updateUserMutation.mutate({ id: editingUserId, updateData });
+    } else {
+      // Create new user
+      const userData: UserCreateRequest = {
+        email: data.email,
+        password: data.password || '',
+        name: data.name,
+        role: data.role,
+      };
+      createUserMutation.mutate(userData);
+    }
+  };
+
+  const onEditUser = (user: { id: string; name: string; email: string; role: "admin" | "gestor" | "colaborador" }) => {
+    setEditingUserId(user.id);
+    form.reset({
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: user.role
+    });
+    setIsDialogOpen(true);
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -144,41 +196,6 @@ const UserManagement = () => {
 
   const isAdmin = role === "admin";
 
-  const checkCompanyHistory = async (cnpj: string) => {
-    const { data, error } = await supabase
-      .from('legal_persons')
-      .select('id, company_name')
-      .eq('cnpj', cnpj);
-
-    if (data && data.length > 0) {
-      const companyId = data[0].id;
-      const { data: contracts } = await supabase
-        .from('contracts')
-        .select('id, start_date, end_date, status')
-        .or(`contractor_id.eq.${companyId},contracted_id.eq.${companyId}`);
-      
-      if (contracts && contracts.length > 0) {
-        toast({
-          title: "Histórico encontrado",
-          description: `Esta empresa já participou de ${contracts.length} contrato(s) na instituição.`,
-        });
-        return contracts;
-      } else {
-        toast({
-          title: "Nenhum histórico",
-          description: "Esta empresa não possui contratos anteriores.",
-        });
-        return [];
-      }
-    }
-    toast({
-      title: "Empresa não encontrada",
-      description: "CNPJ não consta no cadastro.",
-      variant: "destructive",
-    });
-    return [];
-  };
-
   return (
     <div className="min-h-screen bg-warm-100">
       <Navigation />
@@ -192,14 +209,14 @@ const UserManagement = () => {
                 <DialogTrigger asChild>
                   <Button>
                     <UserPlus className="mr-2 h-4 w-4" />
-                    Novo Usuário
+                    {editingUserId ? "Editar Usuário" : "Novo Usuário"}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>Criar Novo Usuário</DialogTitle>
+                    <DialogTitle>{editingUserId ? "Editar Usuário" : "Criar Novo Usuário"}</DialogTitle>
                   </DialogHeader>
-                  
+
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
                       <FormField
@@ -215,7 +232,7 @@ const UserManagement = () => {
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="email"
@@ -229,24 +246,24 @@ const UserManagement = () => {
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Senha</FormLabel>
+                            <FormLabel>{editingUserId ? "Nova Senha" : "Senha"}</FormLabel>
                             <FormControl>
-                              <Input type="password" {...field} />
+                              <Input type="password" placeholder={editingUserId ? "Deixe em branco para manter a senha atual" : undefined} {...field} />
                             </FormControl>
                             <FormDescription>
-                              Mínimo de 6 caracteres
+                              Mínimo de 6 caracteres, com pelo menos uma letra maiúscula, uma minúscula e um número.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="role"
@@ -272,16 +289,16 @@ const UserManagement = () => {
                           </FormItem>
                         )}
                       />
-                      
-                      <Button 
-                        type="submit" 
+
+                      <Button
+                        type="submit"
                         className="w-full"
-                        disabled={createUserMutation.isPending}
+                        disabled={createUserMutation.isLoading || updateUserMutation.isLoading}
                       >
-                        {createUserMutation.isPending && (
+                        {(createUserMutation.isLoading || updateUserMutation.isLoading) && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
-                        Criar Usuário
+                        {editingUserId ? "Salvar Alterações" : "Criar Usuário"}
                       </Button>
                     </form>
                   </Form>
@@ -339,14 +356,11 @@ const UserManagement = () => {
                                 size="icon"
                                 title="Editar"
                                 disabled={!isAdmin}
-                                onClick={() => toast({
-                                  title: "Em desenvolvimento",
-                                  description: "Funcionalidade de edição será implementada em breve."
-                                })}
+                                onClick={() => onEditUser(user)}
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              
+
                               <Button
                                 variant="ghost"
                                 size="icon"
