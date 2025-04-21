@@ -17,7 +17,7 @@ const ContractAlerts = () => {
     queryFn: async () => {
       try {
         // Primeiro tenta buscar do banco de dados
-        const data = await contractAlertsApi.getPendingAlerts();
+        const data = await contractAlertsApi.getPending();
         console.log("Dados de alertas retornados:", data);
         
         // Se não houver dados, retornamos dados mockados
