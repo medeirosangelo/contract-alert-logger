@@ -19,8 +19,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi } from "@/services/users";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/services/types";
+import { Json } from "@/integrations/supabase/types";
 
-interface Permission {
+// Define interface for permission object
+interface UserPermissions {
   dashboard: boolean;
   contracts: boolean;
   users: boolean;
@@ -70,12 +72,19 @@ const UserPermissions = () => {
     if (!user) return;
     
     // Obter permissões atuais ou criar objeto padrão
-    const currentPermissions = user.permissions || {
+    const defaultPermissions: UserPermissions = {
       dashboard: true,
-      contracts: false,
-      users: false,
-      edit: false
+      contracts: user.role !== "colaborador",
+      users: user.role === "admin",
+      edit: user.role !== "colaborador"
     };
+    
+    // Converter permissions de Json para objeto ou usar padrão
+    const currentPermissions: UserPermissions = user.permissions 
+      ? (typeof user.permissions === 'object' && user.permissions !== null 
+          ? (user.permissions as Record<string, boolean>) 
+          : defaultPermissions)
+      : defaultPermissions;
     
     // Atualizar permissão específica
     const updatedPermissions = {
@@ -92,17 +101,25 @@ const UserPermissions = () => {
 
   // Função para obter o valor atual da permissão
   const getPermissionValue = (user: User, permission: string): boolean => {
-    const permissions = user.permissions || {};
-    
     // Valores padrão caso não exista
-    const defaults = {
+    const defaults: UserPermissions = {
       dashboard: true,
       contracts: user.role !== "colaborador",
       users: user.role === "admin",
       edit: user.role !== "colaborador"
     };
     
-    return permission in permissions ? permissions[permission] : defaults[permission as keyof typeof defaults];
+    // Verificar se permissions existe e é um objeto
+    if (user.permissions && typeof user.permissions === 'object' && user.permissions !== null) {
+      const permissionsObj = user.permissions as Record<string, any>;
+      // Verificar se a propriedade específica existe no objeto de permissões
+      if (permission in permissionsObj) {
+        return Boolean(permissionsObj[permission]);
+      }
+    }
+    
+    // Retornar valor padrão se não encontrar a permissão
+    return defaults[permission as keyof typeof defaults];
   };
 
   return (
