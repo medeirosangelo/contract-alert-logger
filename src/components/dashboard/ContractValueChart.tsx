@@ -5,75 +5,86 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { supabase } from "@/integrations/supabase/client";
 
 const ContractValueChart = () => {
-  const { data: chartData, isLoading } = useQuery({
+  const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['contractProjections'],
     queryFn: async () => {
-      const { data: contracts, error } = await supabase
-        .from('contracts')
-        .select('start_date, end_date, total_value, status')
-        .eq('status', 'active');
+      try {
+        const { data: contracts, error } = await supabase
+          .from('contracts')
+          .select('start_date, end_date, total_value, status')
+          .eq('status', 'active');
 
-      if (error) throw error;
+        if (error) {
+          console.error("Erro ao buscar contratos:", error);
+          throw error;
+        }
 
-      const yearlyData = new Map();
-      const currentYear = new Date().getFullYear();
-      
-      // Initialize next 3 years
-      for (let i = 0; i <= 2; i++) {
-        yearlyData.set(currentYear + i, { year: currentYear + i, planned: 0, executed: 0 });
-      }
+        console.log("Contratos retornados:", contracts?.length || 0);
 
-      contracts?.forEach(contract => {
-        if (!contract.start_date || !contract.end_date || !contract.total_value) return;
+        const yearlyData = new Map();
+        const currentYear = new Date().getFullYear();
+        
+        // Initialize next 3 years
+        for (let i = 0; i <= 2; i++) {
+          yearlyData.set(currentYear + i, { year: currentYear + i, planned: 0, executed: 0 });
+        }
 
-        const startDate = new Date(contract.start_date);
-        const endDate = new Date(contract.end_date);
-        const contractValue = Number(contract.total_value);
-        const durationInDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
-        const valuePerDay = contractValue / durationInDays;
+        contracts?.forEach(contract => {
+          if (!contract.start_date || !contract.end_date || !contract.total_value) return;
 
-        for (let year = currentYear; year <= currentYear + 2; year++) {
-          const yearStart = new Date(year, 0, 1);
-          const yearEnd = new Date(year, 11, 31);
+          const startDate = new Date(contract.start_date);
+          const endDate = new Date(contract.end_date);
+          const contractValue = Number(contract.total_value);
+          const durationInDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+          const valuePerDay = contractValue / durationInDays;
 
-          if (startDate <= yearEnd && endDate >= yearStart) {
-            // Calculate days in this specific year for this contract
-            const daysInYear = Math.min(
-              Math.max(0, Math.ceil((yearEnd.getTime() - Math.max(startDate.getTime(), yearStart.getTime())) / (1000 * 60 * 60 * 24)) + 1),
-              Math.max(0, Math.ceil((Math.min(endDate.getTime(), yearEnd.getTime()) - yearStart.getTime()) / (1000 * 60 * 60 * 24)) + 1)
-            );
+          for (let year = currentYear; year <= currentYear + 2; year++) {
+            const yearStart = new Date(year, 0, 1);
+            const yearEnd = new Date(year, 11, 31);
 
-            const yearData = yearlyData.get(year);
-            const yearValue = valuePerDay * daysInYear;
-            
-            if (yearData) {
-              const today = new Date();
-              // For current year, split between executed and planned based on current date
-              if (year === currentYear) {
-                const daysExecuted = Math.max(0, Math.min(
-                  daysInYear, 
-                  Math.ceil((today.getTime() - Math.max(startDate.getTime(), yearStart.getTime())) / (1000 * 60 * 60 * 24)) + 1
-                ));
-                const executedValue = valuePerDay * daysExecuted;
-                const plannedValue = yearValue - executedValue;
-                
-                yearData.executed += executedValue;
-                yearData.planned += plannedValue;
-              } 
-              // For future years, everything is planned
-              else if (year > currentYear) {
-                yearData.planned += yearValue;
-              } 
-              // For past years (shouldn't happen with active contracts but just in case)
-              else {
-                yearData.executed += yearValue;
+            if (startDate <= yearEnd && endDate >= yearStart) {
+              // Calculate days in this specific year for this contract
+              const daysInYear = Math.min(
+                Math.max(0, Math.ceil((yearEnd.getTime() - Math.max(startDate.getTime(), yearStart.getTime())) / (1000 * 60 * 60 * 24)) + 1),
+                Math.max(0, Math.ceil((Math.min(endDate.getTime(), yearEnd.getTime()) - yearStart.getTime()) / (1000 * 60 * 60 * 24)) + 1)
+              );
+
+              const yearData = yearlyData.get(year);
+              const yearValue = valuePerDay * daysInYear;
+              
+              if (yearData) {
+                const today = new Date();
+                // For current year, split between executed and planned based on current date
+                if (year === currentYear) {
+                  const daysExecuted = Math.max(0, Math.min(
+                    daysInYear, 
+                    Math.ceil((today.getTime() - Math.max(startDate.getTime(), yearStart.getTime())) / (1000 * 60 * 60 * 24)) + 1
+                  ));
+                  const executedValue = valuePerDay * daysExecuted;
+                  const plannedValue = yearValue - executedValue;
+                  
+                  yearData.executed += executedValue;
+                  yearData.planned += plannedValue;
+                } 
+                // For future years, everything is planned
+                else if (year > currentYear) {
+                  yearData.planned += yearValue;
+                } 
+                // For past years (shouldn't happen with active contracts but just in case)
+                else {
+                  yearData.executed += yearValue;
+                }
               }
             }
           }
-        }
-      });
+        });
 
-      return Array.from(yearlyData.values());
+        console.log("Dados anuais preparados:", Array.from(yearlyData.values()));
+        return Array.from(yearlyData.values());
+      } catch (err) {
+        console.error("Erro na função de consulta:", err);
+        throw err;
+      }
     }
   });
 
@@ -85,6 +96,9 @@ const ContractValueChart = () => {
     }).format(value);
   };
 
+  // Log de debugging
+  console.log("ContractValueChart render:", { chartData, isLoading, error });
+
   return (
     <Card className="col-span-2 lg:col-span-4 shadow-md border border-warm-200">
       <CardHeader className="pb-2">
@@ -95,6 +109,14 @@ const ContractValueChart = () => {
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <p>Carregando dados...</p>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full text-red-500">
+              <p>Erro ao carregar dados: {(error as Error).message}</p>
+            </div>
+          ) : !chartData || chartData.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-warm-500">
+              <p>Sem dados para exibir</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">

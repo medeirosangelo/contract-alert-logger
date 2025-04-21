@@ -6,68 +6,88 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ContractSummaryCards = () => {
-  const { data: summaryData, isLoading } = useQuery({
+  const { data: summaryData, isLoading, error } = useQuery({
     queryKey: ['contractSummary'],
     queryFn: async () => {
-      // Get all contracts
-      const { data: totalData, error: totalError } = await supabase
-        .from('contracts')
-        .select('id, total_value, status, created_at');
+      try {
+        // Get all contracts
+        const { data: totalData, error: totalError } = await supabase
+          .from('contracts')
+          .select('id, total_value, status, created_at');
 
-      if (totalError) throw totalError;
+        if (totalError) {
+          console.error("Erro ao buscar resumo de contratos:", totalError);
+          throw totalError;
+        }
 
-      // Get current and previous month dates
-      const now = new Date();
-      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-      
-      // Format dates for Supabase
-      const currentMonthStartStr = currentMonthStart.toISOString();
-      const previousMonthStartStr = previousMonthStart.toISOString();
-      const previousMonthEndStr = previousMonthEnd.toISOString();
-      
-      // Calculate statistics
-      const totalContracts = totalData?.length || 0;
-      const activeContracts = totalData?.filter(c => c.status === 'active').length || 0;
-      const totalValue = totalData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
-      const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
-      
-      // Calculate contracts created in current month
-      const currentMonthContracts = totalData?.filter(contract => 
-        contract.created_at && new Date(contract.created_at) >= currentMonthStart
-      ) || [];
-      const currentMonthValue = currentMonthContracts.reduce(
-        (sum, contract) => sum + (Number(contract.total_value) || 0), 0
-      );
+        console.log("Total de contratos retornados:", totalData?.length || 0);
 
-      // Calculate contracts created in previous month
-      const previousMonthContracts = totalData?.filter(contract => 
-        contract.created_at && 
-        new Date(contract.created_at) >= previousMonthStart && 
-        new Date(contract.created_at) <= previousMonthEnd
-      ) || [];
-      const previousMonthValue = previousMonthContracts.reduce(
-        (sum, contract) => sum + (Number(contract.total_value) || 0), 0
-      );
+        // Get current and previous month dates
+        const now = new Date();
+        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        
+        // Format dates for Supabase
+        const currentMonthStartStr = currentMonthStart.toISOString();
+        const previousMonthStartStr = previousMonthStart.toISOString();
+        const previousMonthEndStr = previousMonthEnd.toISOString();
+        
+        // Calculate statistics
+        const totalContracts = totalData?.length || 0;
+        const activeContracts = totalData?.filter(c => c.status === 'active').length || 0;
+        const totalValue = totalData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
+        const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
+        
+        // Calculate contracts created in current month
+        const currentMonthContracts = totalData?.filter(contract => 
+          contract.created_at && new Date(contract.created_at) >= currentMonthStart
+        ) || [];
+        const currentMonthValue = currentMonthContracts.reduce(
+          (sum, contract) => sum + (Number(contract.total_value) || 0), 0
+        );
 
-      // Calculate growth
-      let growth = 0;
-      if (previousMonthValue > 0) {
-        growth = ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
-      } else if (currentMonthValue > 0) {
-        growth = 100; // If previous month was 0 and current month has value, that's 100% growth
+        // Calculate contracts created in previous month
+        const previousMonthContracts = totalData?.filter(contract => 
+          contract.created_at && 
+          new Date(contract.created_at) >= previousMonthStart && 
+          new Date(contract.created_at) <= previousMonthEnd
+        ) || [];
+        const previousMonthValue = previousMonthContracts.reduce(
+          (sum, contract) => sum + (Number(contract.total_value) || 0), 0
+        );
+
+        // Calculate growth
+        let growth = 0;
+        if (previousMonthValue > 0) {
+          growth = ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
+        } else if (currentMonthValue > 0) {
+          growth = 100; // If previous month was 0 and current month has value, that's 100% growth
+        }
+
+        console.log("Resumo calculado:", { 
+          totalContracts, 
+          activeContracts, 
+          totalValue, 
+          averageValue, 
+          growth, 
+          currentMonth: currentMonthContracts.length,
+          previousMonth: previousMonthContracts.length
+        });
+
+        return {
+          totalContracts,
+          activeContracts,
+          totalValue,
+          averageValue,
+          growth,
+          currentMonthContracts: currentMonthContracts.length,
+          previousMonthContracts: previousMonthContracts.length
+        };
+      } catch (err) {
+        console.error("Erro na função de consulta de resumo:", err);
+        throw err;
       }
-
-      return {
-        totalContracts,
-        activeContracts,
-        totalValue,
-        averageValue,
-        growth,
-        currentMonthContracts: currentMonthContracts.length,
-        previousMonthContracts: previousMonthContracts.length
-      };
     }
   });
 
@@ -79,6 +99,9 @@ const ContractSummaryCards = () => {
     }).format(value);
   };
 
+  // Log de debugging
+  console.log("ContractSummaryCards render:", { summaryData, isLoading, error });
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card className="shadow-sm border border-warm-200 hover:shadow-md transition-shadow">
@@ -88,6 +111,8 @@ const ContractSummaryCards = () => {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-8 w-16" />
+          ) : error ? (
+            <div className="text-red-500 text-sm">Erro ao carregar dados</div>
           ) : (
             <div className="text-2xl font-bold text-warm-800">
               {summaryData?.totalContracts || 0}
@@ -103,12 +128,14 @@ const ContractSummaryCards = () => {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-8 w-16" />
+          ) : error ? (
+            <div className="text-red-500 text-sm">Erro ao carregar dados</div>
           ) : (
             <div className="text-2xl font-bold text-warm-800">
               {summaryData?.activeContracts || 0}
             </div>
           )}
-          {!isLoading && summaryData && (
+          {!isLoading && !error && summaryData && (
             <p className="text-xs text-warm-500 mt-1">
               {Math.round((summaryData.activeContracts / Math.max(summaryData.totalContracts, 1)) * 100)}% do total
             </p>
@@ -126,6 +153,8 @@ const ContractSummaryCards = () => {
               <Skeleton className="h-8 w-24 mb-2" />
               <Skeleton className="h-4 w-32" />
             </div>
+          ) : error ? (
+            <div className="text-red-500 text-sm">Erro ao carregar dados</div>
           ) : (
             <div className="flex flex-col gap-1">
               <div className="text-2xl font-bold text-warm-800">
@@ -153,6 +182,8 @@ const ContractSummaryCards = () => {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-8 w-24" />
+          ) : error ? (
+            <div className="text-red-500 text-sm">Erro ao carregar dados</div>
           ) : (
             <div className="text-2xl font-bold text-warm-800">
               {formatCurrency(summaryData?.averageValue || 0)}

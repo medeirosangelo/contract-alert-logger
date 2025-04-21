@@ -21,6 +21,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster as SonnerToaster } from "sonner";
+import UseCases from './pages/UseCases';
+import UseCaseDiagram from './pages/UseCaseDiagram';
+import UseCaseActors from './pages/UseCaseActors';
+import ClassDiagram from './pages/ClassDiagram';
 
 import './App.css';
 
@@ -57,12 +61,23 @@ function App() {
               <Route path="/legal-persons" element={<LegalPersonList />} />
               <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
               <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
-              <Route path="/user-permissions" element={<UserPermissions />} />
+              
+              {/* Rotas de UML */}
+              <Route path="/uml/casos-de-uso" element={<UseCases />} />
+              <Route path="/uml/atores" element={<UseCaseActors />} />
+              <Route path="/uml/diagrama-classes" element={<ClassDiagram />} />
+              <Route path="/uml/diagrama-casos-de-uso" element={<UseCaseDiagram />} />
+              
+              {/* Rotas de Configurações */}
+              <Route path="/users" element={<UserPermissions />} />
+              <Route path="/settings" element={<Documentation />} />
+              
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/support" element={<Support />} />
               
               {/* Redirecionamentos */}
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
+              <Route path="/uml" element={<Navigate to="/uml/casos-de-uso" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
