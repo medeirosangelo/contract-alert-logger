@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
@@ -46,6 +45,7 @@ import { userApi, UserCreateRequest } from "@/services/users";
 import { Pencil, Trash2, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 const userFormSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -88,7 +88,6 @@ const UserManagement = () => {
     },
   });
   
-  // Adicionar a mutation para excluir usuário
   const deleteUserMutation = useMutation({
     mutationFn: (userId: string) => userApi.delete(userId),
     onSuccess: () => {
@@ -144,6 +143,46 @@ const UserManagement = () => {
   };
 
   const isAdmin = role === "admin";
+
+  // Adicionar exemplo de consulta de histórico rápido
+  // Supondo que empresas estão em legal_persons, buscamos contratos antigos relacionados
+
+  // Função para buscar histórico, pode ser aplicada no form ao buscar CNPJ ou no perfil da empresa
+  const checkCompanyHistory = async (cnpj: string) => {
+    const { data, error } = await supabase
+      .from('legal_persons')
+      .select('id, company_name')
+      .eq('cnpj', cnpj);
+
+    if (data && data.length > 0) {
+      // Busca contratos antigos relacionados
+      const companyId = data[0].id;
+      const { data: contracts } = await supabase
+        .from('contracts')
+        .select('id, start_date, end_date, status')
+        .or(`contractor_id.eq.${companyId},contracted_id.eq.${companyId}`);
+      
+      if (contracts && contracts.length > 0) {
+        toast({
+          title: "Histórico encontrado",
+          description: `Esta empresa já participou de ${contracts.length} contrato(s) na instituição.`,
+        });
+        return contracts;
+      } else {
+        toast({
+          title: "Nenhum histórico",
+          description: "Esta empresa não possui contratos anteriores.",
+        });
+        return [];
+      }
+    }
+    toast({
+      title: "Empresa não encontrada",
+      description: "CNPJ não consta no cadastro.",
+      variant: "destructive",
+    });
+    return [];
+  };
 
   return (
     <div className="min-h-screen bg-warm-100">

@@ -18,7 +18,39 @@ export interface LoginCredentials {
 export const authApi = {
   signUp: async (credentials: SignUpCredentials) => {
     try {
-      console.log('Signing up...');
+      // Verifica se já existe o e-mail cadastrado antes de tentar cadastrar
+      const { data: existing, error: existingError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', credentials.email)
+        .maybeSingle();
+
+      if (existing) {
+        toast({
+          title: "Cadastro já existente",
+          description: "Já existe um usuário com este e-mail cadastrado.",
+          variant: "destructive",
+        });
+        throw new Error('User already registered');
+      }
+
+      // Verifica se já existe este username
+      if (credentials.username) {
+        const { data: userFound } = await supabase
+          .from('users')
+          .select('id')
+          .eq('username', credentials.username)
+          .maybeSingle();
+        if (userFound) {
+          toast({
+            title: "Usuário já existe",
+            description: "Este nome de usuário já está em uso.",
+            variant: "destructive",
+          });
+          throw new Error('Username already registered');
+        }
+      }
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
@@ -48,7 +80,6 @@ export const authApi = {
         if (userError) throw userError;
       }
 
-      console.log('Sign up successful');
       toast({
         title: "Cadastro realizado",
         description: "Sua conta foi criada com sucesso. Verifique seu e-mail para confirmação.",
@@ -56,10 +87,17 @@ export const authApi = {
       
       return authData;
     } catch (error: any) {
-      console.error('Sign up error:', error);
+      // Mensagem melhorada
+      let description = "Não foi possível criar sua conta. Verifique os dados e tente novamente.";
+      if (error.message?.includes("User already registered")) {
+        description = "Este e-mail já está em uso.";
+      }
+      if (error.message?.includes("Username already registered")) {
+        description = "Nome de usuário já está em uso.";
+      }
       toast({
         title: "Erro ao cadastrar",
-        description: "Não foi possível criar sua conta. Verifique os dados e tente novamente.",
+        description,
         variant: "destructive",
       });
       throw error;
@@ -68,48 +106,55 @@ export const authApi = {
 
   login: async (credentials: LoginCredentials) => {
     try {
-      console.log('Logging in...');
       let data;
       let error;
-      
+
       if (credentials.isUsername) {
-        // Direct login with email using the input as is
-        console.log('Login with username:', credentials.identifier);
+        // Buscar e-mail a partir do username
+        const { data: user } = await supabase
+          .from('users')
+          .select('email')
+          .eq('username', credentials.identifier)
+          .maybeSingle();
+
+        if (!user?.email) {
+          toast({
+            title: "Usuário não encontrado",
+            description: "Nome de usuário inválido.",
+            variant: "destructive",
+          });
+          throw new Error('Username not found');
+        }
         const authResponse = await supabase.auth.signInWithPassword({
-          // For simplicity, using the identifier as both email and password
-          // This is a workaround until we add the username field to users table
-          email: `${credentials.identifier}@example.com`,
+          email: user.email,
           password: credentials.password,
         });
-        
         data = authResponse.data;
         error = authResponse.error;
       } else {
-        // Normal login with email
-        console.log('Login with email:', credentials.identifier);
         const authResponse = await supabase.auth.signInWithPassword({
           email: credentials.identifier,
           password: credentials.password,
         });
-        
         data = authResponse.data;
         error = authResponse.error;
       }
 
       if (error) throw error;
-      console.log('Login successful');
       
       toast({
         title: "Login realizado",
         description: "Você entrou com sucesso no sistema.",
       });
-      
       return data;
     } catch (error: any) {
-      console.error('Login error:', error);
+      let description = "Usuário ou senha inválidos.";
+      if (error?.message?.includes('Username not found')) {
+        description = "Nome de usuário não encontrado.";
+      }
       toast({
         title: "Erro ao fazer login",
-        description: "Usuário ou senha inválidos.",
+        description,
         variant: "destructive",
       });
       throw error;

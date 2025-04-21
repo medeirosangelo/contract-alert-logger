@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { User, UserInsert } from "./types";
@@ -56,7 +55,6 @@ export const userApi = {
   create: async (userData: UserCreateRequest): Promise<User | null> => {
     try {
       console.log('Criando novo usuário');
-      // Primeiro criamos a conta de autenticação
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -71,7 +69,6 @@ export const userApi = {
       if (authError) throw authError;
       
       if (authData.user) {
-        // Cadastramos no perfil de usuários
         const userRecord: UserInsert = {
           id: authData.user.id,
           email: userData.email,
@@ -110,7 +107,6 @@ export const userApi = {
   
   update: async (id: string, userData: Partial<User>): Promise<User | null> => {
     try {
-      // Remover campos que não devem ser atualizados
       const { id: userId, ...updateData } = userData;
       
       const { data, error } = await supabase
@@ -141,14 +137,12 @@ export const userApi = {
   
   delete: async (id: string): Promise<boolean> => {
     try {
-      // Removendo usuário do Supabase Auth
       const { error: authError } = await supabase.functions.invoke('delete-user', {
         body: { userId: id }
       });
       
       if (authError) throw authError;
       
-      // Removendo registro da tabela users
       const { error } = await supabase
         .from('users')
         .delete()
@@ -175,16 +169,9 @@ export const userApi = {
   
   updatePermissions: async (userId: string, permissions: Record<string, boolean>): Promise<boolean> => {
     try {
-      // Quando atualizamos a permissions, precisamos usar um metafield na tabela users
-      // que não existe explicitamente como coluna no banco de dados
       const { error } = await supabase
         .from('users')
-        .update({ 
-          // Use type casting para dizer ao TypeScript que sabemos o que estamos fazendo
-          // Embora 'permissions' não seja uma coluna oficial no banco, o Supabase 
-          // consegue armazenar como JSONB mesmo assim
-          permissions
-        } as any)
+        .update({ permissions } as any)
         .eq('id', userId);
 
       if (error) throw error;

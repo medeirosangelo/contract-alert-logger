@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,15 +35,14 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-50 to-warm-100 p-4">
       <div className="max-w-4xl text-center">
-        <div className="mb-10 animate-fadeIn">
-          <h1 className="text-5xl md:text-6xl font-bold text-primary mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary-dark via-primary to-primary-light">SWCI</h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-warm-800 mb-4">
-            Sistema Web de Controle de Instrumentos
+        <div className="mb-6">
+          <img src="/public/lovable-uploads/7824ebc6-3fac-4a10-b500-45269e9f48de.png" className="mx-auto w-44 mb-2" alt="Inspire logo" />
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Bem-vindo(a) ao Sistema SWCI!
           </h2>
-          <p className="text-lg text-warm-700 mb-8 max-w-2xl mx-auto">
-            Gerencie contratos, pessoas físicas e jurídicas em um único lugar, 
-            de forma simples e eficiente.
-          </p>
+          <span className="block text-primary">
+            Aqui você acompanha o histórico completo de empresas e colaboradores, garantindo transparência e controle sobre contratos prestados à instituição.
+          </span>
         </div>
         
         <div className="grid md:grid-cols-3 gap-6 mb-12">
