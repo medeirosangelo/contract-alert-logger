@@ -15,29 +15,7 @@ export const userApi = {
     try {
       console.log('Buscando todos os usuários');
       
-      // Primeiro verificar se o usuário atual tem permissões adequadas
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('Usuário não autenticado');
-      }
-      
-      // Buscar o perfil do usuário para verificar a role
-      const { data: currentUser, error: userError } = await supabase
-        .from('users')
-        .select('role, permissions')
-        .eq('id', user.id)
-        .single();
-      
-      if (userError) {
-        throw new Error('Erro ao verificar permissões do usuário');
-      }
-      
-      if (currentUser.role !== 'admin') {
-        throw new Error('Você não tem permissões para visualizar todos os usuários');
-      }
-      
-      // Se chegou até aqui, buscar a lista de usuários
+      // Buscar todos os usuários - com as novas políticas simplificadas
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -83,35 +61,20 @@ export const userApi = {
     try {
       console.log('Criando novo usuário:', userData);
       
-      // Verificar se o usuário atual é admin
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('Você precisa estar autenticado para criar usuários');
-      }
-      
-      // Buscar o perfil do usuário para verificar a role
-      const { data: currentUser, error: userError } = await supabase
+      // Verificar se a tabela está vazia (primeiro usuário/bootstrap)
+      const { count, error: countError } = await supabase
         .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+        .select('*', { count: 'exact', head: true });
       
-      if (userError) {
-        console.error('Erro ao verificar role do usuário:', userError);
-        // Se não conseguir verificar a role e não existir nenhum usuário,
-        // permitir a criação do primeiro admin (bootstrapping)
-        const { count, error: countError } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true });
-          
-        if (countError || (count !== null && count > 0)) {
-          throw new Error('Você não tem permissões para criar usuários');
-        }
-      } else if (currentUser.role !== 'admin') {
-        throw new Error('Apenas administradores podem criar usuários');
+      let isFirstUser = false;
+      if (countError) {
+        console.error('Erro ao verificar quantidade de usuários:', countError);
+      } else {
+        isFirstUser = count === 0;
+        console.log('É o primeiro usuário?', isFirstUser);
       }
       
+      // Criar o usuário no Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -123,9 +86,13 @@ export const userApi = {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Erro ao criar usuário no Auth:', authError);
+        throw authError;
+      }
       
       if (authData.user) {
+        // Definir permissões padrão com base na role
         const defaultPermissions = {
           dashboard: true,
           contracts: userData.role !== "colaborador",
@@ -133,14 +100,17 @@ export const userApi = {
           edit: userData.role !== "colaborador"
         };
 
+        // Inserir no banco
         const userRecord: UserInsert = {
           id: authData.user.id,
           email: userData.email,
           name: userData.name,
           username: userData.email.split('@')[0],
-          role: userData.role,
+          role: isFirstUser ? "admin" : userData.role, // Força primeiro usuário como admin
           permissions: defaultPermissions
         };
+        
+        console.log('Inserindo usuário na tabela users:', userRecord);
         
         const { data, error } = await supabase
           .from('users')
@@ -148,7 +118,10 @@ export const userApi = {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao inserir no banco:', error);
+          throw error;
+        }
         
         toast({
           title: "Usuário criado com sucesso",
@@ -172,24 +145,6 @@ export const userApi = {
   
   update: async (id: string, userData: Partial<User>): Promise<User | null> => {
     try {
-      // Verificar se o usuário atual é admin
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('Você precisa estar autenticado para atualizar usuários');
-      }
-      
-      // Buscar o perfil do usuário para verificar a role
-      const { data: currentUser, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-      
-      if (userError || currentUser.role !== 'admin') {
-        throw new Error('Apenas administradores podem atualizar usuários');
-      }
-      
       const { id: userId, ...updateData } = userData;
       
       const { data, error } = await supabase
@@ -220,24 +175,6 @@ export const userApi = {
   
   delete: async (id: string): Promise<boolean> => {
     try {
-      // Verificar se o usuário atual é admin
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('Você precisa estar autenticado para excluir usuários');
-      }
-      
-      // Buscar o perfil do usuário para verificar a role
-      const { data: currentUser, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-      
-      if (userError || currentUser.role !== 'admin') {
-        throw new Error('Apenas administradores podem excluir usuários');
-      }
-      
       const { error: authError } = await supabase.functions.invoke('delete-user', {
         body: { userId: id }
       });
@@ -270,24 +207,6 @@ export const userApi = {
   
   updatePermissions: async (userId: string, permissions: Record<string, boolean>): Promise<boolean> => {
     try {
-      // Verificar se o usuário atual é admin
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('Você precisa estar autenticado para atualizar permissões');
-      }
-      
-      // Buscar o perfil do usuário para verificar a role
-      const { data: currentUser, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-      
-      if (userError || currentUser.role !== 'admin') {
-        throw new Error('Apenas administradores podem atualizar permissões');
-      }
-      
       const { error } = await supabase
         .from('users')
         .update({ permissions } as any)
