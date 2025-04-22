@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { User, UserInsert } from "./types";
@@ -57,10 +56,30 @@ export const userApi = {
     }
   },
   
-  // Verificar se o email já está cadastrado
+  // Verificar se o email já está cadastrado no Auth
+  checkAuthEmailExists: async (email: string): Promise<boolean> => {
+    try {
+      // Tenta fazer login com um método que deve falhar, mas nos dirá se o email existe
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email
+      });
+      
+      // Se o erro for "Email não encontrado", então o usuário não existe
+      if (error && error.message.includes('Email not found')) {
+        return false;
+      }
+      
+      // Se não houve esse erro específico, assume que o email existe
+      return true;
+    } catch (error) {
+      console.error('Erro ao verificar email no Auth:', error);
+      return false;
+    }
+  },
+  
+  // Verificar se o email já está cadastrado na tabela users
   checkEmailExists: async (email: string): Promise<boolean> => {
     try {
-      // Verificar se existe na tabela auth.users - não é possível com RLS
       // Verificar na tabela public.users
       const { data, error } = await supabase
         .from('users')
@@ -72,8 +91,8 @@ export const userApi = {
       
       return data !== null;
     } catch (error: any) {
-      console.error('Erro ao verificar email:', error);
-      return false; // Em caso de erro, assume que não existe para tentar criar
+      console.error('Erro ao verificar email na tabela users:', error);
+      return false;
     }
   },
   
@@ -81,13 +100,25 @@ export const userApi = {
     try {
       console.log('Criando novo usuário:', userData);
       
-      // Verificar se o email já existe antes de tentar criar
+      // Verificar se o email já existe na tabela users
       const emailExists = await userApi.checkEmailExists(userData.email);
       if (emailExists) {
-        console.log('Email já cadastrado:', userData.email);
+        console.log('Email já cadastrado na tabela users:', userData.email);
         toast({
           title: "Email já cadastrado",
           description: "Este email já está sendo utilizado por outro usuário.",
+          variant: "destructive",
+        });
+        return null;
+      }
+      
+      // Verificar se o email já existe no sistema de autenticação
+      const authEmailExists = await userApi.checkAuthEmailExists(userData.email);
+      if (authEmailExists) {
+        console.log('Email já cadastrado no Auth:', userData.email);
+        toast({
+          title: "Email já cadastrado",
+          description: "Este email já está registrado no sistema de autenticação.",
           variant: "destructive",
         });
         return null;
@@ -114,24 +145,37 @@ export const userApi = {
           data: {
             name: userData.name,
             role: isFirstUser ? "admin" : userData.role,
-          }
+          },
+          // Desativar confirmação de email para testes
+          emailRedirectTo: window.location.origin
         }
       });
 
       if (authError) {
-        // Se o erro for "User already registered", retornar erro específico
+        console.error('Erro ao criar usuário no Auth:', authError);
+        
+        // Tratamento específico para diferentes tipos de erro
         if (authError.message?.includes('User already registered')) {
-          console.log('Erro de usuário já registrado:', authError);
           toast({
             title: "Email já cadastrado",
             description: "Este email já está sendo utilizado por outro usuário.",
             variant: "destructive",
           });
-          return null;
+        } else if (authError.message?.includes('Password should be')) {
+          toast({
+            title: "Senha inválida",
+            description: authError.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erro ao criar usuário",
+            description: authError.message || "Não foi possível criar o usuário.",
+            variant: "destructive",
+          });
         }
         
-        console.error('Erro ao criar usuário no Auth:', authError);
-        throw authError;
+        return null;
       }
       
       if (authData.user) {
@@ -164,6 +208,17 @@ export const userApi = {
 
         if (error) {
           console.error('Erro ao inserir no banco:', error);
+          
+          // Se houve erro na inserção, precisamos limpar o usuário criado no Auth
+          try {
+            await supabase.functions.invoke('delete-user', {
+              body: { userId: authData.user.id }
+            });
+            console.log('Usuário removido do Auth após falha na inserção');
+          } catch (cleanupError) {
+            console.error('Erro ao limpar usuário do Auth:', cleanupError);
+          }
+          
           throw error;
         }
         
