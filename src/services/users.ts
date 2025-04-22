@@ -57,9 +57,41 @@ export const userApi = {
     }
   },
   
+  // Verificar se o email já está cadastrado
+  checkEmailExists: async (email: string): Promise<boolean> => {
+    try {
+      // Verificar se existe na tabela auth.users - não é possível com RLS
+      // Verificar na tabela public.users
+      const { data, error } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      return data !== null;
+    } catch (error: any) {
+      console.error('Erro ao verificar email:', error);
+      return false; // Em caso de erro, assume que não existe para tentar criar
+    }
+  },
+  
   create: async (userData: UserCreateRequest): Promise<User | null> => {
     try {
       console.log('Criando novo usuário:', userData);
+      
+      // Verificar se o email já existe antes de tentar criar
+      const emailExists = await userApi.checkEmailExists(userData.email);
+      if (emailExists) {
+        console.log('Email já cadastrado:', userData.email);
+        toast({
+          title: "Email já cadastrado",
+          description: "Este email já está sendo utilizado por outro usuário.",
+          variant: "destructive",
+        });
+        return null;
+      }
       
       // Verificar se a tabela está vazia (primeiro usuário/bootstrap)
       const { count, error: countError } = await supabase
@@ -81,23 +113,35 @@ export const userApi = {
         options: {
           data: {
             name: userData.name,
-            role: userData.role,
+            role: isFirstUser ? "admin" : userData.role,
           }
         }
       });
 
       if (authError) {
+        // Se o erro for "User already registered", retornar erro específico
+        if (authError.message?.includes('User already registered')) {
+          console.log('Erro de usuário já registrado:', authError);
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já está sendo utilizado por outro usuário.",
+            variant: "destructive",
+          });
+          return null;
+        }
+        
         console.error('Erro ao criar usuário no Auth:', authError);
         throw authError;
       }
       
       if (authData.user) {
         // Definir permissões padrão com base na role
+        const finalRole = isFirstUser ? "admin" : userData.role;
         const defaultPermissions = {
           dashboard: true,
-          contracts: userData.role !== "colaborador",
-          users: userData.role === "admin",
-          edit: userData.role !== "colaborador"
+          contracts: finalRole !== "colaborador",
+          users: finalRole === "admin",
+          edit: finalRole !== "colaborador"
         };
 
         // Inserir no banco
@@ -106,7 +150,7 @@ export const userApi = {
           email: userData.email,
           name: userData.name,
           username: userData.email.split('@')[0],
-          role: isFirstUser ? "admin" : userData.role, // Força primeiro usuário como admin
+          role: finalRole,
           permissions: defaultPermissions
         };
         
