@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { User, UserInsert } from "./types";
@@ -55,14 +54,15 @@ export const userApi = {
   
   create: async (userData: UserCreateRequest): Promise<User | null> => {
     try {
-      console.log('Criando novo usuário');
+      console.log('Criando novo usuário:', userData);
+      
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
           data: {
             name: userData.name,
-            role: userData.role
+            role: userData.role,
           }
         }
       });
@@ -70,12 +70,20 @@ export const userApi = {
       if (authError) throw authError;
       
       if (authData.user) {
+        const defaultPermissions = {
+          dashboard: true,
+          contracts: userData.role !== "colaborador",
+          users: userData.role === "admin",
+          edit: userData.role !== "colaborador"
+        };
+
         const userRecord: UserInsert = {
           id: authData.user.id,
           email: userData.email,
           name: userData.name,
           username: userData.email.split('@')[0],
-          role: userData.role
+          role: userData.role,
+          permissions: defaultPermissions
         };
         
         const { data, error } = await supabase
