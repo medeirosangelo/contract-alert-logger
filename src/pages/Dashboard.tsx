@@ -5,12 +5,20 @@ import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
 import ContractCalendar from "@/components/dashboard/ContractCalendar";
 import ContractSummaryCards from "@/components/dashboard/ContractSummaryCards";
 import ContractValueChart from "@/components/dashboard/ContractValueChart";
+import ContractTypeAnalysis from "@/components/dashboard/ContractTypeAnalysis";
+import ServicesAnalysis from "@/components/dashboard/ServicesAnalysis";
+import SuppliesAnalysis from "@/components/dashboard/SuppliesAnalysis";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertCircle, Calendar, FileText, RefreshCw } from "lucide-react";
+import { AlertCircle, Calendar, FileText, RefreshCw, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const userRole = user?.role || 'colaborador';
+
   const { data: contractStats, isLoading } = useQuery({
     queryKey: ["contractStats"],
     queryFn: async () => {
@@ -82,6 +90,117 @@ const Dashboard = () => {
     },
   });
 
+  // Define dashboard visualizations based on user role
+  const getDashboardContent = () => {
+    // Common dashboard components for all users
+    const commonDashboard = (
+      <div className="space-y-6">
+        <ContractSummaryCards />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {isLoading ? (
+            Array(4).fill(0).map((_, i) => (
+              <Skeleton key={i} className="h-32" />
+            ))
+          ) : (
+            <>
+              <ContractStatusCard
+                count={contractStats?.newContracts || 0}
+                title="Novos Contratos"
+                subtitle="(Últimos 5 dias)"
+                link="/contracts"
+                bgColor="bg-cyan-500"
+                icon={<FileText size={28} />}
+              />
+              <ContractStatusCard
+                count={contractStats?.updatedContracts || 0}
+                title="Contratos Atualizados"
+                subtitle="(Últimos 5 dias)"
+                link="/contracts"
+                bgColor="bg-green-500"
+                icon={<RefreshCw size={28} />}
+              />
+              <ContractStatusCard
+                count={contractStats?.expiredContracts || 0}
+                title="Contratos vencidos"
+                subtitle="(Necessita atenção)"
+                link="/contracts"
+                bgColor="bg-red-500"
+                icon={<AlertCircle size={28} />}
+              />
+              <ContractStatusCard
+                count={contractStats?.expiringContracts || 0}
+                title="Contratos a vencer"
+                subtitle="(Próximos 30 dias)"
+                link="/alerts/contracts"
+                bgColor="bg-orange-500"
+                icon={<Calendar size={28} />}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    );
+
+    // Additional content for admin and gestor roles
+    if (userRole === 'admin' || userRole === 'gestor') {
+      return (
+        <Tabs defaultValue="visão-geral" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="visão-geral">Visão Geral</TabsTrigger>
+            <TabsTrigger value="financeiro">Análise Financeira</TabsTrigger>
+            <TabsTrigger value="insumos">Insumos</TabsTrigger>
+            <TabsTrigger value="servicos">Serviços Prestados</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="visão-geral" className="space-y-6">
+            {commonDashboard}
+            <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+              <ContractValueChart />
+              <ContractCalendar />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="financeiro" className="space-y-6">
+            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise Financeira de Contratos</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <ContractTypeAnalysis className="lg:col-span-2" />
+              <ContractStatusCard
+                count={userRole === 'admin' ? 'Acesso Total' : 'Visualização'}
+                title="Nível de Acesso"
+                subtitle="Análise Financeira"
+                link="#"
+                bgColor="bg-purple-500"
+                icon={<User size={28} />}
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="insumos" className="space-y-6">
+            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise de Insumos</h2>
+            <SuppliesAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="servicos" className="space-y-6">
+            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise de Serviços Prestados</h2>
+            <ServicesAnalysis />
+          </TabsContent>
+        </Tabs>
+      );
+    }
+
+    // Default dashboard for colaborador role
+    return (
+      <>
+        {commonDashboard}
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          <ContractValueChart />
+          <ContractCalendar />
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-warm-100">
       <Navigation />
@@ -95,55 +214,7 @@ const Dashboard = () => {
             </span>
           </div>
 
-          <ContractSummaryCards />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {isLoading ? (
-              Array(4).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-32" />
-              ))
-            ) : (
-              <>
-                <ContractStatusCard
-                  count={contractStats?.newContracts || 0}
-                  title="Novos Contratos"
-                  subtitle="(Últimos 5 dias)"
-                  link="/contracts"
-                  bgColor="bg-cyan-500"
-                  icon={<FileText size={28} />}
-                />
-                <ContractStatusCard
-                  count={contractStats?.updatedContracts || 0}
-                  title="Contratos Atualizados"
-                  subtitle="(Últimos 5 dias)"
-                  link="/contracts"
-                  bgColor="bg-green-500"
-                  icon={<RefreshCw size={28} />}
-                />
-                <ContractStatusCard
-                  count={contractStats?.expiredContracts || 0}
-                  title="Contratos vencidos"
-                  subtitle="(Necessita atenção)"
-                  link="/contracts"
-                  bgColor="bg-red-500"
-                  icon={<AlertCircle size={28} />}
-                />
-                <ContractStatusCard
-                  count={contractStats?.expiringContracts || 0}
-                  title="Contratos a vencer"
-                  subtitle="(Próximos 30 dias)"
-                  link="/alerts/contracts"
-                  bgColor="bg-orange-500"
-                  icon={<Calendar size={28} />}
-                />
-              </>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-            <ContractValueChart />
-            <ContractCalendar />
-          </div>
+          {getDashboardContent()}
         </div>
       </main>
     </div>
