@@ -52,6 +52,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               
+              {/* Início - Redireciona para Dashboard */}
+              <Route path="/home" element={<Dashboard />} />
+              
               {/* Rotas de Contratos */}
               <Route path="/contracts" element={<ContractList />} />
               <Route path="/contracts/ativos" element={<ContractList />} />
@@ -86,7 +89,6 @@ function App() {
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="/uml" element={<Navigate to="/uml/casos-de-uso" replace />} />
               <Route path="/users" element={<Navigate to="/users/management" replace />} />
-              <Route path="/home" element={<Navigate to="/dashboard" replace />} /> {/* Nova rota de redirecionamento */}
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>

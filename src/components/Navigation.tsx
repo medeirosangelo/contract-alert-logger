@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -30,18 +29,21 @@ interface MenuItem {
   icon: JSX.Element;
   path?: string;
   subItems?: SubMenuItem[];
+  exact?: boolean;
 }
 
 const menuItems: MenuItem[] = [
   {
     name: "Início",
     icon: <Home className="w-5 h-5" />,
-    path: "/dashboard", // Modificado de "/" para "/dashboard"
+    path: "/home",
+    exact: true,
   },
   {
     name: "Dashboard",
     icon: <LayoutDashboard className="w-5 h-5" />,
     path: "/dashboard",
+    exact: true,
   },
   {
     name: "Pessoas",
@@ -147,7 +149,13 @@ const Navigation = () => {
       .substring(0, 2);
   };
 
-  // Ajusta a navegação para evitar o comportamento padrão
+  const isMenuItemActive = (item: MenuItem) => {
+    if (item.exact) {
+      return location.pathname === item.path;
+    }
+    return item.path ? location.pathname.startsWith(item.path) : false;
+  };
+
   const handleSubItemClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => {
     e.preventDefault();
     console.log(`Navegando para: ${path}`);
@@ -253,12 +261,12 @@ const Navigation = () => {
                   className={`flex items-center ${
                     !isExpanded ? "justify-center px-2" : "px-4"
                   } py-2.5 ${
-                    location.pathname === item.path
+                    isMenuItemActive(item)
                       ? "bg-primary text-white"
                       : "text-warm-800 hover:bg-warm-100"
                   } transition-colors rounded-md mx-1`}
                 >
-                  <span className={location.pathname === item.path ? "" : "text-warm-600"}>
+                  <span className={isMenuItemActive(item) ? "" : "text-warm-600"}>
                     {item.icon}
                   </span>
                   {isExpanded && <span className="ml-3 text-sm font-medium">{item.name}</span>}
