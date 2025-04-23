@@ -12,7 +12,9 @@ import {
   Legend,
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
+  BarChart,
+  Bar
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -280,34 +282,6 @@ const SuppliesAnalysis = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
-
-// Componente auxiliar para o gráfico de barras
-const BarChart = ({ 
-  data, 
-  layout = "vertical", 
-  ...props 
-}: any) => {
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      {layout === "vertical" ? (
-        <recharts.BarChart
-          layout="vertical"
-          data={data}
-          {...props}
-        >
-          {props.children}
-        </recharts.BarChart>
-      ) : (
-        <recharts.BarChart
-          data={data}
-          {...props}
-        >
-          {props.children}
-        </recharts.BarChart>
-      )}
-    </ResponsiveContainer>
   );
 };
 

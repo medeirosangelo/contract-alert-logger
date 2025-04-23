@@ -1,15 +1,15 @@
 
+import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CalendarDays } from "lucide-react";
 
 interface ContractStatusCardProps {
-  count: number;
+  count: number | string;
   title: string;
   subtitle: string;
   link: string;
   bgColor: string;
-  textColor?: string;
-  icon?: JSX.Element;
+  icon: React.ReactNode;
+  hideNumber?: boolean;
 }
 
 const ContractStatusCard = ({
@@ -18,29 +18,36 @@ const ContractStatusCard = ({
   subtitle,
   link,
   bgColor,
-  textColor = "text-white",
   icon,
+  hideNumber = false
 }: ContractStatusCardProps) => {
   return (
-    <div className={`rounded-xl shadow-lg ${bgColor} p-6 relative overflow-hidden transition-all hover:scale-[1.02]`}>
-      <div className={`${textColor} relative z-10`}>
-        <div className="flex items-center gap-3 mb-2">
-          {icon && <span className="opacity-80">{icon}</span>}
-          <span className="text-4xl font-bold">{count}</span>
+    <Link
+      to={link}
+      className="block w-full rounded-lg border border-warm-200 bg-white shadow-md hover:shadow-lg transition-shadow"
+    >
+      <div className="flex flex-col p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div
+            className={`${bgColor} text-white p-3 rounded-md inline-flex items-center justify-center`}
+          >
+            {icon}
+          </div>
+          <span className="text-warm-500 hover:text-warm-700">
+            <ExternalLink size={18} />
+          </span>
         </div>
-        <h3 className="text-xl font-semibold mt-2">{title}</h3>
-        <p className="text-sm opacity-90 mt-1">{subtitle}</p>
-        <Link
-          to={link}
-          className={`inline-block mt-4 ${textColor} hover:underline text-sm font-medium`}
-        >
-          Ver Contratos →
-        </Link>
+
+        <h3 className="font-bold text-warm-800 text-lg">{title}</h3>
+        <p className="text-sm text-warm-600 mb-4">{subtitle}</p>
+
+        {typeof count === 'number' && !hideNumber ? (
+          <span className="text-2xl font-bold text-warm-900">{count}</span>
+        ) : hideNumber ? null : (
+          <span className="text-xl font-bold text-warm-900">{count}</span>
+        )}
       </div>
-      <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-        {icon || <CalendarDays size={100} />}
-      </div>
-    </div>
+    </Link>
   );
 };
 
