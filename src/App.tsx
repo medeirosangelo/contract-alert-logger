@@ -52,7 +52,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               
-              {/* Início - Redireciona para Dashboard */}
+              {/* Início - Dashboard avançado */}
               <Route path="/home" element={<Dashboard />} />
               
               {/* Rotas de Contratos */}

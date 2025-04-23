@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import type { Contract, ContractInsert } from "./types";
@@ -205,6 +204,33 @@ export const contractsApi = {
       toast({
         title: "Erro ao carregar contratos a vencer",
         description: "Não foi possível carregar a lista de contratos a vencer.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  },
+  
+  getByType: async (type: string) => {
+    try {
+      console.log(`Fetching contracts by type: ${type}...`);
+      const { data, error } = await supabase
+        .from('contracts')
+        .select(`
+          *,
+          contractor:contractor_id(id, company_name),
+          contracted:contracted_id(id, company_name)
+        `)
+        .eq('expense_nature', type)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      console.log(`Contracts by type ${type} fetched:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching contracts by type ${type}:`, error);
+      toast({
+        title: "Erro ao carregar contratos",
+        description: `Não foi possível carregar os contratos do tipo ${type}.`,
         variant: "destructive",
       });
       throw error;
