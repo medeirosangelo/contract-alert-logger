@@ -36,7 +36,7 @@ const menuItems: MenuItem[] = [
   {
     name: "Início",
     icon: <Home className="w-5 h-5" />,
-    path: "/",
+    path: "/dashboard", // Modificado de "/" para "/dashboard"
   },
   {
     name: "Dashboard",

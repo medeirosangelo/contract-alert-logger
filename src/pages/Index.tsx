@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,8 +13,10 @@ const Index = () => {
   console.log('Index page rendering', { isAuthenticated, isLoading });
 
   useEffect(() => {
-    // Se já estiver autenticado e não estiver carregando, NÃO redireciona para o dashboard
-    // Removido redirecionamento automático para que a página inicial seja mostrada sempre
+    // Se já estiver autenticado, redireciona para o dashboard
+    if (isAuthenticated && !isLoading) {
+      navigate('/dashboard');
+    }
   }, [isAuthenticated, isLoading, navigate]);
 
   // Se estiver carregando, mostra o skeleton
@@ -31,7 +34,7 @@ const Index = () => {
     );
   }
 
-  // Sempre mostra a página inicial, independentemente do status de autenticação
+  // Mostra a página inicial apenas para usuários não autenticados
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-50 to-warm-100 p-4">
       <div className="max-w-4xl text-center">
