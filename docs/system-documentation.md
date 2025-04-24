@@ -209,22 +209,37 @@ CREATE TABLE contract_alerts (
 4. **Contratos e Alertas**:
    - Um contrato pode ter múltiplos alertas
    - Cada alerta está associado a um único contrato
-   - Alertas são gerados automaticamente 30 dias antes do vencimento
+   - Alertas são gerados automaticamente aos 30, 60 dias antes e no dia do vencimento
 
-## 4. Índices e Otimizações
+## 4. Políticas de Segurança e Row Level Security (RLS)
+
+### 4.1 Políticas para Usuários
+- Administradores podem gerenciar todos os usuários
+- Usuários podem ver apenas seus próprios dados
+
+### 4.2 Políticas para Pessoas Jurídicas e Físicas
+- Administradores e Gestores podem gerenciar todas as pessoas
+- Colaboradores podem apenas visualizar pessoas
+
+### 4.3 Políticas para Contratos e Alertas
+- Administradores e Gestores podem gerenciar todos os contratos e alertas
+- Colaboradores podem apenas visualizar contratos e alertas
+
+## 5. Índices e Otimizações
 
 ```sql
 -- Índices para melhor performance
+CREATE INDEX idx_contracts_end_date ON contracts(end_date);
 CREATE INDEX idx_contracts_status ON contracts(status);
+CREATE INDEX idx_contract_alerts_alert_date ON contract_alerts(alert_date);
 CREATE INDEX idx_contract_alerts_status ON contract_alerts(status);
-CREATE INDEX idx_contract_alerts_date ON contract_alerts(alert_date);
 CREATE INDEX idx_legal_persons_cnpj ON legal_persons(cnpj);
 CREATE INDEX idx_physical_persons_cpf ON physical_persons(cpf);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 ```
 
-## 5. Considerações de Segurança
+## 6. Considerações de Segurança
 
 1. **Autenticação**:
    - Implementação via Supabase Auth
@@ -238,6 +253,7 @@ CREATE INDEX idx_users_role ON users(role);
    - Permissões granulares por funcionalidade
    - Validação de permissões em cada rota
    - Proteção de rotas no frontend e backend
+   - Row Level Security para controle de acesso aos dados
 
 3. **Validação de Dados**:
    - Validação de CPF/CNPJ
@@ -249,8 +265,9 @@ CREATE INDEX idx_users_role ON users(role);
    - Registro de criação/alteração de registros
    - Rastreamento de usuário criador/modificador
    - Timestamps de criação e atualização
+   - Atualização automática de timestamps via triggers
 
-## 6. Requisitos Técnicos
+## 7. Requisitos Técnicos
 
 ### Frontend
 - React 18+ com TypeScript
@@ -269,8 +286,9 @@ CREATE INDEX idx_users_role ON users(role);
 - Edge Functions para lógica complexa
 - RLS (Row Level Security) para segurança
 - Realtime para atualizações em tempo real
+- Triggers para automação de processos no banco de dados
 
-## 7. Manutenção e Monitoramento
+## 8. Manutenção e Monitoramento
 
 1. **Logs e Monitoramento**:
    - Console logs detalhados
@@ -286,4 +304,3 @@ CREATE INDEX idx_users_role ON users(role);
    - Processo de migração documentado
    - Testes antes de deploy
    - Rollback planejado
-

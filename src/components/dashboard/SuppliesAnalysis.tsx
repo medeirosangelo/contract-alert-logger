@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,8 +108,18 @@ const SuppliesAnalysis = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-3 shadow-md border border-warm-200">
-        <CardHeader>
+        <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle className="text-xl font-bold text-warm-800">Tendência de Gastos com Insumos (Últimos 12 meses)</CardTitle>
+          <div className="flex items-center space-x-2">
+            <select 
+              className="text-sm border border-warm-200 rounded-md px-2 py-1"
+              defaultValue="all"
+            >
+              <option value="all">Todos os tipos</option>
+              <option value="materiais">Somente Materiais</option>
+              <option value="equipamentos">Somente Equipamentos</option>
+            </select>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[350px]">

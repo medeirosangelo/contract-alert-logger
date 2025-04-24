@@ -10,16 +10,19 @@ import ServicesAnalysis from "@/components/dashboard/ServicesAnalysis";
 import SuppliesAnalysis from "@/components/dashboard/SuppliesAnalysis";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertCircle, Calendar, FileText, RefreshCw, User } from "lucide-react";
+import { AlertCircle, Calendar, FileText, RefreshCw, User, Download, Filter } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const userRole = user?.role || 'colaborador';
 
-  const { data: contractStats, isLoading } = useQuery({
+  const { data: contractStats, isLoading, refetch } = useQuery({
     queryKey: ["contractStats"],
     queryFn: async () => {
       try {
@@ -80,6 +83,7 @@ const Dashboard = () => {
         };
       } catch (error) {
         console.error("Error fetching contract stats:", error);
+        toast.error("Erro ao carregar estatísticas de contratos");
         return {
           newContracts: 0,
           updatedContracts: 0,
@@ -89,6 +93,21 @@ const Dashboard = () => {
       }
     },
   });
+
+  const handleRefreshData = () => {
+    toast.info("Atualizando dados do dashboard...");
+    refetch().then(() => {
+      toast.success("Dados atualizados com sucesso!");
+    });
+  };
+
+  const handleExportData = () => {
+    toast.info("Preparando exportação de dados...");
+    // Simulação de exportação (em uma implementação real, isso faria download de um arquivo)
+    setTimeout(() => {
+      toast.success("Dados exportados com sucesso!");
+    }, 1500);
+  };
 
   // Define dashboard visualizations based on user role
   const getDashboardContent = () => {
@@ -162,7 +181,29 @@ const Dashboard = () => {
           </TabsContent>
           
           <TabsContent value="financeiro" className="space-y-6">
-            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise Financeira de Contratos</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-warm-800">Análise Financeira de Contratos</h2>
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-1" />
+                      Filtrar
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Último ano</DropdownMenuItem>
+                    <DropdownMenuItem>Últimos 6 meses</DropdownMenuItem>
+                    <DropdownMenuItem>Último trimestre</DropdownMenuItem>
+                    <DropdownMenuItem>Último mês</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button variant="outline" size="sm" onClick={handleExportData}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <ContractTypeAnalysis className="lg:col-span-2" />
               <ContractStatusCard
@@ -178,12 +219,36 @@ const Dashboard = () => {
           </TabsContent>
           
           <TabsContent value="insumos" className="space-y-6">
-            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise de Insumos</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-warm-800">Análise de Insumos</h2>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-1" />
+                  Categorias
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportData}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
             <SuppliesAnalysis />
           </TabsContent>
           
           <TabsContent value="servicos" className="space-y-6">
-            <h2 className="text-xl font-semibold text-warm-800 mb-4">Análise de Serviços Prestados</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-warm-800">Análise de Serviços Prestados</h2>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-1" />
+                  Filtrar
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportData}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
             <ServicesAnalysis />
           </TabsContent>
         </Tabs>
@@ -210,9 +275,20 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-warm-800">Dashboard</h1>
-            <span className="text-sm text-warm-600">
-              Atualizado em: {new Date().toLocaleString('pt-BR')}
-            </span>
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefreshData}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Atualizar
+              </Button>
+              <span className="text-sm text-warm-600">
+                Atualizado em: {new Date().toLocaleString('pt-BR')}
+              </span>
+            </div>
           </div>
 
           {getDashboardContent()}

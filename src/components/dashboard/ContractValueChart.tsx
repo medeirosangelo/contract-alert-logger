@@ -159,8 +159,18 @@ const ContractValueChart = () => {
 
   return (
     <Card className="col-span-2 lg:col-span-4 shadow-md border border-warm-200">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-xl font-bold text-warm-800">Projeção de Gastos com Contratos</CardTitle>
+        <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+            <span className="mr-2">Executado</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
+            <span>Planejado</span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="pl-2">
         <div className="h-[350px]">
