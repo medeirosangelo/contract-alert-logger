@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
@@ -28,30 +27,30 @@ const Dashboard = () => {
       try {
         // Calculate date ranges
         const today = new Date();
-        const fiveDaysAgo = new Date();
-        fiveDaysAgo.setDate(today.getDate() - 5);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
         
         const thirtyDaysAhead = new Date();
         thirtyDaysAhead.setDate(today.getDate() + 30);
         
         // Format dates for Supabase
         const todayStr = today.toISOString().split('T')[0];
-        const fiveDaysAgoStr = fiveDaysAgo.toISOString().split('T')[0];
+        const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
         const thirtyDaysAheadStr = thirtyDaysAhead.toISOString().split('T')[0];
         
-        // Get new contracts in last 5 days
+        // Get new contracts in last 30 days
         const { data: newContracts, error: newError } = await supabase
           .from('contracts')
           .select('id')
-          .gte('created_at', fiveDaysAgoStr);
+          .gte('created_at', thirtyDaysAgoStr);
           
         if (newError) throw newError;
         
-        // Get updated contracts in last 5 days
+        // Get updated contracts in last 30 days
         const { data: updatedContracts, error: updateError } = await supabase
           .from('contracts')
           .select('id')
-          .gte('updated_at', fiveDaysAgoStr)
+          .gte('updated_at', thirtyDaysAgoStr)
           .neq('status', 'finished');
           
         if (updateError) throw updateError;
@@ -109,9 +108,7 @@ const Dashboard = () => {
     }, 1500);
   };
 
-  // Define dashboard visualizations based on user role
   const getDashboardContent = () => {
-    // Common dashboard components for all users
     const commonDashboard = (
       <div className="space-y-6">
         <ContractSummaryCards />
@@ -126,7 +123,7 @@ const Dashboard = () => {
               <ContractStatusCard
                 count={contractStats?.newContracts || 0}
                 title="Novos Contratos"
-                subtitle="(Últimos 5 dias)"
+                subtitle="(Últimos 30 dias)"
                 link="/contracts"
                 bgColor="bg-cyan-500"
                 icon={<FileText size={28} />}
@@ -161,7 +158,6 @@ const Dashboard = () => {
       </div>
     );
 
-    // Additional content for admin and gestor roles
     if (userRole === 'admin' || userRole === 'gestor') {
       return (
         <Tabs defaultValue="visão-geral" className="w-full">
@@ -255,7 +251,6 @@ const Dashboard = () => {
       );
     }
 
-    // Default dashboard for colaborador role
     return (
       <>
         {commonDashboard}

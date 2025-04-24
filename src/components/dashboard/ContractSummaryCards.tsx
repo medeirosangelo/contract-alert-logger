@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,10 +23,18 @@ const ContractSummaryCards = () => {
 
         console.log("Total de contratos retornados:", totalData?.length || 0);
 
-        // Se não temos dados, usar dados mockados
+        // Se não temos dados, retornar zeros
         if (!totalData || totalData.length === 0) {
-          console.log("Sem dados no banco, usando mockados");
-          return generateMockSummaryData();
+          console.log("Sem dados no banco");
+          return {
+            totalContracts: 0,
+            activeContracts: 0,
+            totalValue: 0,
+            averageValue: 0,
+            growth: 0,
+            currentMonthContracts: 0,
+            previousMonthContracts: 0
+          };
         }
 
         // Get current and previous month dates
@@ -94,25 +101,18 @@ const ContractSummaryCards = () => {
         };
       } catch (err) {
         console.error("Erro na função de consulta de resumo:", err);
-        // Em caso de erro, retornar dados mockados
-        return generateMockSummaryData();
+        return {
+          totalContracts: 0,
+          activeContracts: 0,
+          totalValue: 0,
+          averageValue: 0,
+          growth: 0,
+          currentMonthContracts: 0,
+          previousMonthContracts: 0
+        };
       }
     }
   });
-
-  // Função para gerar dados mockados
-  const generateMockSummaryData = () => {
-    console.log("Gerando dados mockados para resumo de contratos");
-    return {
-      totalContracts: 10,
-      activeContracts: 7,
-      totalValue: 1550000,
-      averageValue: 221428.57,
-      growth: 15.5,
-      currentMonthContracts: 3,
-      previousMonthContracts: 2
-    };
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -122,7 +122,6 @@ const ContractSummaryCards = () => {
     }).format(value);
   };
 
-  // Log de debugging
   console.log("ContractSummaryCards render:", { summaryData, isLoading, error });
 
   return (

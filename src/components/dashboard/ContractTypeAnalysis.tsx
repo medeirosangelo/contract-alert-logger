@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +22,7 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
     queryKey: ['contractTypeAnalysis'],
     queryFn: async () => {
       try {
-        // Fetch all contracts to analyze by expense nature (representing contract type)
+        // Fetch all contracts to analyze by expense nature
         const { data: contracts, error } = await supabase
           .from('contracts')
           .select('expense_nature, total_value, status')
@@ -53,14 +52,12 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
         });
         
         // Sort by total value (descending)
-        const sortedData = Array.from(typeMap.values())
+        return Array.from(typeMap.values())
           .sort((a, b) => b.total - a.total)
           .slice(0, 5); // Only show top 5 types
-
-        return sortedData.length ? sortedData : generateMockData();
       } catch (err) {
         console.error("Erro ao buscar análise por tipo de contrato:", err);
-        return generateMockData();
+        return [];
       }
     }
   });
