@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -11,9 +12,12 @@ import {
 export function Toaster() {
   const { toasts } = useToast()
 
+  // Garantimos que toasts é sempre um array, mesmo que seja undefined
+  const toastArray = Array.isArray(toasts) ? toasts : [];
+
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toastArray.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">

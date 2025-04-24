@@ -19,7 +19,7 @@ import Documentation from './pages/Documentation';
 import Support from './pages/Support';
 import ContractTemplate from './pages/ContractTemplate';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster as SonnerToaster } from "sonner";
 import UseCases from './pages/UseCases';
@@ -93,7 +93,7 @@ function App() {
             </Route>
           </Routes>
           <SonnerToaster />
-          <Toaster />
+          {/* Removendo o Toaster do shadcn, pois estamos usando apenas o Sonner */}
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
