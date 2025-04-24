@@ -19,9 +19,8 @@ import Documentation from './pages/Documentation';
 import Support from './pages/Support';
 import ContractTemplate from './pages/ContractTemplate';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 import { AuthProvider } from './hooks/useAuth';
-import { Toaster as SonnerToaster } from "sonner";
+import { Toaster } from "sonner";
 import UseCases from './pages/UseCases';
 import UseCaseDiagram from './pages/UseCaseDiagram';
 import UseCaseActors from './pages/UseCaseActors';
@@ -92,8 +91,7 @@ function App() {
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
-          <SonnerToaster />
-          {/* Removendo o Toaster do shadcn, pois estamos usando apenas o Sonner */}
+          <Toaster />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

@@ -11,7 +11,7 @@ import {
 
 export function Toaster() {
   const { toasts } = useToast()
-
+  
   // Garantimos que toasts é sempre um array, mesmo que seja undefined
   const toastArray = Array.isArray(toasts) ? toasts : [];
 

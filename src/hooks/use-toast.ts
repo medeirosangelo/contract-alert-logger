@@ -2,14 +2,14 @@
 import { toast as sonnerToast } from "sonner";
 import { toast as compatToast } from "@/components/ui/toast-wrapper";
 
-// Exportamos tanto o toast original quanto o wrapper de compatibilidade
+// Exportamos o wrapper compatível com chamada direta
 export const toast = compatToast;
 
-// Hook para compatibilidade
+// Hook para compatibilidade com o shadcn/ui
 export const useToast = () => {
   return {
     toast: compatToast,
-    // Propriedade vazia para evitar erro de map em undefined
+    // Propriedade toasts como array vazio para evitar erro de map
     toasts: []
   };
 };
