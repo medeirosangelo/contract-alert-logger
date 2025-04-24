@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,23 +10,19 @@ const ContractSummaryCards = () => {
     queryKey: ['contractSummary'],
     queryFn: async () => {
       try {
-        console.log("Iniciando busca de dados para resumo de contratos...");
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
         
-        // Get all contracts
         const { data: totalData, error: totalError } = await supabase
           .from('contracts')
-          .select('id, total_value, status, created_at');
+          .select('id, total_value, status, created_at, end_date');
 
         if (totalError) {
           console.error("Erro ao buscar resumo de contratos:", totalError);
           throw totalError;
         }
 
-        console.log("Total de contratos retornados:", totalData?.length || 0);
-
-        // Se não temos dados, retornar zeros
         if (!totalData || totalData.length === 0) {
-          console.log("Sem dados no banco");
           return {
             totalContracts: 0,
             activeContracts: 0,
@@ -37,58 +34,31 @@ const ContractSummaryCards = () => {
           };
         }
 
-        // Get current and previous month dates
-        const now = new Date();
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-        
-        // Format dates for Supabase
-        const currentMonthStartStr = currentMonthStart.toISOString();
-        const previousMonthStartStr = previousMonthStart.toISOString();
-        const previousMonthEndStr = previousMonthEnd.toISOString();
-        
-        // Calculate statistics
-        const totalContracts = totalData?.length || 0;
-        const activeContracts = totalData?.filter(c => c.status === 'active').length || 0;
-        const totalValue = totalData?.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0) || 0;
+        const totalContracts = totalData.length;
+        const activeContracts = totalData.filter(c => c.status === 'active').length;
+        const totalValue = totalData.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0);
         const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
         
-        // Calculate contracts created in current month
-        const currentMonthContracts = totalData?.filter(contract => 
-          contract.created_at && new Date(contract.created_at) >= currentMonthStart
-        ) || [];
+        const currentMonthContracts = totalData.filter(contract => 
+          contract.created_at && 
+          new Date(contract.created_at) >= thirtyDaysAgo
+        );
         const currentMonthValue = currentMonthContracts.reduce(
           (sum, contract) => sum + (Number(contract.total_value) || 0), 0
         );
 
-        // Calculate contracts created in previous month
-        const previousMonthContracts = totalData?.filter(contract => 
+        const previousMonthContracts = totalData.filter(contract => 
           contract.created_at && 
-          new Date(contract.created_at) >= previousMonthStart && 
-          new Date(contract.created_at) <= previousMonthEnd
-        ) || [];
+          new Date(contract.created_at) < thirtyDaysAgo
+        );
         const previousMonthValue = previousMonthContracts.reduce(
           (sum, contract) => sum + (Number(contract.total_value) || 0), 0
         );
 
-        // Calculate growth
         let growth = 0;
         if (previousMonthValue > 0) {
           growth = ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
-        } else if (currentMonthValue > 0) {
-          growth = 100; // If previous month was 0 and current month has value, that's 100% growth
         }
-
-        console.log("Resumo calculado:", { 
-          totalContracts, 
-          activeContracts, 
-          totalValue, 
-          averageValue, 
-          growth, 
-          currentMonth: currentMonthContracts.length,
-          previousMonth: previousMonthContracts.length
-        });
 
         return {
           totalContracts,
@@ -121,8 +91,6 @@ const ContractSummaryCards = () => {
       maximumFractionDigits: 0
     }).format(value);
   };
-
-  console.log("ContractSummaryCards render:", { summaryData, isLoading, error });
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

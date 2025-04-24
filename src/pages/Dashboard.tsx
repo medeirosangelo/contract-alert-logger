@@ -60,7 +60,7 @@ const Dashboard = () => {
           .from('contracts')
           .select('id')
           .lt('end_date', todayStr)
-          .eq('status', 'active');
+          .eq('status', 'expired');
           
         if (expiredError) throw expiredError;
         
@@ -131,7 +131,7 @@ const Dashboard = () => {
               <ContractStatusCard
                 count={contractStats?.updatedContracts || 0}
                 title="Contratos Atualizados"
-                subtitle="(Últimos 5 dias)"
+                subtitle="(Últimos 30 dias)"
                 link="/contracts"
                 bgColor="bg-green-500"
                 icon={<RefreshCw size={28} />}
