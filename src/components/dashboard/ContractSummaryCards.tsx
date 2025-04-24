@@ -4,25 +4,32 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const ContractSummaryCards = () => {
   const { data: summaryData, isLoading, error } = useQuery({
     queryKey: ['contractSummary'],
     queryFn: async () => {
       try {
+        console.log('Buscando resumo de contratos...');
         const today = new Date();
-        const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
         
+        // Consulta para obter todos os contratos
         const { data: totalData, error: totalError } = await supabase
           .from('contracts')
-          .select('id, total_value, status, created_at, end_date');
+          .select('id, total_value, status, created_at, end_date, start_date');
 
         if (totalError) {
           console.error("Erro ao buscar resumo de contratos:", totalError);
           throw totalError;
         }
 
+        console.log('Dados obtidos do banco:', totalData);
+
         if (!totalData || totalData.length === 0) {
+          console.log('Nenhum contrato encontrado');
           return {
             totalContracts: 0,
             activeContracts: 0,
@@ -39,18 +46,25 @@ const ContractSummaryCards = () => {
         const totalValue = totalData.reduce((sum, contract) => sum + (Number(contract.total_value) || 0), 0);
         const averageValue = activeContracts > 0 ? totalValue / activeContracts : 0;
         
+        // Contratos dos últimos 30 dias
         const currentMonthContracts = totalData.filter(contract => 
-          contract.created_at && 
-          new Date(contract.created_at) >= thirtyDaysAgo
+          contract.start_date && 
+          new Date(contract.start_date) >= thirtyDaysAgo
         );
         const currentMonthValue = currentMonthContracts.reduce(
           (sum, contract) => sum + (Number(contract.total_value) || 0), 0
         );
 
+        // Contratos do período anterior
+        const previousStart = new Date(thirtyDaysAgo);
+        previousStart.setDate(previousStart.getDate() - 30); // 60 dias atrás
+        
         const previousMonthContracts = totalData.filter(contract => 
-          contract.created_at && 
-          new Date(contract.created_at) < thirtyDaysAgo
+          contract.start_date && 
+          new Date(contract.start_date) >= previousStart &&
+          new Date(contract.start_date) < thirtyDaysAgo
         );
+        
         const previousMonthValue = previousMonthContracts.reduce(
           (sum, contract) => sum + (Number(contract.total_value) || 0), 0
         );
@@ -58,7 +72,19 @@ const ContractSummaryCards = () => {
         let growth = 0;
         if (previousMonthValue > 0) {
           growth = ((currentMonthValue - previousMonthValue) / previousMonthValue) * 100;
+        } else if (currentMonthValue > 0) {
+          growth = 100; // Se não havia contratos antes, mas agora há, crescimento de 100%
         }
+
+        console.log('Resumo calculado:', {
+          totalContracts,
+          activeContracts, 
+          totalValue,
+          averageValue,
+          growth,
+          currentMonthContracts: currentMonthContracts.length,
+          previousMonthContracts: previousMonthContracts.length
+        });
 
         return {
           totalContracts,
@@ -71,6 +97,7 @@ const ContractSummaryCards = () => {
         };
       } catch (err) {
         console.error("Erro na função de consulta de resumo:", err);
+        toast.error("Erro ao carregar resumo de contratos");
         return {
           totalContracts: 0,
           activeContracts: 0,
@@ -81,7 +108,9 @@ const ContractSummaryCards = () => {
           previousMonthContracts: 0
         };
       }
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const formatCurrency = (value: number) => {
@@ -157,7 +186,7 @@ const ContractSummaryCards = () => {
                   ) : (
                     <ArrowDown className="w-3 h-3 mr-1" />
                   )}
-                  {Math.abs(summaryData?.growth || 0).toFixed(1)}% em relação ao mês anterior
+                  {Math.abs(summaryData?.growth || 0).toFixed(1)}% em relação ao período anterior
                 </div>
               )}
             </div>

@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
@@ -25,46 +26,69 @@ const Dashboard = () => {
     queryKey: ["contractStats"],
     queryFn: async () => {
       try {
-        // Calculate date ranges
+        console.log("Buscando estatísticas de contratos...");
+        
+        // Calcular datas
         const today = new Date();
-        const thirtyDaysAgo = new Date();
+        const thirtyDaysAgo = new Date(today);
         thirtyDaysAgo.setDate(today.getDate() - 30);
         
-        const thirtyDaysAhead = new Date();
+        const thirtyDaysAhead = new Date(today);
         thirtyDaysAhead.setDate(today.getDate() + 30);
         
-        // Format dates for Supabase
+        // Formatar datas para o Supabase
         const todayStr = today.toISOString().split('T')[0];
         const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
         const thirtyDaysAheadStr = thirtyDaysAhead.toISOString().split('T')[0];
         
-        // Get new contracts in last 30 days
+        console.log("Períodos calculados:", {
+          hoje: todayStr,
+          trintaDiasAtras: thirtyDaysAgoStr,
+          trintaDiasFrente: thirtyDaysAheadStr
+        });
+        
+        // Obter contratos novos nos últimos 30 dias
         const { data: newContracts, error: newError } = await supabase
           .from('contracts')
           .select('id')
-          .gte('created_at', thirtyDaysAgoStr);
+          .gte('start_date', thirtyDaysAgoStr);
           
-        if (newError) throw newError;
+        if (newError) {
+          console.error("Erro ao buscar novos contratos:", newError);
+          throw newError;
+        }
         
-        // Get updated contracts in last 30 days
+        console.log("Novos contratos encontrados:", newContracts?.length || 0);
+        
+        // Obter contratos atualizados nos últimos 30 dias
         const { data: updatedContracts, error: updateError } = await supabase
           .from('contracts')
           .select('id')
           .gte('updated_at', thirtyDaysAgoStr)
           .neq('status', 'finished');
           
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error("Erro ao buscar contratos atualizados:", updateError);
+          throw updateError;
+        }
         
-        // Get expired contracts
+        console.log("Contratos atualizados encontrados:", updatedContracts?.length || 0);
+        
+        // Obter contratos vencidos
         const { data: expiredContracts, error: expiredError } = await supabase
           .from('contracts')
           .select('id')
           .lt('end_date', todayStr)
           .eq('status', 'expired');
           
-        if (expiredError) throw expiredError;
+        if (expiredError) {
+          console.error("Erro ao buscar contratos vencidos:", expiredError);
+          throw expiredError;
+        }
         
-        // Get expiring contracts
+        console.log("Contratos vencidos encontrados:", expiredContracts?.length || 0);
+        
+        // Obter contratos a vencer nos próximos 30 dias
         const { data: expiringContracts, error: expiringError } = await supabase
           .from('contracts')
           .select('id')
@@ -72,7 +96,12 @@ const Dashboard = () => {
           .lte('end_date', thirtyDaysAheadStr)
           .eq('status', 'active');
           
-        if (expiringError) throw expiringError;
+        if (expiringError) {
+          console.error("Erro ao buscar contratos a vencer:", expiringError);
+          throw expiringError;
+        }
+        
+        console.log("Contratos a vencer encontrados:", expiringContracts?.length || 0);
         
         return {
           newContracts: newContracts?.length || 0,
@@ -81,7 +110,7 @@ const Dashboard = () => {
           expiringContracts: expiringContracts?.length || 0,
         };
       } catch (error) {
-        console.error("Error fetching contract stats:", error);
+        console.error("Erro ao buscar estatísticas de contratos:", error);
         toast.error("Erro ao carregar estatísticas de contratos");
         return {
           newContracts: 0,
@@ -91,6 +120,8 @@ const Dashboard = () => {
         };
       }
     },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const handleRefreshData = () => {

@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface ContractTypeAnalysisProps {
   className?: string;
@@ -22,15 +24,21 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
     queryKey: ['contractTypeAnalysis'],
     queryFn: async () => {
       try {
-        // Fetch all contracts to analyze by expense nature
+        console.log("Buscando análise por tipo de contrato...");
+        // Buscar todos os contratos para analisar por natureza de despesa
         const { data: contracts, error } = await supabase
           .from('contracts')
           .select('expense_nature, total_value, status')
           .not('expense_nature', 'is', null);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Erro ao buscar contratos por tipo:", error);
+          throw error;
+        }
 
-        // Group contracts by expense nature and calculate values
+        console.log("Contratos obtidos para análise:", contracts?.length || 0);
+
+        // Agrupar contratos por natureza de despesa e calcular valores
         const typeMap = new Map();
         
         contracts?.forEach(contract => {
@@ -51,26 +59,22 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
           entry.total += value;
         });
         
-        // Sort by total value (descending)
-        return Array.from(typeMap.values())
+        // Organizar por valor total (decrescente)
+        const result = Array.from(typeMap.values())
           .sort((a, b) => b.total - a.total)
-          .slice(0, 5); // Only show top 5 types
+          .slice(0, 5); // Mostrar apenas os 5 principais tipos
+        
+        console.log("Resultado da análise por tipo:", result);
+        return result;
       } catch (err) {
         console.error("Erro ao buscar análise por tipo de contrato:", err);
+        toast.error("Erro ao carregar análise por tipo de contrato");
         return [];
       }
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
-
-  const generateMockData = () => {
-    return [
-      { name: "Serviços de Tecnologia", active: 350000, other: 120000, total: 470000 },
-      { name: "Manutenção", active: 280000, other: 150000, total: 430000 },
-      { name: "Consultoria", active: 250000, other: 100000, total: 350000 },
-      { name: "Material de Escritório", active: 120000, other: 80000, total: 200000 },
-      { name: "Serviços Gerais", active: 90000, other: 60000, total: 150000 }
-    ];
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -95,7 +99,7 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
             <div className="flex items-center justify-center h-full text-red-500">
               <p>Erro ao carregar dados</p>
             </div>
-          ) : (
+          ) : data && data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={data}
@@ -145,6 +149,10 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
                 />
               </BarChart>
             </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-warm-500">
+              <p>Nenhum dado disponível</p>
+            </div>
           )}
         </div>
       </CardContent>
