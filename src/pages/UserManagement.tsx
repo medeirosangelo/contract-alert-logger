@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -43,10 +43,9 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi, UserCreateRequest } from "@/services/users";
-import { Pencil, Trash2, UserPlus, AlertCircle, Loader2 } from "lucide-react";
+import { Pencil, Trash2, UserPlus, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { User } from "@/services/types";
 
 // Password policy regex example: Minimum 6 chars, at least one uppercase, one lowercase, one number
@@ -74,7 +73,7 @@ const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
-  const { data: users, isLoading, isError } = useQuery({
+  const { data: users, isLoading, isError, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: userApi.getAll,
   });
@@ -134,7 +133,7 @@ const UserManagement = () => {
     }
   };
 
-  const onSubmit = (data: UserFormValues) => {
+  const onSubmit = async (data: UserFormValues) => {
     if (editingUserId) {
       // Update existing user
       const updateData: Partial<UserCreateRequest> = {
@@ -177,6 +176,14 @@ const UserManagement = () => {
     setIsDialogOpen(true);
   };
 
+  const handleRefresh = () => {
+    refetch();
+    toast({
+      title: "Atualizando lista",
+      description: "Atualizando a lista de usuários...",
+    });
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
@@ -212,7 +219,12 @@ const UserManagement = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Gerenciamento de Usuários</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-2xl font-bold">Gerenciamento de Usuários</h2>
+              <Button variant="outline" size="icon" onClick={handleRefresh} title="Atualizar lista">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
             {isAdmin && (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -224,6 +236,11 @@ const UserManagement = () => {
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
                     <DialogTitle>{editingUserId ? "Editar Usuário" : "Criar Novo Usuário"}</DialogTitle>
+                    <DialogDescription>
+                      {editingUserId 
+                        ? "Edite as informações do usuário abaixo." 
+                        : "Preencha os dados para criar um novo usuário no sistema."}
+                    </DialogDescription>
                   </DialogHeader>
 
                   <Form {...form}>
@@ -263,7 +280,7 @@ const UserManagement = () => {
                           <FormItem>
                             <FormLabel>{editingUserId ? "Nova Senha" : "Senha"}</FormLabel>
                             <FormControl>
-                              <Input type="password" placeholder={editingUserId ? "Deixe em branco para manter a senha atual" : undefined} {...field} />
+                              <Input type="password" placeholder={editingUserId ? "Deixe em branco para manter a senha atual" : "Digite uma senha forte"} {...field} />
                             </FormControl>
                             <FormDescription>
                               Mínimo de 6 caracteres, com pelo menos uma letra maiúscula, uma minúscula e um número.

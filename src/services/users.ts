@@ -59,18 +59,9 @@ export const userApi = {
   // Verificar se o email já está cadastrado no Auth
   checkAuthEmailExists: async (email: string): Promise<boolean> => {
     try {
-      // Tenta fazer login com um método que deve falhar, mas nos dirá se o email existe
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email
-      });
-      
-      // Se o erro for "Email não encontrado", então o usuário não existe
-      if (error && error.message.includes('Email not found')) {
-        return false;
-      }
-      
-      // Se não houve esse erro específico, assume que o email existe
-      return true;
+      // Usando admin.listUsers ou funções equivalentes seria ideal, mas sem acesso admin,
+      // vamos apenas tentar criar o usuário e observar se retorna erro específico durante a criação
+      return false; // Retornar false e deixar a criação do usuário tratar o erro específico
     } catch (error) {
       console.error('Erro ao verificar email no Auth:', error);
       return false;
@@ -106,19 +97,7 @@ export const userApi = {
         console.log('Email já cadastrado na tabela users:', userData.email);
         toast({
           title: "Email já cadastrado",
-          description: "Este email já está sendo utilizado por outro usuário.",
-          variant: "destructive",
-        });
-        return null;
-      }
-      
-      // Verificar se o email já existe no sistema de autenticação
-      const authEmailExists = await userApi.checkAuthEmailExists(userData.email);
-      if (authEmailExists) {
-        console.log('Email já cadastrado no Auth:', userData.email);
-        toast({
-          title: "Email já cadastrado",
-          description: "Este email já está registrado no sistema de autenticação.",
+          description: "Este email já está sendo utilizado por outro usuário na tabela users.",
           variant: "destructive",
         });
         return null;
@@ -137,7 +116,7 @@ export const userApi = {
         console.log('É o primeiro usuário?', isFirstUser);
       }
       
-      // Criar o usuário no Auth
+      // Criar o usuário no Auth - vamos tentar diretamente, sem verificação prévia
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -146,11 +125,11 @@ export const userApi = {
             name: userData.name,
             role: isFirstUser ? "admin" : userData.role,
           },
-          // Desativar confirmação de email para testes
           emailRedirectTo: window.location.origin
         }
       });
 
+      // Processamento de erro específico
       if (authError) {
         console.error('Erro ao criar usuário no Auth:', authError);
         
@@ -158,7 +137,7 @@ export const userApi = {
         if (authError.message?.includes('User already registered')) {
           toast({
             title: "Email já cadastrado",
-            description: "Este email já está sendo utilizado por outro usuário.",
+            description: "Este email já está registrado no sistema de autenticação.",
             variant: "destructive",
           });
         } else if (authError.message?.includes('Password should be')) {
@@ -178,7 +157,7 @@ export const userApi = {
         return null;
       }
       
-      if (authData.user) {
+      if (authData?.user) {
         // Definir permissões padrão com base na role
         const finalRole = isFirstUser ? "admin" : userData.role;
         const defaultPermissions = {
