@@ -16,13 +16,26 @@ import { UserPlus, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { physicalPersonsApi } from "@/services/physicalPersons";
 import { PhysicalPerson } from "@/services/types";
+import { toast } from "@/components/ui/use-toast";
 
 const PhysicalPersonList = () => {
   const navigate = useNavigate();
   
-  const { data: people, isLoading, error } = useQuery({
+  const { 
+    data: people, 
+    isLoading, 
+    error 
+  } = useQuery({
     queryKey: ["physicalPersons"],
     queryFn: physicalPersonsApi.getAll,
+    onError: (error) => {
+      console.error("Error fetching physical persons:", error);
+      toast({
+        title: "Erro ao carregar pessoas físicas",
+        description: "Não foi possível carregar a lista de pessoas físicas.",
+        variant: "destructive"
+      });
+    }
   });
 
   return (
@@ -32,7 +45,9 @@ const PhysicalPersonList = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-warm-800">Lista de Pessoas Físicas</h2>
+            <h2 className="text-2xl font-bold text-warm-800">
+              {people?.length ? `Lista de Pessoas Físicas (${people.length})` : "Lista de Pessoas Físicas"}
+            </h2>
             <Link to="/physical-persons/new">
               <Button className="gap-2 bg-primary hover:bg-primary/90">
                 <UserPlus className="h-4 w-4" />
