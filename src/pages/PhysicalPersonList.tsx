@@ -28,15 +28,27 @@ const PhysicalPersonList = () => {
   } = useQuery({
     queryKey: ["physicalPersons"],
     queryFn: physicalPersonsApi.getAll,
-    onError: (error) => {
-      console.error("Error fetching physical persons:", error);
-      toast({
-        title: "Erro ao carregar pessoas físicas",
-        description: "Não foi possível carregar a lista de pessoas físicas.",
-        variant: "destructive"
-      });
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error fetching physical persons:", error);
+        toast({
+          title: "Erro ao carregar pessoas físicas",
+          description: "Não foi possível carregar a lista de pessoas físicas.",
+          variant: "destructive"
+        });
+      }
     }
   });
+
+  // Também podemos usar um efeito para mostrar erros caso ocorram
+  if (error) {
+    console.error("Error in query:", error);
+    toast({
+      title: "Erro ao carregar pessoas físicas",
+      description: "Não foi possível carregar a lista de pessoas físicas.",
+      variant: "destructive"
+    });
+  }
 
   return (
     <div className="min-h-screen bg-warm-50">
