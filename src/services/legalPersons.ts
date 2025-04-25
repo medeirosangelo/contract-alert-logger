@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import type { LegalPerson, LegalPersonInsert } from "./types";
 
 export type { LegalPerson, LegalPersonInsert };
@@ -14,16 +14,16 @@ export const legalPersonsApi = {
         .select('*')
         .order('company_name', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro específico do Supabase:', error);
+        throw new Error(`Erro ao buscar pessoas jurídicas: ${error.message}`);
+      }
+      
       console.log('Legal persons fetched:', data);
       return data as LegalPerson[];
     } catch (error) {
       console.error('Error fetching legal persons:', error);
-      toast({
-        title: "Erro ao carregar pessoas jurídicas",
-        description: "Não foi possível carregar a lista de pessoas jurídicas.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar a lista de pessoas jurídicas.");
       throw error;
     }
   },
@@ -42,11 +42,7 @@ export const legalPersonsApi = {
       return data as LegalPerson;
     } catch (error) {
       console.error(`Error fetching legal person ${id}:`, error);
-      toast({
-        title: "Erro ao carregar pessoa jurídica",
-        description: "Não foi possível carregar os detalhes da pessoa jurídica.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar os detalhes da pessoa jurídica.");
       throw error;
     }
   },
@@ -65,11 +61,7 @@ export const legalPersonsApi = {
       return data as LegalPerson | null;
     } catch (error) {
       console.error(`Error fetching legal person by CNPJ ${cnpj}:`, error);
-      toast({
-        title: "Erro ao carregar pessoa jurídica",
-        description: "Não foi possível encontrar pelo CNPJ informado.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível encontrar pelo CNPJ informado.");
       throw error;
     }
   },
@@ -85,18 +77,11 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log('Legal person created:', newPerson);
-      toast({
-        title: "Pessoa jurídica cadastrada",
-        description: "A pessoa jurídica foi cadastrada com sucesso.",
-      });
+      toast.success("Pessoa jurídica cadastrada com sucesso!");
       return newPerson as LegalPerson;
     } catch (error) {
       console.error('Error creating legal person:', error);
-      toast({
-        title: "Erro ao cadastrar pessoa jurídica",
-        description: "Não foi possível cadastrar a pessoa jurídica.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível cadastrar a pessoa jurídica.");
       throw error;
     }
   },
@@ -113,18 +98,11 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log('Legal person updated:', updatedPerson);
-      toast({
-        title: "Pessoa jurídica atualizada",
-        description: "A pessoa jurídica foi atualizada com sucesso.",
-      });
+      toast.success("Pessoa jurídica atualizada com sucesso!");
       return updatedPerson as LegalPerson;
     } catch (error) {
       console.error(`Error updating legal person ${id}:`, error);
-      toast({
-        title: "Erro ao atualizar pessoa jurídica",
-        description: "Não foi possível atualizar a pessoa jurídica.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível atualizar a pessoa jurídica.");
       throw error;
     }
   },
@@ -139,17 +117,10 @@ export const legalPersonsApi = {
 
       if (error) throw error;
       console.log(`Legal person ${id} deleted`);
-      toast({
-        title: "Pessoa jurídica excluída",
-        description: "A pessoa jurídica foi excluída com sucesso.",
-      });
+      toast.success("Pessoa jurídica excluída com sucesso!");
     } catch (error) {
       console.error(`Error deleting legal person ${id}:`, error);
-      toast({
-        title: "Erro ao excluir pessoa jurídica",
-        description: "Não foi possível excluir a pessoa jurídica.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível excluir a pessoa jurídica.");
       throw error;
     }
   }

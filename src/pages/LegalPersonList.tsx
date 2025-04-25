@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Building2, Loader2, RefreshCw } from "lucide-react";
+import { Building2, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
@@ -21,11 +21,23 @@ import { toast } from "sonner";
 const LegalPersonList = () => {
   const navigate = useNavigate();
   
-  const { data: companies, isLoading, error, refetch } = useQuery({
+  const { data: companies, isLoading, error, refetch, isError } = useQuery({
     queryKey: ["legalPersons"],
-    queryFn: legalPersonsApi.getAll,
+    queryFn: async () => {
+      try {
+        console.log("Buscando lista de pessoas jurídicas...");
+        const data = await legalPersonsApi.getAll();
+        console.log("Pessoas jurídicas encontradas:", data?.length || 0);
+        return data;
+      } catch (error) {
+        console.error("Erro ao buscar pessoas jurídicas:", error);
+        toast.error("Erro ao carregar pessoas jurídicas");
+        throw error;
+      }
+    },
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    retry: 1
   });
 
   const handleRefresh = () => {
@@ -64,10 +76,24 @@ const LegalPersonList = () => {
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-              <p>Erro ao carregar pessoas jurídicas. Por favor, tente novamente.</p>
-              <p className="text-sm mt-2">Detalhes: {error instanceof Error ? error.message : 'Erro desconhecido'}</p>
+          ) : isError ? (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <AlertCircle className="h-6 w-6 text-red-500" />
+                <h3 className="font-medium text-lg">Erro ao carregar pessoas jurídicas</h3>
+              </div>
+              <p className="mb-3">Não foi possível carregar a lista de pessoas jurídicas do banco de dados.</p>
+              <p className="text-sm mb-4">
+                Detalhes: {error instanceof Error ? error.message : 'Erro desconhecido no servidor'}
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh} 
+                className="gap-2 border-red-300 text-red-700 hover:bg-red-50"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Tentar novamente
+              </Button>
             </div>
           ) : companies && companies.length > 0 ? (
             <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -100,8 +126,11 @@ const LegalPersonList = () => {
               </Table>
             </div>
           ) : (
-            <div className="bg-warm-50 border border-warm-200 p-8 rounded-lg text-center">
-              <p className="text-warm-600 mb-4">Nenhuma pessoa jurídica cadastrada.</p>
+            <div className="bg-warm-50 border border-warm-200 p-8 rounded-lg text-center shadow-sm">
+              <p className="text-warm-600 mb-4">Nenhuma pessoa jurídica cadastrada no banco de dados.</p>
+              <p className="text-warm-500 text-sm mb-6">
+                O banco de dados está vazio. Cadastre sua primeira pessoa jurídica para começar.
+              </p>
               <Link to="/legal-persons/new">
                 <Button className="gap-2 bg-primary hover:bg-primary/90">
                   <Building2 className="h-4 w-4" />
