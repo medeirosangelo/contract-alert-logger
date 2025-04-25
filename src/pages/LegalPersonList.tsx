@@ -16,7 +16,7 @@ import { Building2, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 const LegalPersonList = () => {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ const LegalPersonList = () => {
     <div className="min-h-screen bg-warm-50">
       <Navigation />
       <Header />
+      <Toaster position="top-right" />
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
