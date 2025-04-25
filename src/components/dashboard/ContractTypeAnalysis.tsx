@@ -24,7 +24,7 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
     queryKey: ['contractTypeAnalysis'],
     queryFn: async () => {
       try {
-        console.log("Buscando análise por tipo de contrato...");
+        console.log("Buscando análise por tipo de contrato (natureza de despesa)...");
         // Buscar todos os contratos para analisar por natureza de despesa
         const { data: contracts, error } = await supabase
           .from('contracts')
@@ -69,11 +69,18 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
       } catch (err) {
         console.error("Erro ao buscar análise por tipo de contrato:", err);
         toast.error("Erro ao carregar análise por tipo de contrato");
-        return [];
+        throw err; // Propagar o erro para que o React Query possa lidar com ele
+      }
+    },
+    meta: {
+      onError: (error: Error) => {
+        console.error("Erro na consulta de análise por tipo:", error);
+        toast.error("Falha ao carregar dados de análise por tipo");
       }
     },
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchInterval: 300000 // Atualiza a cada 5 minutos
   });
 
   const formatCurrency = (value: number) => {
