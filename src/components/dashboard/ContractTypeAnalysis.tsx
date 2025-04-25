@@ -25,6 +25,7 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
     queryFn: async () => {
       try {
         console.log("Buscando análise por tipo de contrato (natureza de despesa)...");
+        
         // Buscar todos os contratos para analisar por natureza de despesa
         const { data: contracts, error } = await supabase
           .from('contracts')
@@ -37,11 +38,16 @@ const ContractTypeAnalysis = ({ className }: ContractTypeAnalysisProps) => {
         }
 
         console.log("Contratos obtidos para análise:", contracts?.length || 0);
+        
+        if (!contracts || contracts.length === 0) {
+          console.warn("Nenhum contrato encontrado com natureza de despesa definida");
+          return [];
+        }
 
         // Agrupar contratos por natureza de despesa e calcular valores
         const typeMap = new Map();
         
-        contracts?.forEach(contract => {
+        contracts.forEach(contract => {
           const type = contract.expense_nature || 'Não especificado';
           const value = Number(contract.total_value) || 0;
           const isActive = contract.status === 'active';

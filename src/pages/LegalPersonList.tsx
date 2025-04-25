@@ -12,18 +12,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Building2, Loader2 } from "lucide-react";
+import { Building2, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
+import { toast } from "sonner";
 
 const LegalPersonList = () => {
   const navigate = useNavigate();
   
-  const { data: companies, isLoading, error } = useQuery({
+  const { data: companies, isLoading, error, refetch } = useQuery({
     queryKey: ["legalPersons"],
     queryFn: legalPersonsApi.getAll,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
+
+  const handleRefresh = () => {
+    toast.info("Atualizando lista de pessoas jurídicas...");
+    refetch();
+  };
 
   return (
     <div className="min-h-screen bg-warm-50">
@@ -33,12 +41,23 @@ const LegalPersonList = () => {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-warm-800">Lista de Pessoas Jurídicas</h2>
-            <Link to="/legal-persons/new">
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Building2 className="h-4 w-4" />
-                Nova Pessoa Jurídica
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={handleRefresh}
+                className="mr-2"
+                title="Atualizar lista"
+              >
+                <RefreshCw className="h-4 w-4" />
               </Button>
-            </Link>
+              <Link to="/legal-persons/new">
+                <Button className="gap-2 bg-primary hover:bg-primary/90">
+                  <Building2 className="h-4 w-4" />
+                  Nova Pessoa Jurídica
+                </Button>
+              </Link>
+            </div>
           </div>
           
           {isLoading ? (
@@ -47,10 +66,14 @@ const LegalPersonList = () => {
             </div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-              Erro ao carregar pessoas jurídicas. Por favor, tente novamente.
+              <p>Erro ao carregar pessoas jurídicas. Por favor, tente novamente.</p>
+              <p className="text-sm mt-2">Detalhes: {error instanceof Error ? error.message : 'Erro desconhecido'}</p>
             </div>
           ) : companies && companies.length > 0 ? (
             <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="p-4 bg-warm-50 border-b border-warm-200">
+                <p className="text-warm-600">Total: <span className="font-medium">{companies.length}</span> empresas</p>
+              </div>
               <Table>
                 <TableHeader>
                   <TableRow>
