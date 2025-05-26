@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { 
   Card,
   CardHeader,
@@ -107,20 +106,13 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
       
       await physicalPersonsApi.create(personData);
       
-      toast({
-        title: "Pessoa física cadastrada com sucesso!",
-        description: "Os dados foram salvos no banco de dados.",
-      });
+      toast.success("Pessoa física cadastrada com sucesso!");
       
       // Redirecionar para a lista após o cadastro
       navigate("/physical-persons");
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast({
-        title: "Erro ao cadastrar pessoa física",
-        description: "Ocorreu um erro ao salvar os dados no banco de dados.",
-        variant: "destructive",
-      });
+      toast.error("Ocorreu um erro ao salvar os dados no banco de dados.");
     } finally {
       setIsSubmitting(false);
     }

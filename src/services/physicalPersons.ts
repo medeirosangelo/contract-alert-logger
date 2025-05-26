@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import type { PhysicalPerson, PhysicalPersonInsert } from "./types";
 
 export type { PhysicalPerson, PhysicalPersonInsert };
@@ -14,16 +14,16 @@ export const physicalPersonsApi = {
         .select('*')
         .order('full_name', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro específico do Supabase:', error);
+        throw new Error(`Erro ao buscar pessoas físicas: ${error.message}`);
+      }
+      
       console.log('Physical persons fetched:', data);
       return data as PhysicalPerson[];
     } catch (error) {
       console.error('Error fetching physical persons:', error);
-      toast({
-        title: "Erro ao carregar pessoas físicas",
-        description: "Não foi possível carregar a lista de pessoas físicas.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar a lista de pessoas físicas.");
       throw error;
     }
   },
@@ -42,38 +42,51 @@ export const physicalPersonsApi = {
       return data as PhysicalPerson;
     } catch (error) {
       console.error(`Error fetching physical person ${id}:`, error);
-      toast({
-        title: "Erro ao carregar pessoa física",
-        description: "Não foi possível carregar os detalhes da pessoa física.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar os detalhes da pessoa física.");
+      throw error;
+    }
+  },
+
+  getByCPF: async (cpf: string) => {
+    try {
+      console.log(`Fetching physical person by CPF ${cpf}...`);
+      const { data, error } = await supabase
+        .from('physical_persons')
+        .select('*')
+        .eq('cpf', cpf)
+        .maybeSingle();
+
+      if (error) throw error;
+      console.log('Physical person fetched by CPF:', data);
+      return data as PhysicalPerson | null;
+    } catch (error) {
+      console.error(`Error fetching physical person by CPF ${cpf}:`, error);
+      toast.error("Não foi possível encontrar pelo CPF informado.");
       throw error;
     }
   },
 
   create: async (data: PhysicalPersonInsert) => {
     try {
-      console.log('Creating physical person:', data);
+      const insertData = { ...data };
+      
+      console.log('Creating physical person:', insertData);
       const { data: newPerson, error } = await supabase
         .from('physical_persons')
-        .insert(data)
-        .select()
-        .single();
+        .insert(insertData);
 
-      if (error) throw error;
-      console.log('Physical person created:', newPerson);
-      toast({
-        title: "Pessoa física cadastrada",
-        description: "A pessoa física foi cadastrada com sucesso.",
-      });
-      return newPerson as PhysicalPerson;
+      if (error) {
+        console.error('Erro específico do Supabase ao criar:', error);
+        throw new Error(`Falha ao cadastrar pessoa física: ${error.message}`);
+      }
+      
+      console.log('Physical person created successfully');
+      toast.success("Pessoa física cadastrada com sucesso!");
+      
+      return { id: 'temp-id', ...data } as unknown as PhysicalPerson;
     } catch (error) {
       console.error('Error creating physical person:', error);
-      toast({
-        title: "Erro ao cadastrar pessoa física",
-        description: "Não foi possível cadastrar a pessoa física.",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Falha ao cadastrar pessoa física.");
       throw error;
     }
   },
@@ -84,24 +97,20 @@ export const physicalPersonsApi = {
       const { data: updatedPerson, error } = await supabase
         .from('physical_persons')
         .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+        .eq('id', id);
 
-      if (error) throw error;
-      console.log('Physical person updated:', updatedPerson);
-      toast({
-        title: "Pessoa física atualizada",
-        description: "A pessoa física foi atualizada com sucesso.",
-      });
-      return updatedPerson as PhysicalPerson;
+      if (error) {
+        console.error('Erro específico do Supabase ao atualizar:', error);
+        throw new Error(`Falha ao atualizar pessoa física: ${error.message}`);
+      }
+      
+      console.log('Physical person updated successfully');
+      toast.success("Pessoa física atualizada com sucesso!");
+      
+      return { id, ...data } as PhysicalPerson;
     } catch (error) {
       console.error(`Error updating physical person ${id}:`, error);
-      toast({
-        title: "Erro ao atualizar pessoa física",
-        description: "Não foi possível atualizar a pessoa física.",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Falha ao atualizar pessoa física.");
       throw error;
     }
   },
@@ -114,19 +123,16 @@ export const physicalPersonsApi = {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
-      console.log(`Physical person ${id} deleted`);
-      toast({
-        title: "Pessoa física excluída",
-        description: "A pessoa física foi excluída com sucesso.",
-      });
+      if (error) {
+        console.error('Erro específico do Supabase ao excluir:', error);
+        throw new Error(`Falha ao excluir pessoa física: ${error.message}`);
+      }
+      
+      console.log(`Physical person ${id} deleted successfully`);
+      toast.success("Pessoa física excluída com sucesso!");
     } catch (error) {
       console.error(`Error deleting physical person ${id}:`, error);
-      toast({
-        title: "Erro ao excluir pessoa física",
-        description: "Não foi possível excluir a pessoa física.",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Falha ao excluir pessoa física.");
       throw error;
     }
   }
