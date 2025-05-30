@@ -12,14 +12,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Building2, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Building2, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
 import { toast, Toaster } from "sonner";
+import EmptyState from "@/components/common/EmptyState";
+import ErrorDisplay from "@/components/common/ErrorDisplay";
+import { useEffect, useState } from "react";
 
 const LegalPersonList = () => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { data: companies, isLoading, error, refetch, isError } = useQuery({
     queryKey: ["legalPersons"],
@@ -50,7 +62,7 @@ const LegalPersonList = () => {
       <Navigation />
       <Header />
       <Toaster position="top-right" />
-      <main className="ml-64 pt-16 p-6">
+      <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-warm-800">Lista de Pessoas Jurídicas</h2>
@@ -78,24 +90,12 @@ const LegalPersonList = () => {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : isError ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <AlertCircle className="h-6 w-6 text-red-500" />
-                <h3 className="font-medium text-lg">Erro ao carregar pessoas jurídicas</h3>
-              </div>
-              <p className="mb-3">Não foi possível carregar a lista de pessoas jurídicas do banco de dados.</p>
-              <p className="text-sm mb-4">
-                Detalhes: {error instanceof Error ? error.message : 'Erro desconhecido no servidor'}
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={handleRefresh} 
-                className="gap-2 border-red-300 text-red-700 hover:bg-red-50"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Tentar novamente
-              </Button>
-            </div>
+            <ErrorDisplay
+              title="Erro ao carregar pessoas jurídicas"
+              message="Não foi possível carregar a lista de pessoas jurídicas do banco de dados."
+              error={error instanceof Error ? error.message : 'Erro desconhecido no servidor'}
+              onRetry={handleRefresh}
+            />
           ) : companies && companies.length > 0 ? (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="p-4 bg-warm-50 border-b border-warm-200">
@@ -127,18 +127,13 @@ const LegalPersonList = () => {
               </Table>
             </div>
           ) : (
-            <div className="bg-warm-50 border border-warm-200 p-8 rounded-lg text-center shadow-sm">
-              <p className="text-warm-600 mb-4">Nenhuma pessoa jurídica cadastrada no banco de dados.</p>
-              <p className="text-warm-500 text-sm mb-6">
-                O banco de dados está vazio. Cadastre sua primeira pessoa jurídica para começar.
-              </p>
-              <Link to="/legal-persons/new">
-                <Button className="gap-2 bg-primary hover:bg-primary/90">
-                  <Building2 className="h-4 w-4" />
-                  Cadastrar Pessoa Jurídica
-                </Button>
-              </Link>
-            </div>
+            <EmptyState
+              title="Nenhuma pessoa jurídica cadastrada no banco de dados."
+              description="O banco de dados está vazio. Cadastre sua primeira pessoa jurídica para começar."
+              actionText="Cadastrar Pessoa Jurídica"
+              actionHref="/legal-persons/new"
+              icon={<Building2 className="h-4 w-4" />}
+            />
           )}
         </div>
       </main>

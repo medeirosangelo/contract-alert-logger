@@ -3,23 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { UserPlus, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { physicalPersonsApi } from "@/services/physicalPersons";
 import { PhysicalPerson } from "@/services/types";
 import { toast, Toaster } from "sonner";
+import PersonList from "@/components/lists/PersonList";
+import EmptyState from "@/components/common/EmptyState";
+import ErrorDisplay from "@/components/common/ErrorDisplay";
+import { useEffect, useState } from "react";
 
 const PhysicalPersonList = () => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { data: people, isLoading, error, refetch, isError } = useQuery({
     queryKey: ["physicalPersons"],
@@ -45,12 +50,16 @@ const PhysicalPersonList = () => {
     refetch();
   };
 
+  const handlePersonClick = (id: string) => {
+    navigate(`/physical-persons/${id}`);
+  };
+
   return (
     <div className="min-h-screen bg-warm-50">
       <Navigation />
       <Header />
       <Toaster position="top-right" />
-      <main className="ml-64 pt-16 p-6">
+      <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-warm-800">Lista de Pessoas Físicas</h2>
@@ -78,67 +87,22 @@ const PhysicalPersonList = () => {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : isError ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <AlertCircle className="h-6 w-6 text-red-500" />
-                <h3 className="font-medium text-lg">Erro ao carregar pessoas físicas</h3>
-              </div>
-              <p className="mb-3">Não foi possível carregar a lista de pessoas físicas do banco de dados.</p>
-              <p className="text-sm mb-4">
-                Detalhes: {error instanceof Error ? error.message : 'Erro desconhecido no servidor'}
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={handleRefresh} 
-                className="gap-2 border-red-300 text-red-700 hover:bg-red-50"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Tentar novamente
-              </Button>
-            </div>
+            <ErrorDisplay
+              title="Erro ao carregar pessoas físicas"
+              message="Não foi possível carregar a lista de pessoas físicas do banco de dados."
+              error={error instanceof Error ? error.message : 'Erro desconhecido no servidor'}
+              onRetry={handleRefresh}
+            />
           ) : people && people.length > 0 ? (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="p-4 bg-warm-50 border-b border-warm-200">
-                <p className="text-warm-600">Total: <span className="font-medium">{people.length}</span> pessoas</p>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>CPF</TableHead>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead>Telefone</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(people as PhysicalPerson[]).map((person) => (
-                    <TableRow 
-                      key={person.id}
-                      className="cursor-pointer hover:bg-gray-100"
-                      onClick={() => navigate(`/physical-persons/${person.id}`)}
-                    >
-                      <TableCell className="font-medium">{person.full_name}</TableCell>
-                      <TableCell>{person.cpf}</TableCell>
-                      <TableCell>{person.email}</TableCell>
-                      <TableCell>{person.phone}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <PersonList people={people} onPersonClick={handlePersonClick} />
           ) : (
-            <div className="bg-warm-50 border border-warm-200 p-8 rounded-lg text-center shadow-sm">
-              <p className="text-warm-600 mb-4">Nenhuma pessoa física cadastrada no banco de dados.</p>
-              <p className="text-warm-500 text-sm mb-6">
-                O banco de dados está vazio. Cadastre sua primeira pessoa física para começar.
-              </p>
-              <Link to="/physical-persons/new">
-                <Button className="gap-2 bg-primary hover:bg-primary/90">
-                  <UserPlus className="h-4 w-4" />
-                  Cadastrar Pessoa Física
-                </Button>
-              </Link>
-            </div>
+            <EmptyState
+              title="Nenhuma pessoa física cadastrada no banco de dados."
+              description="O banco de dados está vazio. Cadastre sua primeira pessoa física para começar."
+              actionText="Cadastrar Pessoa Física"
+              actionHref="/physical-persons/new"
+              icon={<UserPlus className="h-4 w-4" />}
+            />
           )}
         </div>
       </main>
