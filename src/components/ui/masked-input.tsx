@@ -2,27 +2,24 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { validateCPF, validateCNPJ } from "@/utils/documentValidation";
 
 interface MaskedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   mask: string;
   maskChar?: string | null;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  validation?: "cpf" | "cnpj" | "none";
 }
 
-// Implementação personalizada para substituir o InputMask que está causando problemas
 const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
-  ({ className, mask, maskChar = null, disabled, value, onChange, ...props }, ref) => {
-    // Garante que disabled seja sempre um booleano
+  ({ className, mask, maskChar = null, disabled, value, onChange, validation = "none", ...props }, ref) => {
     const isDisabled = Boolean(disabled);
     
-    // Função para aplicar máscara manualmente durante a digitação
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onChange) {
-        // Implementação simplificada de máscara para tipos comuns
         let inputValue = e.target.value.replace(/\D/g, '');
         let maskedValue = '';
-        let maskIndex = 0;
         
         // CPF: 999.999.999-99
         if (mask === "999.999.999-99" && inputValue.length <= 11) {
@@ -72,10 +69,7 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         }
         // Valor monetário: 999999999.99
         else if (mask === "999999999.99") {
-          // Remove tudo exceto números e ponto
           inputValue = e.target.value.replace(/[^\d.]/g, '');
-          
-          // Garante apenas um ponto decimal
           const parts = inputValue.split('.');
           if (parts.length > 1) {
             maskedValue = `${parts[0]}.${parts.slice(1).join('').substring(0, 2)}`;
@@ -83,12 +77,10 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
             maskedValue = inputValue;
           }
         }
-        // Para outros tipos de máscara
         else {
           maskedValue = e.target.value;
         }
         
-        // Cria um novo evento com o valor mascarado
         const maskedEvent = {
           ...e,
           target: {
@@ -100,11 +92,28 @@ const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         onChange(maskedEvent);
       }
     };
+
+    // Validação visual baseada no tipo
+    const getValidationState = () => {
+      if (!value || validation === "none") return "";
+      
+      const cleanValue = value.replace(/\D/g, '');
+      
+      if (validation === "cpf" && cleanValue.length === 11) {
+        return validateCPF(value) ? "border-green-500" : "border-red-500";
+      }
+      
+      if (validation === "cnpj" && cleanValue.length === 14) {
+        return validateCNPJ(value) ? "border-green-500" : "border-red-500";
+      }
+      
+      return "";
+    };
     
     return (
       <Input
         ref={ref}
-        className={cn(className)}
+        className={cn(className, getValidationState())}
         disabled={isDisabled}
         value={value}
         onChange={handleChange}

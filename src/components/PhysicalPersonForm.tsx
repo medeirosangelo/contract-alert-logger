@@ -16,10 +16,14 @@ import PersonalInfoSection from "@/components/forms/PersonalInfoSection";
 import AddressSection from "@/components/forms/AddressSection";
 import ContactSection from "@/components/forms/ContactSection";
 import FormHeader from "@/components/forms/FormHeader";
+import { validateCPF } from "@/utils/documentValidation";
 
 const formSchema = z.object({
   full_name: z.string().min(2, "Nome completo é obrigatório"),
-  cpf: z.string().min(11, "CPF inválido").max(14),
+  cpf: z.string()
+    .min(11, "CPF inválido")
+    .max(14)
+    .refine((cpf) => validateCPF(cpf), "CPF inválido"),
   rg: z.string().optional(),
   birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
   street: z.string().min(1, "Logradouro é obrigatório"),
@@ -69,7 +73,20 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
       setIsSubmitting(true);
       console.log("Form submitted:", values);
       
+      // Verificar duplicatas por CPF
       const cleanCpf = values.cpf.replace(/\D/g, '');
+      
+      try {
+        const existingPerson = await physicalPersonsApi.getByCPF(cleanCpf);
+        if (existingPerson) {
+          toast.error("Já existe uma pessoa cadastrada com este CPF!");
+          return;
+        }
+      } catch (error) {
+        // Se der erro na consulta, continua o cadastro
+        console.log("Erro ao verificar duplicata (continuando):", error);
+      }
+      
       const cleanZipCode = values.zip_code.replace(/\D/g, '');
       const cleanPhone = values.phone.replace(/\D/g, '');
       
@@ -111,7 +128,7 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <PersonalInfoSection control={form.control} />
-            <AddressSection control={form.control} />
+            <AddressSection control={form.control} form={form} />
             <ContactSection control={form.control} />
 
             <CardFooter className="flex justify-end px-0 pt-4">

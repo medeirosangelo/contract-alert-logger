@@ -74,7 +74,7 @@ export const physicalPersonsApi = {
       const { data: newPerson, error } = await supabase
         .from('physical_persons')
         .insert(insertData);
-
+      
       if (error) {
         console.error('Erro específico do Supabase ao criar:', error);
         throw new Error(`Falha ao cadastrar pessoa física: ${error.message}`);
