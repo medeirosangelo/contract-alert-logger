@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,8 +14,10 @@ import { useNavigate } from "react-router-dom";
 import PersonalInfoSection from "@/components/forms/PersonalInfoSection";
 import AddressSection from "@/components/forms/AddressSection";
 import ContactSection from "@/components/forms/ContactSection";
+import BankingInfoSection from "@/components/forms/BankingInfoSection";
 import FormHeader from "@/components/forms/FormHeader";
 import { validateCPF } from "@/utils/documentValidation";
+import DocumentUpload from "./DocumentUpload";
 
 const formSchema = z.object({
   full_name: z.string().min(2, "Nome completo é obrigatório"),
@@ -42,9 +43,10 @@ type FormData = z.infer<typeof formSchema>;
 
 interface PhysicalPersonFormProps {
   initialData?: FormData;
+  onSuccess?: () => void;
 }
 
-const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
+const PhysicalPersonForm = ({ initialData, onSuccess }: PhysicalPersonFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
@@ -110,6 +112,7 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
       await physicalPersonsApi.create(personData);
       toast.success("Pessoa física cadastrada com sucesso!");
       navigate("/physical-persons");
+      onSuccess && onSuccess();
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Ocorreu um erro ao salvar os dados.");
@@ -119,41 +122,36 @@ const PhysicalPersonForm = ({ initialData }: PhysicalPersonFormProps) => {
   };
 
   return (
-    <Card className="shadow-lg border-warm-200 animate-fadeIn">
+    <div className="space-y-6">
       <FormHeader 
-        title="Cadastro de Pessoa Física"
-        description="Preencha os dados da pessoa física para cadastro no sistema"
+        title={initialData ? "Editar Pessoa Física" : "Cadastrar Pessoa Física"}
+        subtitle={initialData ? "Atualize as informações da pessoa física" : "Preencha os dados da nova pessoa física"}
       />
-      <CardContent className="pt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <PersonalInfoSection control={form.control} />
-            <AddressSection control={form.control} form={form} />
-            <ContactSection control={form.control} />
 
-            <CardFooter className="flex justify-end px-0 pt-4">
-              <Button 
-                type="submit" 
-                className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Cadastrar Pessoa Física
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <PersonalInfoSection control={form.control} />
+          <AddressSection control={form.control} />
+          <ContactSection control={form.control} />
+          <BankingInfoSection control={form.control} />
+
+          <div className="flex justify-end pt-6">
+            <Button type="submit" disabled={isSubmitting} className="min-w-32">
+              {isSubmitting ? "Salvando..." : initialData ? "Atualizar" : "Cadastrar"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+
+      {/* Componente de Upload - só mostra após salvar */}
+      {initialData && (
+        <DocumentUpload 
+          entityType="physical_person"
+          entityId={initialData.id}
+          title="Documentos da Pessoa Física"
+        />
+      )}
+    </div>
   );
 };
 

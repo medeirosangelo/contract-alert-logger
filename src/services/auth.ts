@@ -1,6 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { User, UserInsert } from "./types";
+import { authLogsApi } from "./authLogs";
 
 export interface SignUpCredentials {
   email: string;
@@ -26,6 +28,9 @@ export const authApi = {
         .maybeSingle();
 
       if (existing) {
+        await authLogsApi.logAuthEvent('login_failed', credentials.email, { 
+          reason: 'Email already exists' 
+        });
         toast({
           title: "Cadastro já existente",
           description: "Já existe um usuário com este e-mail cadastrado.",
@@ -42,6 +47,9 @@ export const authApi = {
           .eq('username', credentials.username)
           .maybeSingle();
         if (userFound) {
+          await authLogsApi.logAuthEvent('login_failed', credentials.email, { 
+            reason: 'Username already exists' 
+          });
           toast({
             title: "Usuário já existe",
             description: "Este nome de usuário já está em uso.",
@@ -78,6 +86,10 @@ export const authApi = {
           .insert(userData);
 
         if (userError) throw userError;
+
+        await authLogsApi.logAuthEvent('login_success', credentials.email, { 
+          action: 'signup' 
+        });
       }
 
       toast({
@@ -87,6 +99,10 @@ export const authApi = {
       
       return authData;
     } catch (error: any) {
+      await authLogsApi.logAuthEvent('login_failed', credentials.email, { 
+        error: error.message 
+      });
+      
       // Mensagem melhorada
       let description = "Não foi possível criar sua conta. Verifique os dados e tente novamente.";
       if (error.message?.includes("User already registered")) {
@@ -108,6 +124,7 @@ export const authApi = {
     try {
       let data;
       let error;
+      let emailUsed = credentials.identifier;
 
       if (credentials.isUsername) {
         // Buscar e-mail a partir do username
@@ -118,6 +135,9 @@ export const authApi = {
           .maybeSingle();
 
         if (!user?.email) {
+          await authLogsApi.logAuthEvent('login_failed', credentials.identifier, { 
+            reason: 'Username not found' 
+          });
           toast({
             title: "Usuário não encontrado",
             description: "Nome de usuário inválido.",
@@ -125,6 +145,7 @@ export const authApi = {
           });
           throw new Error('Username not found');
         }
+        emailUsed = user.email;
         const authResponse = await supabase.auth.signInWithPassword({
           email: user.email,
           password: credentials.password,
@@ -141,6 +162,10 @@ export const authApi = {
       }
 
       if (error) throw error;
+
+      await authLogsApi.logAuthEvent('login_success', emailUsed, { 
+        method: credentials.isUsername ? 'username' : 'email' 
+      });
       
       toast({
         title: "Login realizado",
@@ -148,6 +173,11 @@ export const authApi = {
       });
       return data;
     } catch (error: any) {
+      await authLogsApi.logAuthEvent('login_failed', credentials.identifier, { 
+        error: error.message,
+        method: credentials.isUsername ? 'username' : 'email' 
+      });
+      
       let description = "Usuário ou senha inválidos.";
       if (error?.message?.includes('Username not found')) {
         description = "Nome de usuário não encontrado.";
@@ -164,6 +194,10 @@ export const authApi = {
   logout: async () => {
     try {
       console.log('Logging out...');
+      
+      // Log antes do logout
+      await authLogsApi.logAuthEvent('logout');
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       

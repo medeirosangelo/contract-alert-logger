@@ -20,3 +20,13 @@ export type User = Database["public"]["Tables"]["users"]["Row"] & {
   permissions?: Json;
 };
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
+
+// Novos tipos para as tabelas de autenticação e documentos
+export type UserSession = Database["public"]["Tables"]["user_sessions"]["Row"];
+export type UserSessionInsert = Database["public"]["Tables"]["user_sessions"]["Insert"];
+
+export type AuthLog = Database["public"]["Tables"]["auth_logs"]["Row"];
+export type AuthLogInsert = Database["public"]["Tables"]["auth_logs"]["Insert"];
+
+export type DocumentUpload = Database["public"]["Tables"]["document_uploads"]["Row"];
+export type DocumentUploadInsert = Database["public"]["Tables"]["document_uploads"]["Insert"];
