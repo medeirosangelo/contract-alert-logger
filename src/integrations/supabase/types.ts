@@ -86,13 +86,6 @@ export type Database = {
             referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "contract_alerts_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
         ]
       }
       contracts: {
@@ -211,13 +204,6 @@ export type Database = {
             columns: ["contractor_id"]
             isOneToOne: false
             referencedRelation: "legal_persons"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "contracts_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -361,15 +347,7 @@ export type Database = {
           updated_at?: string | null
           zip_code?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "legal_persons_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       physical_persons: {
         Row: {
@@ -432,15 +410,7 @@ export type Database = {
           updated_at?: string | null
           zip_code?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "physical_persons_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_sessions: {
         Row: {
@@ -477,31 +447,31 @@ export type Database = {
       }
       users: {
         Row: {
-          created_at: string | null
+          created_at: string
           email: string
           id: string
           name: string
-          permissions: Json | null
+          permissions: Json
           role: string
           updated_at: string
           username: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           email: string
-          id?: string
+          id: string
           name: string
-          permissions?: Json | null
+          permissions?: Json
           role?: string
           updated_at?: string
-          username?: string
+          username: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           email?: string
           id?: string
           name?: string
-          permissions?: Json | null
+          permissions?: Json
           role?: string
           updated_at?: string
           username?: string

@@ -152,72 +152,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (identifier: string, password: string, isUsername: boolean = false) => {
     setIsLoading(true);
     try {
-      // Special logic for the admin user
-      if ((isUsername && identifier === ADMIN_USERNAME && password === ADMIN_PASSWORD) ||
-          (!isUsername && identifier === ADMIN_EMAIL && password === ADMIN_PASSWORD)) {
-        
-        // Use the hardcoded email for signing in through Supabase
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: ADMIN_EMAIL,
-          password: ADMIN_PASSWORD,
-        });
-
-        if (error) {
-          // If the admin user doesn't exist yet, create it
-          if (error.message.includes('Invalid login credentials')) {
-            console.log('Admin user does not exist, creating...');
-            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-              email: ADMIN_EMAIL,
-              password: ADMIN_PASSWORD,
-              options: {
-                data: {
-                  username: ADMIN_USERNAME,
-                  name: "Administrador",
-                  role: "admin"
-                }
-              }
-            });
-
-            if (signUpError) throw signUpError;
-            
-            // Now try to sign in with the newly created admin account
-            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-              email: ADMIN_EMAIL,
-              password: ADMIN_PASSWORD,
-            });
-            
-            if (retryError) throw retryError;
-            
-            if (retryData.session?.user) {
-              setUser(retryData.session.user);
-              setRole('admin');
-              setIsAuthenticated(true);
-            }
-          } else {
-            throw error;
-          }
-        } else if (data.session?.user) {
-          setUser(data.session.user);
-          setRole('admin');
-          setIsAuthenticated(true);
-        }
-      } else {
-        // For non-admin users, use the regular login
-        const { session } = await authApi.login({ identifier, password, isUsername });
-        if (session?.user) {
-          setUser(session.user);
-          setIsAuthenticated(true);
+      // Determinar se é login por email ou username
+      let email = identifier;
+      
+      // Se for login por username, buscar o email correspondente
+      if (isUsername) {
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('email')
+          .eq('username', identifier)
+          .single();
           
-          // Verificando se o usuário tem role definido nos metadados
-          const userRole = session.user.user_metadata?.role;
-          if (userRole) {
-            setRole(userRole);
-          } else {
-            setRole('colaborador'); // Default role for other users
-          }
+        if (error || !userData) {
+          throw new Error('Usuário não encontrado');
+        }
+        email = userData.email;
+      }
+
+      // Fazer login no Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.session?.user) {
+        setUser(data.session.user);
+        setIsAuthenticated(true);
+
+        // Buscar role do usuário na tabela users
+        const { data: userRole, error: roleError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', data.session.user.id)
+          .single();
+
+        if (roleError) {
+          console.error('Erro ao buscar role do usuário:', roleError);
+          setRole('colaborador'); // Default role
+        } else {
+          setRole(userRole.role);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in login function:', error);
       throw error;
     } finally {
