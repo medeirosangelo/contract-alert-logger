@@ -483,6 +483,7 @@ export type Database = {
           name: string
           permissions: Json | null
           role: string
+          updated_at: string
           username: string
         }
         Insert: {
@@ -492,6 +493,7 @@ export type Database = {
           name: string
           permissions?: Json | null
           role?: string
+          updated_at?: string
           username?: string
         }
         Update: {
@@ -501,6 +503,7 @@ export type Database = {
           name?: string
           permissions?: Json | null
           role?: string
+          updated_at?: string
           username?: string
         }
         Relationships: []
