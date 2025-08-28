@@ -27,6 +27,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Garante que exista um registro correspondente na tabela public.users para o usuário autenticado
+  const ensureUserRecord = async (currentUser: User, resolvedRole: string) => {
+    try {
+      const { data: existing } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+      if (!existing) {
+        const permissions = {
+          dashboard: true,
+          contracts: resolvedRole !== 'colaborador',
+          users: resolvedRole === 'admin',
+          edit: resolvedRole !== 'colaborador',
+        } as any;
+
+        await supabase.from('users').insert({
+          id: currentUser.id,
+          email: currentUser.email || '',
+          name: (currentUser.user_metadata as any)?.name || (currentUser.email?.split('@')[0] || 'Usuário'),
+          username: (currentUser.user_metadata as any)?.username || (currentUser.email ? currentUser.email.split('@')[0] : ''),
+          role: resolvedRole,
+          permissions,
+        } as any);
+      } else if (existing.role !== resolvedRole) {
+        // Mantém o papel sincronizado com o metadado/heurística local
+        await supabase.from('users').update({ role: resolvedRole } as any).eq('id', currentUser.id);
+      }
+    } catch (err) {
+      console.error('Erro ao garantir registro do usuário na tabela users:', err);
+    }
+  };
+
   useEffect(() => {
     console.log('AuthProvider initialized');
     let mounted = true;

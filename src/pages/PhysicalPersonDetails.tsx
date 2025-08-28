@@ -15,7 +15,7 @@ const PhysicalPersonDetails = () => {
   // Mock data - in a real app, this would come from an API
   // Adaptado para corresponder à estrutura esperada pelo componente PhysicalPersonForm
   const person = {
-    id: 1,
+    id: '1',
     full_name: "João Silva",
     cpf: "123.456.789-00",
     rg: "12.345.678-9",

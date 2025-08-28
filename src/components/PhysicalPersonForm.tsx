@@ -42,7 +42,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface PhysicalPersonFormProps {
-  initialData?: FormData;
+  initialData?: (FormData & { id: string });
   onSuccess?: () => void;
 }
 
@@ -125,7 +125,7 @@ const PhysicalPersonForm = ({ initialData, onSuccess }: PhysicalPersonFormProps)
     <div className="space-y-6">
       <FormHeader 
         title={initialData ? "Editar Pessoa Física" : "Cadastrar Pessoa Física"}
-        subtitle={initialData ? "Atualize as informações da pessoa física" : "Preencha os dados da nova pessoa física"}
+        description={initialData ? "Atualize as informações da pessoa física" : "Preencha os dados da nova pessoa física"}
       />
 
       <Form {...form}>
