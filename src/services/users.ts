@@ -90,24 +90,20 @@ export const userApi = {
   create: async (userData: UserCreateRequest): Promise<User | null> => {
     try {
       console.log('Criando novo usuário:', userData);
-      
-      // Verificar se o email já existe na tabela users
-      const emailExists = await userApi.checkEmailExists(userData.email);
-      if (emailExists) {
-        console.log('Email já cadastrado na tabela users:', userData.email);
-        toast({
-          title: "Email já cadastrado",
-          description: "Este email já está sendo utilizado por outro usuário na tabela users.",
-          variant: "destructive",
-        });
-        return null;
-      }
-      
+
+      // Verificar se já existe uma linha na tabela users com este e-mail (para possível vinculação)
+      const { data: existingRow, error: existingErr } = await supabase
+        .from('users')
+        .select('id, role, name, email, username, permissions')
+        .eq('email', userData.email)
+        .maybeSingle();
+      if (existingErr) console.warn('Aviso ao verificar e-mail existente:', existingErr);
+
       // Verificar se a tabela está vazia (primeiro usuário/bootstrap)
       const { count, error: countError } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true });
-      
+
       let isFirstUser = false;
       if (countError) {
         console.error('Erro ao verificar quantidade de usuários:', countError);
@@ -115,70 +111,152 @@ export const userApi = {
         isFirstUser = count === 0;
         console.log('É o primeiro usuário?', isFirstUser);
       }
-      
-      // Criar o usuário no Auth - vamos tentar diretamente, sem verificação prévia
+
+      const finalRole = isFirstUser ? 'admin' : userData.role;
+      const defaultPermissions = {
+        dashboard: true,
+        contracts: finalRole !== 'colaborador',
+        users: finalRole === 'admin',
+        edit: finalRole !== 'colaborador',
+      };
+
+      // Tentar criar usuário no Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
           data: {
             name: userData.name,
-            role: isFirstUser ? "admin" : userData.role,
+            role: finalRole,
           },
-          emailRedirectTo: window.location.origin
-        }
+          emailRedirectTo: window.location.origin,
+        },
       });
 
-      // Processamento de erro específico
       if (authError) {
         console.error('Erro ao criar usuário no Auth:', authError);
-        
-        // Tratamento específico para diferentes tipos de erro
+
         if (authError.message?.includes('User already registered')) {
-          toast({
-            title: "Email já cadastrado",
-            description: "Este email já está registrado no sistema de autenticação.",
-            variant: "destructive",
+          // Se já existe no Auth, tentar autenticar com a senha informada para obter o userId e VINCULAR
+          const { data: loginData, error: loginErr } = await supabase.auth.signInWithPassword({
+            email: userData.email,
+            password: userData.password,
           });
-        } else if (authError.message?.includes('Password should be')) {
-          toast({
-            title: "Senha inválida",
-            description: authError.message,
-            variant: "destructive",
-          });
+
+          if (loginErr || !loginData?.user) {
+            toast({
+              title: 'Email já cadastrado',
+              description: 'Este email já está no Auth e a senha não confere. Peça redefinição de senha ao usuário.',
+              variant: 'destructive',
+            });
+            return null;
+          }
+
+          const authUserId = loginData.user.id;
+          console.log('Vinculando registro existente na tabela users ao auth.uid', authUserId);
+
+          if (existingRow) {
+            const { data, error } = await supabase
+              .from('users')
+              .update({
+                id: authUserId,
+                name: userData.name,
+                username: userData.email.split('@')[0],
+                role: finalRole,
+                permissions: existingRow.permissions ?? (defaultPermissions as any),
+              } as any)
+              .eq('email', userData.email)
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            toast({
+              title: 'Usuário vinculado',
+              description: 'Vinculamos o registro existente ao usuário de autenticação.',
+            });
+            return data as unknown as User;
+          } else {
+            // Se não havia linha, criamos
+            const userRecord: UserInsert = {
+              id: authUserId,
+              email: userData.email,
+              name: userData.name,
+              username: userData.email.split('@')[0],
+              role: finalRole,
+              permissions: defaultPermissions,
+            };
+
+            const { data, error } = await supabase
+              .from('users')
+              .insert(userRecord)
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            toast({ title: 'Usuário criado', description: `O usuário ${userData.name} foi criado.` });
+            return data;
+          }
+        }
+
+        if (authError.message?.includes('Password should be')) {
+          toast({ title: 'Senha inválida', description: authError.message, variant: 'destructive' });
         } else {
           toast({
-            title: "Erro ao criar usuário",
-            description: authError.message || "Não foi possível criar o usuário.",
-            variant: "destructive",
+            title: 'Erro ao criar usuário',
+            description: authError.message || 'Não foi possível criar o usuário.',
+            variant: 'destructive',
           });
         }
-        
         return null;
       }
-      
-      if (authData?.user) {
-        // Definir permissões padrão com base na role
-        const finalRole = isFirstUser ? "admin" : userData.role;
-        const defaultPermissions = {
-          dashboard: true,
-          contracts: finalRole !== "colaborador",
-          users: finalRole === "admin",
-          edit: finalRole !== "colaborador"
-        };
 
-        // Inserir no banco
+      // Caso o signUp tenha funcionado
+      if (authData?.user) {
+        const authUserId = authData.user.id;
+
+        if (existingRow) {
+          // Atualiza o registro existente (PK/id) para o auth.uid
+          const { data, error } = await supabase
+            .from('users')
+            .update({
+              id: authUserId,
+              name: userData.name,
+              username: userData.email.split('@')[0],
+              role: finalRole,
+              permissions: existingRow.permissions ?? (defaultPermissions as any),
+            } as any)
+            .eq('email', userData.email)
+            .select()
+            .single();
+
+          if (error) {
+            console.error('Erro ao atualizar registro existente:', error);
+            // Se falhar, tenta limpar o Auth para não ficar órfão
+            try {
+              await supabase.functions.invoke('delete-user', { body: { userId: authUserId } });
+            } catch (cleanupError) {
+              console.error('Erro ao limpar usuário do Auth:', cleanupError);
+            }
+            throw error;
+          }
+
+          toast({ title: 'Usuário vinculado', description: 'Registro existente vinculado com sucesso.' });
+          return data as unknown as User;
+        }
+
+        // Inserir novo registro
         const userRecord: UserInsert = {
-          id: authData.user.id,
+          id: authUserId,
           email: userData.email,
           name: userData.name,
           username: userData.email.split('@')[0],
           role: finalRole,
-          permissions: defaultPermissions
+          permissions: defaultPermissions,
         };
-        
+
         console.log('Inserindo usuário na tabela users:', userRecord);
-        
         const { data, error } = await supabase
           .from('users')
           .insert(userRecord)
@@ -187,35 +265,26 @@ export const userApi = {
 
         if (error) {
           console.error('Erro ao inserir no banco:', error);
-          
-          // Se houve erro na inserção, precisamos limpar o usuário criado no Auth
           try {
-            await supabase.functions.invoke('delete-user', {
-              body: { userId: authData.user.id }
-            });
+            await supabase.functions.invoke('delete-user', { body: { userId: authUserId } });
             console.log('Usuário removido do Auth após falha na inserção');
           } catch (cleanupError) {
             console.error('Erro ao limpar usuário do Auth:', cleanupError);
           }
-          
           throw error;
         }
-        
-        toast({
-          title: "Usuário criado com sucesso",
-          description: `O usuário ${userData.name} foi criado.`,
-        });
-        
+
+        toast({ title: 'Usuário criado com sucesso', description: `O usuário ${userData.name} foi criado.` });
         return data;
       }
-      
+
       return null;
     } catch (error: any) {
       console.error('Erro ao criar usuário:', error);
       toast({
-        title: "Erro ao criar usuário",
-        description: error.message || "Não foi possível criar o usuário.",
-        variant: "destructive",
+        title: 'Erro ao criar usuário',
+        description: error.message || 'Não foi possível criar o usuário.',
+        variant: 'destructive',
       });
       return null;
     }
