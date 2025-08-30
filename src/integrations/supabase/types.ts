@@ -412,6 +412,29 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          role: string
+          user_id: string
+        }
+        Insert: {
+          role: string
+          user_id: string
+        }
+        Update: {
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_sessions: {
         Row: {
           created_at: string
@@ -486,6 +509,10 @@ export type Database = {
       cleanup_expired_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
