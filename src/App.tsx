@@ -18,6 +18,7 @@ import UserManagement from './pages/UserManagement';
 import Documentation from './pages/Documentation';
 import Support from './pages/Support';
 import ContractTemplate from './pages/ContractTemplate';
+import AdminUserCreation from './pages/AdminUserCreation';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster } from "sonner";
@@ -83,6 +84,7 @@ function App() {
               
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/admin-users" element={<AdminUserCreation />} />
               
               {/* Redirecionamentos */}
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
