@@ -1,3 +1,4 @@
+
 # Protótipo de Sistema Web para Gestão de Contratos e Monitoramento de Produtividade
 
 ## Solução para gestão interna e automação de alertas
@@ -12,7 +13,7 @@ Prof. Me. Pierre da Costa Viana Júnior
 Instituto Federal de Educação, Ciência e Tecnologia de Roraima (IFRR)
 
 ### Data
-16 de janeiro de 2025
+31 de agosto de 2025
 
 ## 1. Introdução
 
@@ -42,6 +43,7 @@ Desenvolver um sistema web para gestão integrada de contratos, promovendo efici
 4. Gerar relatórios detalhados sobre o status dos contratos
 5. Automatizar o processo de renovação contratual
 6. Implementar sistema de busca e filtros avançados
+7. Desenvolver sistema de autenticação e autorização baseado em papéis
 
 ## 3. Fundamentação Teórica
 
@@ -55,182 +57,387 @@ A gestão de contratos é um processo crítico que envolve:
 ### Tecnologias Utilizadas
 
 #### Frontend
-- **React com TypeScript**
+- **React 18.3.1 com TypeScript**
   - Desenvolvimento de interfaces modernas e responsivas
   - Tipagem forte para maior segurança no código
   - Componentização para reusabilidade
+  - Hooks para gerenciamento de estado
 
-- **Tailwind CSS**
-  - Estilização ágil e moderna
-  - Design responsivo
-  - Customização flexível
+- **Vite como Bundler**
+  - Build tool moderna e rápida
+  - Hot Module Replacement (HMR)
+  - Otimização de bundle
+  - Desenvolvimento ágil
 
-- **Shadcn/UI**
-  - Componentes pré-construídos
-  - Consistência visual
-  - Acessibilidade
+- **Tailwind CSS 3.x**
+  - Framework utility-first para estilização
+  - Design system consistente
+  - Responsividade nativa
+  - Customização através de tokens semânticos
 
-- **Recharts**
-  - Visualização de dados dinâmicos
-  - Gráficos interativos
+- **shadcn/ui**
+  - Biblioteca de componentes baseada em Radix UI
+  - Componentes acessíveis e reutilizáveis
+  - Design consistente
+  - Altamente customizável
+
+- **Tanstack Query (React Query) 5.56.2**
+  - Gerenciamento de estado de servidor
+  - Cache inteligente
+  - Sincronização automática
+  - Loading e error states
+
+- **React Router DOM 6.26.2**
+  - Roteamento declarativo
+  - Navegação programática
+  - Rotas aninhadas
+  - Proteção de rotas
+
+- **Recharts 2.12.7**
+  - Biblioteca de gráficos para React
+  - Visualização de dados interativa
+  - Gráficos responsivos
   - Dashboard analítico
 
-#### Backend (Planejado)
-- **Django REST Framework**
-  - API RESTful
-  - Autenticação e autorização
-  - Validação de dados
+- **React Hook Form 7.53.0**
+  - Gerenciamento de formulários performático
+  - Validação integrada
+  - Menor re-renderização
+  - API simples e intuitiva
+
+- **Zod 3.23.8**
+  - Validação de esquemas TypeScript-first
+  - Type inference automática
+  - Validação runtime
+  - Integração com React Hook Form
+
+- **Lucide React 0.451.0**
+  - Biblioteca de ícones SVG
+  - Ícones otimizados e customizáveis
+  - Tree-shaking automático
+  - Consistência visual
+
+- **Date-fns 3.6.0**
+  - Biblioteca de utilitários para datas
+  - Funções puras e modulares
+  - Internacionalização
+  - TypeScript nativo
+
+- **Axios 1.7.7**
+  - Cliente HTTP para requisições
+  - Interceptadores de request/response
+  - Cancelamento de requisições
+  - Tratamento de erros
+
+- **Sonner 1.5.0**
+  - Sistema de notificações toast
+  - Animações suaves
+  - Configuração flexível
+  - Acessibilidade
+
+#### Backend (Supabase)
+- **Supabase 2.49.3**
+  - Backend-as-a-Service (BaaS)
+  - PostgreSQL como banco de dados
+  - Autenticação integrada
+  - APIs REST automáticas
+  - Row Level Security (RLS)
+  - Edge Functions
 
 - **PostgreSQL**
   - Banco de dados relacional
-  - Integridade referencial
-  - Consultas complexas
+  - ACID compliance
+  - Triggers e functions
+  - Índices otimizados
+  - Constraints e validações
 
-## 4. Requisitos do Sistema
+- **Supabase Auth**
+  - Autenticação JWT
+  - Múltiplos provedores
+  - Recuperação de senha
+  - Sessões seguras
+  - Refresh tokens
 
-### 4.1 Requisitos Funcionais
+- **Edge Functions (Deno)**
+  - Funções serverless
+  - Runtime V8
+  - TypeScript nativo
+  - Deploy automático
 
-#### RF001 - Gestão de Contratos
-- Cadastrar novos contratos
-- Editar contratos existentes
-- Excluir contratos
-- Visualizar detalhes dos contratos
-- Gerar PDF dos contratos
-- Renovar contratos
-- Finalizar contratos
+#### Ferramentas de Desenvolvimento
+- **TypeScript 5.x**
+  - Tipagem estática
+  - IntelliSense avançado
+  - Refatoração segura
+  - Detecção de erros em tempo de compilação
 
-#### RF002 - Gestão de Pessoas Físicas
-- Cadastrar pessoas físicas
-- Editar cadastros existentes
-- Excluir cadastros
-- Validar CPF
-- Verificar duplicidade de cadastros
-- Vincular a contratos
+- **ESLint**
+  - Linting de código
+  - Padrões de qualidade
+  - Detecção de problemas
+  - Formatação consistente
 
-#### RF003 - Gestão de Pessoas Jurídicas
-- Cadastrar pessoas jurídicas
-- Editar cadastros existentes
-- Excluir cadastros
-- Validar CNPJ
-- Verificar duplicidade de cadastros
-- Vincular a contratos
+- **PostCSS**
+  - Processamento de CSS
+  - Autoprefixer
+  - Otimizações
+  - Plugins customizados
 
-#### RF004 - Sistema de Alertas
-- Monitorar datas de vencimento
-- Gerar alertas automáticos
-- Notificar usuários
-- Permitir configuração de períodos
-- Categorizar por prioridade
-- Marcar alertas como lidos
+## 4. Arquitetura do Sistema
 
-#### RF005 - Autenticação e Autorização
-- Realizar login no sistema
-- Gerenciar perfis de usuário
-- Controlar permissões de acesso
-- Alterar senha
-- Recuperar senha
-- Registrar logs de acesso
+### 4.1 Arquitetura Frontend
+```
+src/
+├── components/           # Componentes reutilizáveis
+│   ├── ui/              # Componentes de interface (shadcn/ui)
+│   ├── forms/           # Componentes de formulário
+│   ├── lists/           # Componentes de listagem
+│   ├── dashboard/       # Componentes do dashboard
+│   ├── contract/        # Componentes específicos de contratos
+│   └── common/          # Componentes comuns
+├── pages/               # Páginas da aplicação
+├── hooks/               # Custom hooks
+├── services/            # Serviços de API
+├── integrations/        # Integrações externas
+│   └── supabase/        # Cliente e tipos do Supabase
+├── utils/               # Utilitários
+└── lib/                 # Configurações de bibliotecas
+```
 
-### 4.2 Requisitos Não Funcionais
+### 4.2 Padrões Arquiteturais
+- **Component-Driven Development**: Componentes pequenos e focados
+- **Custom Hooks**: Lógica reutilizável encapsulada
+- **Service Layer**: Abstração das chamadas de API
+- **Type-First Development**: TypeScript em toda a aplicação
+- **Atomic Design**: Hierarquia de componentes bem definida
 
-#### RNF001 - Usabilidade
-- Interface intuitiva e responsiva
-- Tempo de resposta inferior a 2 segundos
-- Compatibilidade com principais navegadores
-- Design adaptativo para diferentes dispositivos
-- Feedback visual para ações do usuário
+## 5. Funcionalidades Implementadas
 
-#### RNF002 - Segurança
-- Criptografia de dados sensíveis
-- Autenticação por token JWT
-- Proteção contra SQL Injection
-- Validação de entrada de dados
-- Registro de logs de atividades
+### 5.1 Sistema de Autenticação
+- Login por email/senha
+- Recuperação de senha
+- Proteção de rotas
+- Controle de acesso baseado em papéis (RBAC)
+- Logout automático
+- Sessões persistentes
 
-#### RNF003 - Disponibilidade
-- Sistema disponível 24/7
-- Tempo de uptime mínimo de 99%
-- Backup diário dos dados
-- Plano de recuperação de desastres
-- Monitoramento contínuo
+### 5.2 Dashboard Analítico
+- Cards de resumo estatístico
+- Gráficos de contratos por status
+- Análise de valores contratuais
+- Projeções futuras
+- Filtros por período
+- Exportação de dados
 
-#### RNF004 - Desempenho
-- Carregamento de páginas em até 3 segundos
-- Suporte a múltiplos usuários simultâneos
-- Otimização de consultas ao banco de dados
-- Cache de dados frequentemente acessados
-- Paginação de resultados extensos
-
-#### RNF005 - Manutenibilidade
-- Código documentado
-- Arquitetura modular
-- Padrões de projeto definidos
-- Versionamento de código
-- Testes automatizados
-
-## 5. Produto Desenvolvido
-
-### Principais Funcionalidades
-
-#### Dashboard
-- Resumo visual de contratos
-- Gráficos de status
-- Indicadores de performance
-
-#### Sistema de Alertas
-- Verde: Contratos com mais de 120 dias
-- Laranja: Contratos com até 60 dias
-- Vermelho: Contratos próximos ao vencimento (30 dias ou menos)
-
-#### Gestão de Contratos
-- Cadastro completo
-- Busca avançada
-- Renovação automatizada
+### 5.3 Gestão de Contratos
+- Cadastro completo de contratos
+- Listagem com filtros avançados
+- Busca textual
+- Visualização detalhada
+- Edição de contratos
 - Geração de documentos
+- Status tracking
+- Renovação automatizada
 
-#### Gestão de Pessoas
-- Cadastro de pessoas físicas
-- Cadastro de pessoas jurídicas
-- Vinculação com contratos
+### 5.4 Sistema de Alertas
+- Monitoramento automático de vencimentos
+- Classificação por cores (Verde: >120 dias, Laranja: 60 dias, Vermelho: ≤30 dias)
+- Notificações em tempo real
+- Dashboard de alertas
+- Ações rápidas (renovar/finalizar)
 
-## 6. Resultados e Discussão
+### 5.5 Gestão de Pessoas
+#### Pessoas Físicas
+- Cadastro com validação de CPF
+- Informações pessoais completas
+- Endereço com integração ViaCEP
+- Histórico de contratos
 
-### Benefícios Alcançados
-1. Automatização de processos manuais
-2. Redução de erros operacionais
-3. Maior eficiência na gestão de prazos
-4. Melhor visibilidade do status dos contratos
+#### Pessoas Jurídicas
+- Cadastro com validação de CNPJ
+- Informações empresariais
+- Representante legal
+- Dados bancários
 
-### Desafios Encontrados
-1. Complexidade na implementação de regras de negócio
-2. Necessidade de interface intuitiva
-3. Performance com grande volume de dados
+### 5.6 Geração de Documentos
+- Templates de contratos
+- Geração de PDF
+- Preenchimento automático
+- Assinaturas digitais
+- Versionamento
 
-## 7. Considerações Finais
+### 5.7 Sistema de Permissões
+- Papéis: Admin, Gestor, Colaborador
+- Permissões granulares
+- Controle de acesso por funcionalidade
+- Auditoria de ações
 
-### Conclusões
-O SWCI representa uma solução moderna e eficiente para:
-- Gestão automatizada de contratos
-- Monitoramento de prazos
-- Suporte à tomada de decisões
-- Aumento da produtividade organizacional
+## 6. Banco de Dados
 
-### Trabalhos Futuros
-1. Integração com IA para previsão de vencimentos críticos
-2. Expansão para outros tipos de contratos
-3. Implementação de módulos adicionais
-4. Integração com sistemas externos
+### 6.1 Modelagem
+```sql
+-- Principais tabelas
+- users                  # Usuários do sistema
+- user_roles            # Papéis dos usuários
+- physical_persons      # Pessoas físicas
+- legal_persons         # Pessoas jurídicas
+- contracts             # Contratos
+- contract_alerts       # Alertas de contratos
+```
 
-## 8. Referências
+### 6.2 Recursos Utilizados
+- Row Level Security (RLS)
+- Triggers automáticos
+- Índices otimizados
+- Constraints de integridade
+- Policies de segurança
+- Functions personalizadas
 
-1. FOWLER, Martin. UML Distilled: A Brief Guide to the Standard Object Modeling Language. 3rd Edition. Addison-Wesley Professional, 2003.
+## 7. Segurança
 
-2. GAMMA, Erich et al. Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley Professional, 1994.
+### 7.1 Autenticação
+- JWT tokens
+- Refresh tokens automáticos
+- Sessões seguras
+- Criptografia de senhas
+- Validação de força de senha
 
-3. REACT TEAM. React Documentation. Disponível em: https://react.dev/. Acesso em: 10 jan. 2024.
+### 7.2 Autorização
+- Role-Based Access Control (RBAC)
+- Row Level Security (RLS)
+- Policies granulares
+- Validação de permissões
+- Auditoria de acesso
 
-4. TAILWIND CSS. Tailwind CSS Documentation. Disponível em: https://tailwindcss.com/docs. Acesso em: 10 jan. 2024.
+### 7.3 Validação de Dados
+- Validação client-side (Zod)
+- Validação server-side (PostgreSQL)
+- Sanitização de inputs
+- Proteção CSRF
+- Rate limiting
 
-5. TYPESCRIPT TEAM. TypeScript Documentation. Disponível em: https://www.typescriptlang.org/docs/. Acesso em: 10 jan. 2024.
+## 8. Performance e Otimização
 
-6. DJANGO SOFTWARE FOUNDATION. Django Documentation. Disponível em: https://docs.djangoproject.com/. Acesso em: 10 jan. 2024.
+### 8.1 Frontend
+- Code splitting automático (Vite)
+- Lazy loading de componentes
+- Memoização de componentes pesados
+- Otimização de bundle
+- Cache de assets
+
+### 8.2 Backend
+- Query optimization
+- Índices estratégicos
+- Connection pooling
+- Cache de queries frequentes
+- Compressão de responses
+
+### 8.3 Rede
+- HTTP/2
+- Compressão gzip
+- CDN para assets estáticos
+- Minificação de arquivos
+- Tree shaking
+
+## 9. Testes e Qualidade
+
+### 9.1 Ferramentas de Qualidade
+- TypeScript para type checking
+- ESLint para code quality
+- Prettier para formatação
+- Husky para git hooks
+
+### 9.2 Validação
+- Validação de formulários em tempo real
+- Feedback visual de erros
+- Mensagens de erro específicas
+- Validação de documentos (CPF/CNPJ)
+
+## 10. Deploy e DevOps
+
+### 10.1 Deploy
+- Supabase para backend
+- Lovable para frontend
+- Edge Functions automáticas
+- Migrations automáticas
+
+### 10.2 Monitoramento
+- Logs de aplicação
+- Métricas de performance
+- Error tracking
+- Usage analytics
+
+## 11. Resultados Alcançados
+
+### 11.1 Funcionalidades Entregues
+✅ Sistema completo de autenticação
+✅ Dashboard interativo com gráficos
+✅ CRUD completo de contratos
+✅ Sistema de alertas automatizado
+✅ Gestão de pessoas físicas e jurídicas
+✅ Geração de documentos
+✅ Sistema de permissões
+✅ Interface responsiva
+✅ Validação robusta de dados
+
+### 11.2 Métricas de Qualidade
+- 100% TypeScript coverage
+- Componentes modulares e reutilizáveis
+- Interface responsiva
+- Performance otimizada
+- Segurança implementada
+
+## 12. Limitações e Trabalhos Futuros
+
+### 12.1 Limitações Atuais
+- Não utiliza WebSockets (comunicação em tempo real limitada)
+- Geração de PDF básica
+- Relatórios limitados
+- Integração com sistemas externos limitada
+
+### 12.2 Trabalhos Futuros
+1. Implementação de WebSockets para atualizações em tempo real
+2. Sistema de relatórios avançado
+3. Integração com IA para análise preditiva
+4. Mobile app (React Native)
+5. API pública
+6. Workflow de aprovações
+7. Assinaturas digitais avançadas
+8. Integração com sistemas ERP
+
+## 13. Conclusões
+
+O SWCI foi desenvolvido com sucesso utilizando tecnologias modernas e padrões de mercado. O sistema atende aos objetivos propostos, oferecendo uma solução completa para gestão de contratos com interface intuitiva, segurança robusta e performance otimizada.
+
+### Principais Contribuições
+1. Sistema de gestão de contratos automatizado
+2. Interface moderna e responsiva
+3. Arquitetura escalável e maintível
+4. Segurança implementada desde o design
+5. Experiência do usuário otimizada
+
+### Impacto
+O sistema desenvolvido proporciona:
+- Redução significativa de erros manuais
+- Aumento da produtividade
+- Melhor controle de prazos
+- Tomada de decisões baseada em dados
+- Padronização de processos
+
+## 14. Referências
+
+1. REACT TEAM. React Documentation. Disponível em: https://react.dev/. Acesso em: 31 ago. 2024.
+
+2. MICROSOFT. TypeScript Documentation. Disponível em: https://www.typescriptlang.org/docs/. Acesso em: 31 ago. 2024.
+
+3. TAILWIND CSS. Tailwind CSS Documentation. Disponível em: https://tailwindcss.com/docs. Acesso em: 31 ago. 2024.
+
+4. SUPABASE. Supabase Documentation. Disponível em: https://supabase.com/docs. Acesso em: 31 ago. 2024.
+
+5. TANSTACK. TanStack Query Documentation. Disponível em: https://tanstack.com/query/latest. Acesso em: 31 ago. 2024.
+
+6. FOWLER, Martin. Patterns of Enterprise Application Architecture. Boston: Addison-Wesley, 2002.
+
+7. GAMMA, Erich et al. Design Patterns: Elements of Reusable Object-Oriented Software. Boston: Addison-Wesley, 1994.
+
+8. POSTGRESQL GLOBAL DEVELOPMENT GROUP. PostgreSQL Documentation. Disponível em: https://www.postgresql.org/docs/. Acesso em: 31 ago. 2024.
