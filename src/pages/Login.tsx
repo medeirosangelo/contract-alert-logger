@@ -84,8 +84,8 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-warm-50">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-brown-800">SWCI</h1>
-          <p className="text-warm-700">Sistema Web de Controle de Instrumentos</p>
+          <h1 className="text-3xl font-bold text-brown-800">SWGCM</h1>
+          <p className="text-warm-700">Sistema Web para Gestão de Contratos e Monitoramento</p>
         </div>
 
         <Card>

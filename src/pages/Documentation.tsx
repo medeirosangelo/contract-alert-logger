@@ -22,21 +22,25 @@ const Documentation = () => {
 
               <TabsContent value="overview" className="space-y-6">
                 <section>
-                  <h2 className="text-2xl font-semibold mb-4">SWCI - Sistema Web de Controle Interno</h2>
+                  <h2 className="text-2xl font-semibold mb-4">SWGCM - Sistema Web para Gestão de Contratos e Monitoramento</h2>
                   <p className="text-gray-600 mb-4">
-                    O SWCI é um sistema web desenvolvido para gerenciar contratos, pessoas físicas e jurídicas,
-                    com funcionalidades de alertas e geração de documentos.
+                    O SWGCM é um sistema web desenvolvido para gestão integrada de contratos e monitoramento da produtividade, 
+                    oferecendo funcionalidades automatizadas para apoiar a tomada de decisões estratégicas.
                   </p>
                 </section>
 
                 <section>
                   <h3 className="text-xl font-semibold mb-3">Principais Funcionalidades</h3>
                   <ul className="list-disc list-inside space-y-2 text-gray-600">
-                    <li>Gestão de Contratos</li>
-                    <li>Cadastro de Pessoas Físicas e Jurídicas</li>
-                    <li>Sistema de Alertas</li>
-                    <li>Geração de Documentos</li>
-                    <li>Dashboard Analítico</li>
+                    <li>Alertas automatizados para contratos próximos ao vencimento</li>
+                    <li>Dashboards interativos para visualização de contratos e produtividade</li>
+                    <li>Interfaces responsivas para cadastro e acompanhamento de contratos</li>
+                    <li>Relatórios detalhados sobre status contratual</li>
+                    <li>Processo de renovação contratual automatizado</li>
+                    <li>Sistema de busca e filtros avançados</li>
+                    <li>Autenticação e autorização baseados em papéis (RBAC)</li>
+                    <li>Gestão de Pessoas Físicas e Jurídicas</li>
+                    <li>Geração de Documentos em PDF</li>
                   </ul>
                 </section>
               </TabsContent>
@@ -59,29 +63,36 @@ const Documentation = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">Tecnologias Backend</h2>
                   <ul className="list-disc list-inside space-y-2 text-gray-600">
-                    <li>Django REST Framework</li>
-                    <li>PostgreSQL</li>
-                    <li>WebSocket para atualizações em tempo real</li>
-                    <li>Celery para tarefas assíncronas</li>
+                    <li>Supabase (Backend-as-a-Service)</li>
+                    <li>PostgreSQL com Row Level Security (RLS)</li>
+                    <li>Supabase Auth para autenticação JWT</li>
+                    <li>Edge Functions (Deno) para lógica serverless</li>
+                    <li>APIs REST automáticas</li>
+                    <li>Triggers e functions personalizadas</li>
+                    <li>Políticas de segurança granulares</li>
                   </ul>
                 </section>
               </TabsContent>
 
               <TabsContent value="api" className="space-y-6">
                 <section>
-                  <h2 className="text-2xl font-semibold mb-4">Documentação da API</h2>
+                  <h2 className="text-2xl font-semibold mb-4">Arquitetura e Segurança</h2>
                   <div className="space-y-4">
                     <div className="p-4 border rounded">
-                      <h3 className="font-semibold mb-2">GET /api/contracts</h3>
-                      <p className="text-gray-600">Lista todos os contratos</p>
+                      <h3 className="font-semibold mb-2">Autenticação JWT</h3>
+                      <p className="text-gray-600">Sistema de autenticação seguro com refresh tokens automáticos e sessões persistentes</p>
                     </div>
                     <div className="p-4 border rounded">
-                      <h3 className="font-semibold mb-2">POST /api/contracts</h3>
-                      <p className="text-gray-600">Cria um novo contrato</p>
+                      <h3 className="font-semibold mb-2">Row Level Security (RLS)</h3>
+                      <p className="text-gray-600">Controle de acesso baseado em papéis implementado diretamente no banco de dados</p>
                     </div>
                     <div className="p-4 border rounded">
-                      <h3 className="font-semibold mb-2">GET /api/persons</h3>
-                      <p className="text-gray-600">Lista todas as pessoas</p>
+                      <h3 className="font-semibold mb-2">APIs REST Automáticas</h3>
+                      <p className="text-gray-600">Endpoints gerados automaticamente pelo Supabase baseados no schema do banco</p>
+                    </div>
+                    <div className="p-4 border rounded">
+                      <h3 className="font-semibold mb-2">Edge Functions</h3>
+                      <p className="text-gray-600">Funções serverless em Deno para lógica de negócio customizada</p>
                     </div>
                   </div>
                 </section>

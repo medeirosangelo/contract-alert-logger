@@ -1,7 +1,33 @@
 
-# Pendências do Sistema SWCI
+# Pendências e Melhorias do Sistema SWGCM
 
-Este documento lista as pendências e melhorias necessárias para o sistema SWCI (Sistema Web de Controle Interno) baseadas nas prioridades e requisitos identificados.
+## Status Atual do Sistema
+
+### ✅ Funcionalidades Implementadas
+- Sistema de autenticação completo com Supabase Auth
+- Dashboard analítico com gráficos interativos
+- CRUD completo de contratos
+- Sistema de alertas automatizado por cores
+- Gestão de pessoas físicas e jurídicas
+- Sistema de permissões baseado em papéis (RBAC)
+- Validação robusta de dados com Zod
+- Interface responsiva com Tailwind CSS
+- Componentes reutilizáveis com shadcn/ui
+
+### 🔄 Em Avaliação
+#### Página Inicial (Index)
+- **Situação**: Conteúdo limitado, apenas mensagem de boas-vindas
+- **Opções**:
+  1. **Manter e melhorar**: Adicionar links rápidos, estatísticas resumidas, últimas atividades
+  2. **Remover**: Redirecionar usuários autenticados diretamente para o dashboard
+  3. **Transformar em landing page**: Para usuários não autenticados
+
+#### Recomendação
+Sugere-se **remover a página inicial** atual e implementar redirecionamento automático:
+- Usuários **não autenticados** → Página de Login
+- Usuários **autenticados** → Dashboard
+
+Este documento lista as pendências e melhorias necessárias para o sistema SWGCM (Sistema Web para Gestão de Contratos e Monitoramento) baseadas nas prioridades e requisitos identificados.
 
 ## Pendências Críticas
 
@@ -115,5 +141,32 @@ Este documento lista as pendências e melhorias necessárias para o sistema SWCI
 | 4 | Desenvolvimento do módulo de relatórios | 3 semanas |
 | 5 | Melhorias de interface e experiência do usuário | 2 semanas |
 | 6 | Testes, correções e ajustes finais | 2 semanas |
+
+## Observações sobre o TCC
+
+### Tecnologias Confirmadamente Utilizadas
+- **Frontend**: React 18.3.1, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth + Edge Functions)
+- **Estado**: TanStack Query 5.56.2
+- **Gráficos**: Recharts 2.12.7
+- **Formulários**: React Hook Form + Zod
+- **Notificações**: Sonner
+
+### Tecnologias NÃO Utilizadas
+- ❌ WebSockets (comunicação em tempo real limitada)
+- ❌ Django REST Framework
+- ❌ Celery
+- ❌ Node.js backend customizado
+
+### Arquitetura Confirmada
+- **Padrão**: Component-Driven Development
+- **Estrutura**: Atomic Design
+- **Segurança**: Row Level Security (RLS) no PostgreSQL
+- **Autenticação**: JWT com Supabase Auth
+- **Deploy**: Lovable (frontend) + Supabase (backend)
+
+---
+
+*Documento atualizado em: Setembro 2024*
 
 Este documento deve ser revisado e atualizado regularmente para refletir o progresso do desenvolvimento e novas prioridades.

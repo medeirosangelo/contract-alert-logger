@@ -172,8 +172,8 @@ const Navigation = () => {
         {isExpanded ? (
           <>
             <div>
-              <h1 className="text-xl font-semibold text-primary">SWCI</h1>
-              <p className="text-sm text-warm-700">Sistema Web de Controle Interno</p>
+              <h1 className="text-xl font-semibold text-primary">SWGCM</h1>
+              <p className="text-sm text-warm-700">Sistema Web para Gestão de Contratos</p>
             </div>
             <button 
               onClick={toggleExpansion}

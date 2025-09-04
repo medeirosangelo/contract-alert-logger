@@ -26,7 +26,7 @@ const Support = () => {
               <Card className="p-6 bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer">
                 <Bell className="w-8 h-8 text-blue-500 mb-4" />
                 <h3 className="text-sm text-gray-600 mb-2">Perguntas sobre</h3>
-                <p className="font-semibold">Tudo sobre o SWCI</p>
+                <p className="font-semibold">Tudo sobre o SWGCM</p>
               </Card>
 
               <Card className="p-6 bg-green-50 hover:bg-green-100 transition-colors cursor-pointer">
@@ -50,20 +50,28 @@ const Support = () => {
 
               <div className="space-y-4">
                 <Card className="p-6">
-                  <h3 className="font-semibold mb-2">Como funciona a plataforma SWCI</h3>
-                  <p className="text-gray-600">A plataforma SWCI é capaz de cadastrar, gerenciar e monitorar contratos e tarefas, proporcionando uma visão clara e objetiva do andamento...</p>
+                  <h3 className="font-semibold mb-2">Como funciona a plataforma SWGCM?</h3>
+                  <p className="text-gray-600">O SWGCM é um sistema web desenvolvido para gestão integrada de contratos e monitoramento da produtividade, oferecendo alertas automatizados, dashboards interativos e funcionalidades que apoiem a tomada de decisões estratégicas.</p>
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="font-semibold">Como fazer o cadastro de pessoa jurídica?</h3>
+                  <h3 className="font-semibold mb-2">Como fazer o cadastro de pessoa jurídica?</h3>
+                  <p className="text-gray-600">Acesse o menu "Pessoas" {'->'} "Cadastro de Pessoa Jurídica". Preencha todas as informações obrigatórias incluindo CNPJ, dados da empresa, representante legal e informações bancárias.</p>
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="font-semibold">Como apagar um contrato expirado?</h3>
+                  <h3 className="font-semibold mb-2">Como o sistema de alertas funciona?</h3>
+                  <p className="text-gray-600">O sistema monitora automaticamente os contratos e exibe alertas coloridos: Verde (mais de 120 dias), Laranja (60 dias) e Vermelho (30 dias ou menos) para vencimento.</p>
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="font-semibold">Eu consigo criar até quantas tarefas?</h3>
+                  <h3 className="font-semibold mb-2">Como gerar relatórios de contratos?</h3>
+                  <p className="text-gray-600">No dashboard, utilize os filtros por período e status, depois clique em "Exportar" para gerar relatórios em PDF com os dados selecionados.</p>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="font-semibold mb-2">Quais são os níveis de permissão?</h3>
+                  <p className="text-gray-600">O sistema possui três níveis: Admin (acesso total), Gestor (gerenciamento de contratos) e Colaborador (visualização e cadastros básicos).</p>
                 </Card>
               </div>
             </div>

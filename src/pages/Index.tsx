@@ -41,7 +41,7 @@ const Index = () => {
         <div className="mb-6">
           <img src="/public/lovable-uploads/7824ebc6-3fac-4a10-b500-45269e9f48de.png" className="mx-auto w-44 mb-2" alt="Inspire logo" />
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Bem-vindo(a) ao Sistema SWCI!
+            Bem-vindo(a) ao Sistema SWGCM!
           </h2>
           <span className="block text-primary">
             Aqui você acompanha o histórico completo de empresas e colaboradores, garantindo transparência e controle sobre contratos prestados à instituição.
@@ -95,7 +95,7 @@ const Index = () => {
         </div>
         
         <p className="text-warm-600 mt-12 text-sm">
-          © {new Date().getFullYear()} SWCI - Sistema Web de Controle de Instrumentos. Todos os direitos reservados.
+          © {new Date().getFullYear()} SWGCM - Sistema Web para Gestão de Contratos e Monitoramento. Todos os direitos reservados.
         </p>
       </div>
     </div>
