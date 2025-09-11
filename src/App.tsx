@@ -19,6 +19,7 @@ import Documentation from './pages/Documentation';
 import Support from './pages/Support';
 import ContractTemplate from './pages/ContractTemplate';
 import AdminUserCreation from './pages/AdminUserCreation';
+import TCC from './pages/TCC';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster } from "sonner";
@@ -92,6 +93,9 @@ function App() {
               <Route path="/users" element={<Navigate to="/users/management" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
+            
+            {/* Página TCC (não protegida) */}
+            <Route path="/tcc" element={<TCC />} />
           </Routes>
           <Toaster />
         </BrowserRouter>
