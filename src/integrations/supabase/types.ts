@@ -88,6 +88,75 @@ export type Database = {
           },
         ]
       }
+      contract_signatures: {
+        Row: {
+          contract_id: string
+          created_at: string
+          document_hash: string
+          id: string
+          ip_address: unknown | null
+          is_valid: boolean
+          signature_date: string
+          signature_token: string
+          signature_type: string
+          signer_email: string
+          signer_id: string
+          signer_name: string
+          signer_role: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          document_hash: string
+          id?: string
+          ip_address?: unknown | null
+          is_valid?: boolean
+          signature_date?: string
+          signature_token: string
+          signature_type?: string
+          signer_email: string
+          signer_id: string
+          signer_name: string
+          signer_role: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          document_hash?: string
+          id?: string
+          ip_address?: unknown | null
+          is_valid?: boolean
+          signature_date?: string
+          signature_token?: string
+          signature_type?: string
+          signer_email?: string
+          signer_id?: string
+          signer_name?: string
+          signer_role?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signatures_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_signatures_signer_id_fkey"
+            columns: ["signer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           account: string | null
@@ -514,6 +583,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_document_hash: {
+        Args: { content: string }
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -524,6 +597,14 @@ export type Database = {
       }
       is_admin_or_manager: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      validate_signature: {
+        Args: {
+          p_contract_id: string
+          p_document_content: string
+          p_signer_id: string
+        }
         Returns: boolean
       }
     }
