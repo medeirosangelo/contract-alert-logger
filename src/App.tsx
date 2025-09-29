@@ -51,9 +51,7 @@ function App() {
 
             {/* Rotas protegidas */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* Início - Dashboard avançado */}
+              {/* Início - Dashboard principal */}
               <Route path="/home" element={<Dashboard />} />
               
               {/* Rotas de Contratos */}
@@ -88,10 +86,11 @@ function App() {
               <Route path="/admin-users" element={<AdminUserCreation />} />
               
               {/* Redirecionamentos */}
+              <Route path="/dashboard" element={<Navigate to="/home" replace />} />
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
               <Route path="/uml" element={<Navigate to="/uml/casos-de-uso" replace />} />
               <Route path="/users" element={<Navigate to="/users/management" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/home" replace />} />
             </Route>
             
             {/* Página TCC (não protegida) */}

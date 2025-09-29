@@ -40,12 +40,6 @@ const menuItems: MenuItem[] = [
     exact: true,
   },
   {
-    name: "Dashboard",
-    icon: <LayoutDashboard className="w-5 h-5" />,
-    path: "/dashboard",
-    exact: true,
-  },
-  {
     name: "Pessoas",
     icon: <Users className="w-5 h-5" />,
     subItems: [

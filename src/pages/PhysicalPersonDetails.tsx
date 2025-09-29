@@ -1,47 +1,102 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import PhysicalPersonForm from "@/components/PhysicalPersonForm";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { physicalPersonsApi } from "@/services/physicalPersons";
+import { toast, Toaster } from "sonner";
+import ErrorDisplay from "@/components/common/ErrorDisplay";
 
 const PhysicalPersonDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Mock data - in a real app, this would come from an API
-  // Adaptado para corresponder à estrutura esperada pelo componente PhysicalPersonForm
-  const person = {
-    id: '1',
-    full_name: "João Silva",
-    cpf: "123.456.789-00",
-    rg: "12.345.678-9",
-    birth_date: "1990-01-01",
-    street: "Rua das Flores",
-    number: "123",
-    complement: "Apto 45",
-    neighborhood: "Centro",
-    city: "São Paulo",
-    state: "SP",
-    zip_code: "01234-567",
-    phone: "(11) 98765-4321",
-    email: "joao@email.com",
-    role: "Gerente",
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const { data: person, isLoading, error, isError } = useQuery({
+    queryKey: ["physicalPerson", id],
+    queryFn: () => {
+      if (!id) throw new Error("ID da pessoa não fornecido");
+      return physicalPersonsApi.getById(id);
+    },
+    enabled: !!id,
+    retry: 1
+  });
+
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-warm-50">
+        <Navigation />
+        <Header />
+        <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
+          <div className="max-w-5xl mx-auto">
+            <ErrorDisplay
+              title="ID não fornecido"
+              message="Não foi possível identificar a pessoa física."
+              onRetry={() => navigate("/physical-persons")}
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-warm-50">
+        <Navigation />
+        <Header />
+        <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
+          <div className="max-w-5xl mx-auto flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isError || !person) {
+    return (
+      <div className="min-h-screen bg-warm-50">
+        <Navigation />
+        <Header />
+        <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
+          <div className="max-w-5xl mx-auto">
+            <ErrorDisplay
+              title="Pessoa não encontrada"
+              message="Não foi possível carregar os dados desta pessoa física."
+              error={error instanceof Error ? error.message : 'Erro desconhecido'}
+              onRetry={() => navigate("/physical-persons")}
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-warm-100">
+    <div className="min-h-screen bg-warm-50">
       <Navigation />
       <Header />
-      <main className="ml-64 pt-16 p-6">
+      <Toaster position="top-right" />
+      <main className={`${isMobile ? 'ml-0' : 'ml-64'} pt-16 p-6 transition-all duration-300`}>
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
-              onClick={() => navigate("/pessoas/fisica")}
+              onClick={() => navigate("/physical-persons")}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -60,77 +115,81 @@ const PhysicalPersonDetails = () => {
                 {person.full_name}
               </h2>
               
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold mb-2">Dados Pessoais</h3>
+                  <h3 className="font-semibold mb-2 text-warm-800">Dados Pessoais</h3>
                   <dl className="space-y-2">
                     <div>
-                      <dt className="text-sm text-gray-500">CPF</dt>
-                      <dd>{person.cpf}</dd>
+                      <dt className="text-sm text-warm-600">CPF</dt>
+                      <dd className="text-warm-800">{person.cpf}</dd>
                     </div>
+                    {person.rg && (
+                      <div>
+                        <dt className="text-sm text-warm-600">RG</dt>
+                        <dd className="text-warm-800">{person.rg}</dd>
+                      </div>
+                    )}
                     <div>
-                      <dt className="text-sm text-gray-500">RG</dt>
-                      <dd>{person.rg}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Data de Nascimento</dt>
-                      <dd>{person.birth_date}</dd>
+                      <dt className="text-sm text-warm-600">Data de Nascimento</dt>
+                      <dd className="text-warm-800">{new Date(person.birth_date).toLocaleDateString('pt-BR')}</dd>
                     </div>
                   </dl>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Contato</h3>
+                  <h3 className="font-semibold mb-2 text-warm-800">Contato</h3>
                   <dl className="space-y-2">
                     <div>
-                      <dt className="text-sm text-gray-500">Telefone</dt>
-                      <dd>{person.phone}</dd>
+                      <dt className="text-sm text-warm-600">Telefone</dt>
+                      <dd className="text-warm-800">{person.phone}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-gray-500">E-mail</dt>
-                      <dd>{person.email}</dd>
+                      <dt className="text-sm text-warm-600">E-mail</dt>
+                      <dd className="text-warm-800">{person.email}</dd>
                     </div>
                   </dl>
                 </div>
 
-                <div className="col-span-2">
-                  <h3 className="font-semibold mb-2">Endereço</h3>
-                  <dl className="grid grid-cols-2 gap-4">
+                <div className="lg:col-span-2">
+                  <h3 className="font-semibold mb-2 text-warm-800">Endereço</h3>
+                  <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <dt className="text-sm text-gray-500">Logradouro</dt>
-                      <dd>{person.street}</dd>
+                      <dt className="text-sm text-warm-600">Logradouro</dt>
+                      <dd className="text-warm-800">{person.street}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-gray-500">Número</dt>
-                      <dd>{person.number}</dd>
+                      <dt className="text-sm text-warm-600">Número</dt>
+                      <dd className="text-warm-800">{person.number}</dd>
+                    </div>
+                    {person.complement && (
+                      <div>
+                        <dt className="text-sm text-warm-600">Complemento</dt>
+                        <dd className="text-warm-800">{person.complement}</dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt className="text-sm text-warm-600">Bairro</dt>
+                      <dd className="text-warm-800">{person.neighborhood}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-gray-500">Complemento</dt>
-                      <dd>{person.complement}</dd>
+                      <dt className="text-sm text-warm-600">Cidade</dt>
+                      <dd className="text-warm-800">{person.city}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-gray-500">Bairro</dt>
-                      <dd>{person.neighborhood}</dd>
+                      <dt className="text-sm text-warm-600">Estado</dt>
+                      <dd className="text-warm-800">{person.state}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-gray-500">Cidade</dt>
-                      <dd>{person.city}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Estado</dt>
-                      <dd>{person.state}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">CEP</dt>
-                      <dd>{person.zip_code}</dd>
+                      <dt className="text-sm text-warm-600">CEP</dt>
+                      <dd className="text-warm-800">{person.zip_code}</dd>
                     </div>
                   </dl>
                 </div>
 
                 {person.role && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Cargo/Função</h3>
-                    <p>{person.role}</p>
+                  <div className="lg:col-span-2">
+                    <h3 className="font-semibold mb-2 text-warm-800">Cargo/Função</h3>
+                    <p className="text-warm-800">{person.role}</p>
                   </div>
                 )}
               </div>
