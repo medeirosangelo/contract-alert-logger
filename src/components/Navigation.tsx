@@ -56,6 +56,7 @@ const menuItems: MenuItem[] = [
       { name: "Cadastro de Contratos", path: "/contracts/new" },
       { name: "Lista de Contratos", path: "/contracts" },
       { name: "Editor de Modelos", path: "/contract-template" },
+      { name: "Assinatura Digital (Demo)", path: "/digital-signature-demo" },
     ],
   },
   {

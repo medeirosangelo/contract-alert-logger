@@ -27,6 +27,7 @@ import UseCases from './pages/UseCases';
 import UseCaseDiagram from './pages/UseCaseDiagram';
 import UseCaseActors from './pages/UseCaseActors';
 import ClassDiagram from './pages/ClassDiagram';
+import DigitalSignatureDemo from './pages/DigitalSignatureDemo';
 
 import './App.css';
 
@@ -61,6 +62,7 @@ function App() {
               <Route path="/contracts/new" element={<ContractRegistration />} />
               <Route path="/contract-template" element={<ContractTemplate />} />
               <Route path="/alerts/contracts" element={<ContractAlerts />} />
+              <Route path="/digital-signature-demo" element={<DigitalSignatureDemo />} />
               
               {/* Rotas de Pessoas */}
               <Route path="/physical-persons" element={<PhysicalPersonList />} />
