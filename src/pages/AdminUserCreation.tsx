@@ -28,6 +28,23 @@ const AdminUserCreation = () => {
     setSuccess(false);
 
     try {
+      // Verificar se usuário já existe no Auth
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', formData.email)
+        .maybeSingle();
+
+      if (existingUser) {
+        setError('Este email já está cadastrado no sistema.');
+        toast({
+          title: "Email já existe",
+          description: "Este email já está cadastrado no sistema.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: formData
       });
@@ -71,13 +88,13 @@ const AdminUserCreation = () => {
     const users = [
       {
         email: "geovanna@tcc.com",
-        password: "geovanna123",
+        password: "Geovanna123",
         name: "Geovanna",
         role: "gestor"
       },
       {
         email: "vitoria@tcc.com", 
-        password: "vitoria123",
+        password: "Vitoria123",
         name: "Vitória",
         role: "gestor"
       }
@@ -85,18 +102,34 @@ const AdminUserCreation = () => {
 
     setIsLoading(true);
     let successCount = 0;
+    let errors: string[] = [];
 
     for (const user of users) {
       try {
+        // Verificar se usuário já existe
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('email')
+          .eq('email', user.email)
+          .maybeSingle();
+
+        if (existingUser) {
+          errors.push(`${user.name} já está cadastrada`);
+          continue;
+        }
+
         const { data, error } = await supabase.functions.invoke('create-user', {
           body: user
         });
 
         if (!error && !data?.error) {
           successCount++;
+        } else {
+          errors.push(`Erro ao criar ${user.name}: ${data?.error || error?.message}`);
         }
       } catch (error) {
         console.error(`Erro ao criar ${user.name}:`, error);
+        errors.push(`Erro ao criar ${user.name}`);
       }
     }
 
@@ -108,6 +141,10 @@ const AdminUserCreation = () => {
         description: "Geovanna e/ou Vitória foram adicionadas ao sistema.",
       });
       setSuccess(true);
+    }
+    
+    if (errors.length > 0) {
+      setError(errors.join(', '));
     }
   };
 
@@ -221,9 +258,9 @@ const AdminUserCreation = () => {
         </Card>
 
         <div className="text-center text-sm text-warm-600">
-          <p>🔐 Credenciais criadas:</p>
-          <p><strong>Geovanna:</strong> geovanna@tcc.com / geovanna123</p>
-          <p><strong>Vitória:</strong> vitoria@tcc.com / vitoria123</p>
+          <p>🔐 Credenciais para login:</p>
+          <p><strong>Geovanna:</strong> geovanna@tcc.com / Geovanna123</p>
+          <p><strong>Vitória:</strong> vitoria@tcc.com / Vitoria123</p>
         </div>
       </div>
     </div>
