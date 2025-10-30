@@ -21,7 +21,7 @@ export type Database = {
           details: Json | null
           email: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
         }
@@ -31,7 +31,7 @@ export type Database = {
           details?: Json | null
           email?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -41,7 +41,7 @@ export type Database = {
           details?: Json | null
           email?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -94,7 +94,7 @@ export type Database = {
           created_at: string
           document_hash: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           is_valid: boolean
           signature_date: string
           signature_token: string
@@ -111,7 +111,7 @@ export type Database = {
           created_at?: string
           document_hash: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_valid?: boolean
           signature_date?: string
           signature_token: string
@@ -128,7 +128,7 @@ export type Database = {
           created_at?: string
           document_hash?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_valid?: boolean
           signature_date?: string
           signature_token?: string
@@ -509,7 +509,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           is_active: boolean
           session_token: string
           user_agent: string | null
@@ -519,7 +519,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_active?: boolean
           session_token: string
           user_agent?: string | null
@@ -529,7 +529,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_active?: boolean
           session_token?: string
           user_agent?: string | null
@@ -575,30 +575,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_document_hash: {
-        Args: { content: string }
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_admin_or_manager: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      cleanup_expired_sessions: { Args: never; Returns: undefined }
+      current_user_role: { Args: never; Returns: string }
+      generate_document_hash: { Args: { content: string }; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
+      is_admin_or_manager: { Args: never; Returns: boolean }
       validate_signature: {
         Args: {
           p_contract_id: string
