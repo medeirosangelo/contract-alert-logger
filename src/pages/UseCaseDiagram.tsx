@@ -1,7 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
-import { UserRound, Users } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { UserRound, Users, Shield } from "lucide-react";
 
 const UseCaseDiagram = () => {
   return (
@@ -9,101 +8,137 @@ const UseCaseDiagram = () => {
       <Navigation />
       <Header />
       <main className="p-8 pt-20 lg:pl-72">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <h1 className="text-3xl font-bold mb-8">Diagrama de Casos de Uso</h1>
           
-          <div className="relative bg-white p-8 rounded-lg shadow-lg min-h-[600px] overflow-x-auto">
-            {/* Administrator Actor */}
-            <div className="absolute left-10 top-1/4">
-              <div className="flex flex-col items-center gap-2">
-                <UserRound className="w-12 h-12 text-primary" />
-                <span className="text-sm font-medium">Administrador</span>
+          <div className="bg-card rounded-lg shadow-lg p-12 border">
+            {/* Sistema Boundary */}
+            <div className="border-2 border-primary rounded-lg p-8 relative min-h-[700px]">
+              <div className="absolute -top-4 left-8 bg-card px-4 py-1">
+                <h2 className="font-bold text-lg">Sistema SWGCM</h2>
+              </div>
+
+              {/* Grid Layout para Casos de Uso */}
+              <div className="grid grid-cols-3 gap-8 mt-8">
+                {/* Coluna Esquerda - Administrador */}
+                <div className="flex flex-col gap-6 items-end pr-8">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center gap-2">
+                      <Shield className="w-16 h-16 text-primary" />
+                      <span className="text-sm font-semibold">Administrador</span>
+                    </div>
+                    <div className="w-px h-24 bg-primary/30"></div>
+                  </div>
+                </div>
+
+                {/* Coluna Central - Casos de Uso */}
+                <div className="flex flex-col gap-4">
+                  {/* Casos de Uso do Admin */}
+                  <div className="bg-primary/5 border-2 border-primary rounded-full px-6 py-3 text-center hover:bg-primary/10 transition-colors">
+                    <p className="text-sm font-medium">Gerenciar Usuários</p>
+                  </div>
+                  
+                  <div className="bg-primary/5 border-2 border-primary rounded-full px-6 py-3 text-center hover:bg-primary/10 transition-colors">
+                    <p className="text-sm font-medium">Cadastrar Contratos</p>
+                  </div>
+
+                  <div className="bg-primary/5 border-2 border-primary rounded-full px-6 py-3 text-center hover:bg-primary/10 transition-colors">
+                    <p className="text-sm font-medium">Cadastrar Pessoas</p>
+                  </div>
+
+                  <div className="bg-primary/5 border-2 border-primary rounded-full px-6 py-3 text-center hover:bg-primary/10 transition-colors">
+                    <p className="text-sm font-medium">Gerenciar Alertas</p>
+                  </div>
+
+                  {/* Casos de Uso Compartilhados */}
+                  <div className="bg-secondary/5 border-2 border-secondary rounded-full px-6 py-3 text-center hover:bg-secondary/10 transition-colors mt-4">
+                    <p className="text-sm font-medium">Visualizar Dashboard</p>
+                  </div>
+
+                  <div className="bg-secondary/5 border-2 border-secondary rounded-full px-6 py-3 text-center hover:bg-secondary/10 transition-colors">
+                    <p className="text-sm font-medium">Consultar Contratos</p>
+                  </div>
+
+                  <div className="bg-secondary/5 border-2 border-secondary rounded-full px-6 py-3 text-center hover:bg-secondary/10 transition-colors">
+                    <p className="text-sm font-medium">Gerar Relatórios</p>
+                  </div>
+
+                  <div className="bg-secondary/5 border-2 border-secondary rounded-full px-6 py-3 text-center hover:bg-secondary/10 transition-colors">
+                    <p className="text-sm font-medium">Visualizar Alertas</p>
+                  </div>
+                </div>
+
+                {/* Coluna Direita - Gestor/Usuário */}
+                <div className="flex flex-col gap-6 items-start pl-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-px h-24 bg-secondary/30"></div>
+                    <div className="flex flex-col items-center gap-2">
+                      <Users className="w-16 h-16 text-secondary" />
+                      <span className="text-sm font-semibold">Gestor/Usuário</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* User Actor */}
-            <div className="absolute right-10 top-1/4">
-              <div className="flex flex-col items-center gap-2">
-                <Users className="w-12 h-12 text-secondary" />
-                <span className="text-sm font-medium">Usuário</span>
+            {/* Legenda */}
+            <div className="mt-8 bg-muted/50 p-6 rounded-lg border">
+              <h3 className="font-semibold mb-4 text-lg">Legenda:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-6 h-6 text-primary shrink-0 mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Administrador</p>
+                    <p className="text-xs text-muted-foreground">Acesso total ao sistema, pode criar usuários e gerenciar todas as funcionalidades</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Users className="w-6 h-6 text-secondary shrink-0 mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Gestor/Usuário</p>
+                    <p className="text-xs text-muted-foreground">Acesso a visualização de dados, consultas e relatórios conforme permissões</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t">
+                <h4 className="font-semibold text-sm mb-2">Permissões por Perfil:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <p className="font-semibold text-primary mb-1">Administrador:</p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Todas as funcionalidades</li>
+                      <li>Criar e editar usuários</li>
+                      <li>Gerenciar permissões</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-secondary mb-1">Gestor:</p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Dashboard completo</li>
+                      <li>Gerenciar contratos</li>
+                      <li>Consultas e relatórios</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-accent mb-1">Colaborador:</p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Visualizar dashboard</li>
+                      <li>Consultar contratos</li>
+                      <li>Visualizar alertas</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Use Cases */}
-            <div className="mx-32 grid gap-4 relative">
-              {/* Connecting lines using SVG */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                {/* Lines from Admin to Use Cases */}
-                <line x1="20" y1="25%" x2="200" y2="10%" stroke="#8B4513" strokeWidth="1" />
-                <line x1="20" y1="25%" x2="200" y2="25%" stroke="#8B4513" strokeWidth="1" />
-                <line x1="20" y1="25%" x2="200" y2="40%" stroke="#8B4513" strokeWidth="1" />
-                <line x1="20" y1="25%" x2="200" y2="55%" stroke="#8B4513" strokeWidth="1" />
-                <line x1="20" y1="25%" x2="200" y2="70%" stroke="#8B4513" strokeWidth="1" />
-                <line x1="20" y1="25%" x2="200" y2="85%" stroke="#8B4513" strokeWidth="1" />
-                
-                {/* Lines from User to Use Cases */}
-                <line x1="700" y1="25%" x2="520" y2="25%" stroke="#DEB887" strokeWidth="1" />
-                <line x1="700" y1="25%" x2="520" y2="40%" stroke="#DEB887" strokeWidth="1" />
-                <line x1="700" y1="25%" x2="520" y2="55%" stroke="#DEB887" strokeWidth="1" />
-                <line x1="700" y1="25%" x2="520" y2="70%" stroke="#DEB887" strokeWidth="1" />
-              </svg>
-
-              {/* Administrator Use Cases */}
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Gerenciar Usuários e Permissões</p>
-              </Card>
-
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Gerenciar Contratos</p>
-              </Card>
-
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Gerenciar Pessoas</p>
-              </Card>
-
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Configurar Sistema</p>
-              </Card>
-
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Gerenciar Alertas</p>
-              </Card>
-
-              <Card className="p-4 w-64 text-center bg-warm-50 border-primary">
-                <p>Gerenciar Relatórios</p>
-              </Card>
-
-              {/* User Use Cases */}
-              <div className="absolute right-0 top-0 grid gap-4">
-                <Card className="p-4 w-64 text-center bg-warm-50 border-secondary">
-                  <p>Visualizar Dashboard</p>
-                </Card>
-
-                <Card className="p-4 w-64 text-center bg-warm-50 border-secondary">
-                  <p>Visualizar Contratos</p>
-                </Card>
-
-                <Card className="p-4 w-64 text-center bg-warm-50 border-secondary">
-                  <p>Gerar Relatórios</p>
-                </Card>
-
-                <Card className="p-4 w-64 text-center bg-warm-50 border-secondary">
-                  <p>Visualizar Alertas</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* Legend */}
-            <div className="absolute bottom-4 right-4 bg-warm-50 p-4 rounded-lg border border-warm-200">
-              <h3 className="font-semibold mb-2">Legenda:</h3>
-              <div className="flex items-center gap-2">
-                <UserRound className="w-4 h-4 text-primary" />
-                <span className="text-sm">Administrador - Acesso total ao sistema</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-secondary" />
-                <span className="text-sm">Usuário - Acesso limitado às funcionalidades básicas</span>
-              </div>
+            {/* Nota sobre o Diagrama */}
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Nota:</strong> Este diagrama representa os principais casos de uso do sistema SWGCM. 
+                Os casos de uso em azul (secundário) são compartilhados entre administradores e usuários, 
+                enquanto os casos em marrom (primário) são exclusivos de administradores.
+              </p>
             </div>
           </div>
         </div>
