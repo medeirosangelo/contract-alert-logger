@@ -25,6 +25,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { generateContractPDF } from "@/utils/pdfGenerator";
 
 const ContractList = () => {
   const [selectedContract, setSelectedContract] = useState(null);
@@ -43,10 +44,14 @@ const ContractList = () => {
       console.log(`Buscando contratos ${isFinalized ? "finalizados" : "ativos"}`);
       
       try {
-        // Buscar do Supabase
+        // Buscar do Supabase com relacionamentos
         const { data, error } = await supabase
           .from('contracts')
-          .select('*')
+          .select(`
+            *,
+            contractor:legal_persons!contractor_id(company_name, cnpj),
+            contracted:legal_persons!contracted_id(company_name, cnpj)
+          `)
           .eq('status', isFinalized ? 'finished' : 'active');
           
         if (error) {
@@ -65,7 +70,8 @@ const ContractList = () => {
         
         // Mapear dados do Supabase para o formato esperado pelo componente
         return data.map(contract => ({
-          orgao: "10000 - CAER",
+          id: contract.id,
+          orgao: contract.contractor?.company_name || "10000 - CAER",
           unidade: "0700000 - CAER",
           receitaDespesa: "Despesa",
           tipo: "Contrato",
@@ -73,7 +79,7 @@ const ContractList = () => {
           subcategoria: contract.object ? contract.object.split(" ").slice(1).join(" ") : "Geral",
           unidRequisitantes: contract.contract_number || "00000/2024",
           numeros: contract.contract_number || "00000/2024",
-          cnpjCpf: "05.939.467/0001-15", // Placeholder
+          cnpjCpf: contract.contracted?.cnpj || "05.939.467/0001-15",
           valor: Number(contract.total_value || 0),
           status: contract.status === "active" ? "Ativo" : "Finalizado"
         }));
@@ -90,6 +96,7 @@ const ContractList = () => {
   // Dados mockados para garantir visualização
   const mockContracts = [
     {
+      id: "mock-1",
       orgao: "10000 - CAER",
       unidade: "0700000 - CAER",
       receitaDespesa: "Despesa",
@@ -103,6 +110,7 @@ const ContractList = () => {
       status: "Ativo",
     },
     {
+      id: "mock-2",
       orgao: "10000 - CAER",
       unidade: "0700000 - CAER",
       receitaDespesa: "Despesa",
@@ -116,6 +124,7 @@ const ContractList = () => {
       status: "Ativo",
     },
     {
+      id: "mock-3",
       orgao: "10000 - CAER",
       unidade: "0700000 - CAER",
       receitaDespesa: "Despesa",
@@ -129,6 +138,7 @@ const ContractList = () => {
       status: "Finalizado",
     },
     {
+      id: "mock-4",
       orgao: "10000 - CAER",
       unidade: "0700000 - CAER",
       receitaDespesa: "Despesa",
@@ -142,6 +152,7 @@ const ContractList = () => {
       status: "Ativo",
     },
     {
+      id: "mock-5",
       orgao: "10000 - CAER",
       unidade: "0700000 - CAER",
       receitaDespesa: "Despesa",
@@ -156,34 +167,33 @@ const ContractList = () => {
     },
   ];
 
-  const generateContractPDF = async (contract) => {
+  const handleGeneratePDF = async (contractId: string) => {
     try {
-      console.log("Generating PDF for contract:", contract);
-      
-      const template = `
-        CONTRATO DE ${contract.categoria.toUpperCase()}
-        
-        CONTRATANTE: ${contract.orgao}
-        CNPJ/CPF: ${contract.cnpjCpf}
-        
-        OBJETO: ${contract.subcategoria}
-        VALOR: ${contract.valor.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        })}
-        
-        [Demais cláusulas contratuais...]
-      `;
-      
-      const blob = new Blob([template], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `contrato-${contract.numeros}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      
+      // Verificar se é um mock
+      if (contractId.startsWith('mock-')) {
+        toast({
+          title: "Dados de Demonstração",
+          description: "Este é um contrato de demonstração. Cadastre contratos reais para gerar PDFs completos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Buscar dados completos do contrato
+      const { data: contract, error } = await supabase
+        .from('contracts')
+        .select(`
+          *,
+          contractor:legal_persons!contractor_id(company_name, cnpj, legal_rep_name, legal_rep_cpf),
+          contracted:legal_persons!contracted_id(company_name, cnpj, legal_rep_name, legal_rep_cpf)
+        `)
+        .eq('id', contractId)
+        .single();
+
+      if (error) throw error;
+
+      generateContractPDF(contract);
+
       toast({
         title: "PDF Gerado com Sucesso",
         description: "O arquivo foi baixado automaticamente.",
@@ -295,7 +305,7 @@ const ContractList = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => generateContractPDF(contract)}
+                              onClick={() => handleGeneratePDF(contract.id)}
                             >
                               <Download className="w-4 h-4" />
                             </Button>
@@ -346,7 +356,7 @@ const ContractList = () => {
                 </div>
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => generateContractPDF(selectedContract)}
+                    onClick={() => selectedContract?.id && handleGeneratePDF(selectedContract.id)}
                     className="flex items-center gap-2"
                   >
                     <Download className="w-4 h-4" />
