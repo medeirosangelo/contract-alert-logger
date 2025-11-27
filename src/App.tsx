@@ -72,12 +72,6 @@ function App() {
               <Route path="/legal-persons/:id" element={<LegalPersonDetails />} />
               <Route path="/legal-persons/new" element={<LegalPersonRegistration />} />
               
-              {/* Rotas de UML */}
-              <Route path="/uml/casos-de-uso" element={<UseCases />} />
-              <Route path="/uml/atores" element={<UseCaseActors />} />
-              <Route path="/uml/diagrama-classes" element={<ClassDiagram />} />
-              <Route path="/uml/diagrama-casos-de-uso" element={<UseCaseDiagram />} />
-              
               {/* Rotas de Configurações */}
               <Route path="/users/permissions" element={<UserPermissions />} />
               <Route path="/users/management" element={<UserManagement />} />
@@ -90,7 +84,6 @@ function App() {
               {/* Redirecionamentos */}
               <Route path="/dashboard" element={<Navigate to="/home" replace />} />
               <Route path="/alerts" element={<Navigate to="/alerts/contracts" replace />} />
-              <Route path="/uml" element={<Navigate to="/uml/casos-de-uso" replace />} />
               <Route path="/users" element={<Navigate to="/users/management" replace />} />
               <Route path="*" element={<Navigate to="/home" replace />} />
             </Route>
