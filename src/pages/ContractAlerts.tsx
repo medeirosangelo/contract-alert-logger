@@ -1,18 +1,24 @@
-
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, AlertCircle, Check, CheckCircle, RefreshCw, AlertTriangle } from "lucide-react";
+import { Clock, AlertCircle, Check, CheckCircle, RefreshCw, AlertTriangle, Eye } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { contractAlertsApi } from "@/services/contractAlerts";
 import { useToast } from "@/components/ui/use-toast";
+import AlertResolveModal from "@/components/contract/AlertResolveModal";
+import ContractViewModal from "@/components/contract/ContractViewModal";
 
 const ContractAlerts = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [resolveModalOpen, setResolveModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState<any>(null);
   
-  // Buscar todos os alertas (não apenas pending)
   const { data: allAlerts, isLoading, refetch } = useQuery({
     queryKey: ["contractAlerts"],
     queryFn: async () => {
@@ -27,10 +33,8 @@ const ContractAlerts = () => {
     },
   });
 
-  // Filtrar alertas por status
   const pendingAlerts = allAlerts?.filter(a => a.status === 'pending') || [];
   const resolvedAlerts = allAlerts?.filter(a => a.status === 'resolved') || [];
-
 
   const handleRefresh = () => {
     refetch();
@@ -40,12 +44,48 @@ const ContractAlerts = () => {
     });
   };
 
-  const handleResolveAlert = async (id: string) => {
+  const handleOpenResolveModal = (alert: any) => {
+    setSelectedAlert(alert);
+    setResolveModalOpen(true);
+  };
+
+  const handleOpenViewModal = (alert: any) => {
+    setSelectedAlert(alert);
+    setViewModalOpen(true);
+  };
+
+  const handleResolveAlert = async (action: string, data?: { additionalValue?: number; additionalMonths?: number }) => {
+    if (!selectedAlert) return;
+    
     try {
-      await contractAlertsApi.markAsResolved(id);
+      await contractAlertsApi.markAsResolved(selectedAlert.id);
+      
+      let message = "";
+      switch (action) {
+        case "aditivo":
+          message = `Aditivo registrado: +R$ ${data?.additionalValue?.toLocaleString('pt-BR')} por ${data?.additionalMonths} meses`;
+          break;
+        case "finalizar":
+          message = "Contrato marcado para finalização";
+          break;
+        case "cancelar":
+          message = "Contrato marcado para cancelamento";
+          break;
+      }
+      
+      toast({
+        title: "Alerta Resolvido",
+        description: message,
+      });
+      
       refetch();
     } catch (error) {
       console.error("Erro ao resolver alerta:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível resolver o alerta",
+        variant: "destructive",
+      });
     }
   };
 
@@ -208,15 +248,16 @@ const ContractAlerts = () => {
                           <Button 
                             variant="outline" 
                             className="flex items-center gap-2"
-                            onClick={() => handleResolveAlert(alert.id)}
+                            onClick={() => handleOpenViewModal(alert)}
                           >
-                            <Check className="w-4 h-4" /> Resolver
+                            <Eye className="w-4 h-4" /> Ver Contrato
                           </Button>
                           <Button 
                             variant="default" 
-                            className="bg-primary hover:bg-primary/90"
+                            className="bg-primary hover:bg-primary/90 flex items-center gap-2"
+                            onClick={() => handleOpenResolveModal(alert)}
                           >
-                            Ver Contrato
+                            <Check className="w-4 h-4" /> Resolver
                           </Button>
                         </div>
                       </div>
@@ -263,6 +304,27 @@ const ContractAlerts = () => {
           )}
         </div>
       </main>
+
+      {/* Modal de Resolução */}
+      {selectedAlert && (
+        <AlertResolveModal
+          isOpen={resolveModalOpen}
+          onClose={() => setResolveModalOpen(false)}
+          onResolve={handleResolveAlert}
+          contractNumber={selectedAlert.contract?.contract_number || ""}
+          contractValue={selectedAlert.contract?.total_value || 0}
+          endDate={selectedAlert.contract?.end_date || ""}
+        />
+      )}
+
+      {/* Modal de Visualização */}
+      {selectedAlert && (
+        <ContractViewModal
+          isOpen={viewModalOpen}
+          onClose={() => setViewModalOpen(false)}
+          contract={selectedAlert.contract}
+        />
+      )}
     </div>
   );
 };
