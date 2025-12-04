@@ -60,6 +60,7 @@ function App() {
               <Route path="/contracts/ativos" element={<ContractList />} />
               <Route path="/contracts/finalizados" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
+              <Route path="/contracts/edit/:id" element={<ContractRegistration />} />
               <Route path="/contract-template" element={<ContractTemplate />} />
               <Route path="/alerts/contracts" element={<ContractAlerts />} />
               <Route path="/digital-signature-demo" element={<DigitalSignatureDemo />} />
