@@ -16,6 +16,9 @@ import PaymentInfo from "./contract/PaymentInfo";
 import BudgetClassification from "./contract/BudgetClassification";
 import PenaltiesInfo from "./contract/PenaltiesInfo";
 import AdditionalInfo from "./contract/AdditionalInfo";
+import DocumentUploadComponent from "./DocumentUpload";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -85,6 +88,7 @@ type FormData = z.infer<typeof contractSchema>;
 const ContractForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedContractId, setSavedContractId] = useState<string | null>(null);
   
   // Configurar o formulário com react-hook-form e zod
   const form = useForm<FormData>({
@@ -181,15 +185,21 @@ const ContractForm = () => {
       };
       
       console.log("Submitting contract data:", contractData);
-      await contractsApi.create(contractData);
+      const newContract = await contractsApi.create(contractData);
       
-      toast({
-        title: "Contrato cadastrado com sucesso!",
-        description: "Os dados do contrato foram salvos.",
-      });
-      
-      // Navigate to contract list
-      navigate("/contracts");
+      if (newContract?.id) {
+        setSavedContractId(newContract.id);
+        toast({
+          title: "Contrato cadastrado com sucesso!",
+          description: "Agora você pode anexar documentos ao contrato.",
+        });
+      } else {
+        toast({
+          title: "Contrato cadastrado com sucesso!",
+          description: "Os dados do contrato foram salvos.",
+        });
+        navigate("/contracts");
+      }
     } catch (error) {
       console.error("Error creating contract:", error);
       toast({
@@ -351,6 +361,33 @@ const ContractForm = () => {
                 form.setValue(name as any, value, { shouldValidate: true });
               }}
             />
+
+            {/* Document Upload Section */}
+            {savedContractId ? (
+              <div className="space-y-4">
+                <DocumentUploadComponent 
+                  entityType="contract"
+                  entityId={savedContractId}
+                  title="Documentos do Contrato"
+                />
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => navigate("/contracts")}
+                  >
+                    Finalizar e Voltar para Lista
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Salve o contrato primeiro para poder anexar documentos.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
           
           <div className="mt-8 flex justify-end">
