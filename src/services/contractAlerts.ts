@@ -11,7 +11,32 @@ export const contractAlertsApi = {
         .from('contract_alerts')
         .select(`
           *,
-          contract:contract_id(id, contract_number, object, end_date, status, total_value, start_date)
+          contract:contract_id(
+            id, 
+            contract_number, 
+            object, 
+            end_date, 
+            start_date,
+            status, 
+            total_value, 
+            duration,
+            signature_date,
+            publication_date,
+            bank,
+            agency,
+            account,
+            payment_term,
+            budget_unit,
+            work_program,
+            expense_nature,
+            resource_source,
+            delay_penalty,
+            termination_penalty,
+            signature_location,
+            general_observations,
+            contractor:contractor_id(id, company_name, cnpj),
+            contracted:contracted_id(id, company_name, cnpj)
+          )
         `)
         .order('alert_date', { ascending: true });
 
@@ -36,7 +61,19 @@ export const contractAlertsApi = {
         .from('contract_alerts')
         .select(`
           *,
-          contract:contract_id(id, contract_number, object, end_date, status, total_value, start_date)
+          contract:contract_id(
+            id, 
+            contract_number, 
+            object, 
+            end_date, 
+            start_date,
+            status, 
+            total_value, 
+            duration,
+            signature_date,
+            contractor:contractor_id(id, company_name, cnpj),
+            contracted:contracted_id(id, company_name, cnpj)
+          )
         `)
         .eq('status', 'pending')
         .order('alert_date', { ascending: true });
