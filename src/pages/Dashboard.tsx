@@ -159,7 +159,8 @@ const Dashboard = () => {
             `⚠️ Atenção! ${expiringContracts.length} contrato(s) a vencer nos próximos 30 dias`,
             {
               description: contractsList + (expiringContracts.length > 3 ? `\n... e mais ${expiringContracts.length - 3}` : ''),
-              duration: 8000,
+              duration: 10000,
+              closeButton: true,
               action: {
                 label: "Ver alertas",
                 onClick: () => window.location.href = "/alerts/contracts"
