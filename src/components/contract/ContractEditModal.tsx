@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,15 +19,31 @@ const ContractEditModal = ({ isOpen, onClose, contract, onSave }: ContractEditMo
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    contract_number: contract?.contract_number || "",
-    object: contract?.object || "",
-    total_value: contract?.total_value || 0,
-    start_date: contract?.start_date || "",
-    end_date: contract?.end_date || "",
-    duration: contract?.duration || 0,
-    status: contract?.status || "active",
-    general_observations: contract?.general_observations || "",
+    contract_number: "",
+    object: "",
+    total_value: 0,
+    start_date: "",
+    end_date: "",
+    duration: 0,
+    status: "active",
+    general_observations: "",
   });
+
+  // Atualizar formData quando contract mudar
+  useEffect(() => {
+    if (contract) {
+      setFormData({
+        contract_number: contract.contract_number || "",
+        object: contract.object || "",
+        total_value: contract.total_value || 0,
+        start_date: contract.start_date || "",
+        end_date: contract.end_date || "",
+        duration: contract.duration || 12,
+        status: contract.status || "active",
+        general_observations: contract.general_observations || "",
+      });
+    }
+  }, [contract]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

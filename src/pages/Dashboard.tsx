@@ -1,4 +1,4 @@
-
+import { useEffect, useRef } from "react";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import ContractStatusCard from "@/components/dashboard/ContractStatusCard";
@@ -10,7 +10,7 @@ import ServicesAnalysis from "@/components/dashboard/ServicesAnalysis";
 import SuppliesAnalysis from "@/components/dashboard/SuppliesAnalysis";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertCircle, Calendar, FileText, RefreshCw, User, Download, Filter } from "lucide-react";
+import { AlertCircle, Calendar, FileText, RefreshCw, User, Download, Filter, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 const Dashboard = () => {
   const { user } = useAuth();
   const userRole = user?.role || 'colaborador';
+  const hasShownAlert = useRef(false);
 
   const { data: contractStats, isLoading, refetch } = useQuery({
     queryKey: ["contractStats"],
@@ -123,6 +124,56 @@ const Dashboard = () => {
     refetchOnMount: true,
     refetchOnWindowFocus: true
   });
+
+  // Mostrar alerta de contratos a vencer ao carregar o dashboard
+  useEffect(() => {
+    const showExpiringContractsAlert = async () => {
+      if (hasShownAlert.current) return;
+      
+      try {
+        const today = new Date();
+        const thirtyDaysAhead = new Date(today);
+        thirtyDaysAhead.setDate(today.getDate() + 30);
+        
+        const todayStr = today.toISOString().split('T')[0];
+        const thirtyDaysAheadStr = thirtyDaysAhead.toISOString().split('T')[0];
+        
+        const { data: expiringContracts, error } = await supabase
+          .from('contracts')
+          .select('contract_number, end_date, object')
+          .gte('end_date', todayStr)
+          .lte('end_date', thirtyDaysAheadStr)
+          .eq('status', 'active');
+        
+        if (error) throw error;
+        
+        if (expiringContracts && expiringContracts.length > 0) {
+          hasShownAlert.current = true;
+          
+          const contractsList = expiringContracts.slice(0, 3).map(c => {
+            const daysRemaining = Math.ceil((new Date(c.end_date).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            return `• ${c.contract_number} - ${daysRemaining} dias restantes`;
+          }).join('\n');
+          
+          toast.warning(
+            `⚠️ Atenção! ${expiringContracts.length} contrato(s) a vencer nos próximos 30 dias`,
+            {
+              description: contractsList + (expiringContracts.length > 3 ? `\n... e mais ${expiringContracts.length - 3}` : ''),
+              duration: 8000,
+              action: {
+                label: "Ver alertas",
+                onClick: () => window.location.href = "/alerts/contracts"
+              }
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao verificar contratos a vencer:", error);
+      }
+    };
+    
+    showExpiringContractsAlert();
+  }, []);
 
   const handleRefreshData = () => {
     toast.info("Atualizando dados do dashboard...");
