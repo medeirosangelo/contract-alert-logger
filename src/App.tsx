@@ -23,10 +23,6 @@ import TCC from './pages/TCC';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster } from "sonner";
-import UseCases from './pages/UseCases';
-import UseCaseDiagram from './pages/UseCaseDiagram';
-import UseCaseActors from './pages/UseCaseActors';
-import ClassDiagram from './pages/ClassDiagram';
 import DigitalSignatureDemo from './pages/DigitalSignatureDemo';
 
 import './App.css';

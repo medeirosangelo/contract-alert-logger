@@ -50,10 +50,33 @@ const ContractEditModal = ({ isOpen, onClose, contract, onSave }: ContractEditMo
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validate = () => {
+    if (!formData.contract_number.trim()) return "Informe o número do contrato.";
+    if (formData.object.trim().length < 10) return "O objeto deve ter pelo menos 10 caracteres.";
+    if (!(Number(formData.total_value) > 0)) return "O valor total deve ser maior que zero.";
+    if (!(Number(formData.duration) > 0)) return "A duração em meses deve ser maior que zero.";
+    if (!formData.start_date) return "Informe a data de início.";
+    if (!formData.end_date) return "Informe a data de vencimento.";
+    if (formData.end_date <= formData.start_date)
+      return "A data de vencimento deve ser posterior à data de início.";
+    return null;
+  };
+
   const handleSubmit = async () => {
     if (!contract?.id) return;
-    
+
+    const validationError = validate();
+    if (validationError) {
+      toast({
+        title: "Dados inválidos",
+        description: validationError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
+
     try {
       const { error } = await supabase
         .from('contracts')
