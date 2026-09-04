@@ -195,19 +195,38 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
                     <FormItem>
                       <FormLabel>CNPJ</FormLabel>
                       <FormControl>
-                        <MaskedInput
-                          mask="99.999.999/9999-99"
-                          className="border-warm-300 focus:border-primary"
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                        />
+                        <div className="flex gap-2">
+                          <MaskedInput
+                            mask="99.999.999/9999-99"
+                            className="border-warm-300 focus:border-primary"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              handleCnpjLookup(e.target.value);
+                            }}
+                            name={field.name}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleCnpjLookup(field.value)}
+                            disabled={isLookingUpCnpj}
+                            title="Buscar dados pelo CNPJ"
+                          >
+                            {isLookingUpCnpj ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              "Buscar"
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
 
                 <FormField
                   control={form.control}
