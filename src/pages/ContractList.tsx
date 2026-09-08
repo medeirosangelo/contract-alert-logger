@@ -447,7 +447,7 @@ const ContractList = () => {
                       <TableCell colSpan={9} className="text-center py-10">
                         {hasFilters
                           ? "Nenhum contrato corresponde aos filtros aplicados."
-                          : `Nenhum contrato ${isFinalized ? "finalizado" : "ativo"} encontrado.`}
+                          : `Nenhum contrato ${isAll ? "" : isFinalized ? "finalizado " : "ativo "}encontrado.`}
                       </TableCell>
                     </TableRow>
                   ) : (
