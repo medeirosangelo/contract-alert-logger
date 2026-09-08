@@ -15,6 +15,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,9 @@ const menuItems: MenuItem[] = [
     icon: <FileText className="w-5 h-5" />,
     subItems: [
       { name: "Cadastro de Contratos", path: "/contracts/new" },
-      { name: "Lista de Contratos", path: "/contracts" },
+      { name: "Contratos Ativos", path: "/contracts/ativos" },
+      { name: "Contratos Finalizados", path: "/contracts/finalizados" },
+      { name: "Todos os Contratos", path: "/contracts/todos" },
       { name: "Editor de Modelos", path: "/contract-template" },
       { name: "Assinatura Digital (Demo)", path: "/digital-signature-demo" },
     ],
@@ -89,6 +92,27 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user, role } = useAuth();
+  const [criticalCount, setCriticalCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    const loadCritical = async () => {
+      const today = new Date();
+      const limit = new Date();
+      limit.setDate(limit.getDate() + 30);
+      const { count } = await supabase
+        .from("contracts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active")
+        .gte("end_date", today.toISOString().slice(0, 10))
+        .lte("end_date", limit.toISOString().slice(0, 10));
+      if (active) setCriticalCount(count || 0);
+    };
+    loadCritical();
+    return () => {
+      active = false;
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -249,12 +273,22 @@ const Navigation = () => {
                     isMenuItemActive(item)
                       ? "bg-primary text-white"
                       : "text-warm-800 hover:bg-warm-100"
-                  } transition-colors rounded-md mx-1`}
+                  } transition-colors rounded-md mx-1 relative`}
                 >
                   <span className={isMenuItemActive(item) ? "" : "text-warm-600"}>
                     {item.icon}
                   </span>
                   {isExpanded && <span className="ml-3 text-sm font-medium">{item.name}</span>}
+                  {item.path === "/alerts/contracts" && criticalCount > 0 && (
+                    <span
+                      className={`${
+                        isExpanded ? "ml-auto" : "absolute top-1 right-1"
+                      } inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-red-600 text-white text-xs font-semibold`}
+                      title={`${criticalCount} contrato(s) vencendo em até 30 dias`}
+                    >
+                      {criticalCount}
+                    </span>
+                  )}
                 </Link>
               )}
             </div>

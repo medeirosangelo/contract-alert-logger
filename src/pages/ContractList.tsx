@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ const ContractList = () => {
   const { toast } = useToast();
 
   const isFinalized = location.pathname.includes("finalizados");
+  const isAll = location.pathname.includes("todos");
 
   // Filtros
   const [search, setSearch] = useState("");
@@ -51,17 +52,21 @@ const ContractList = () => {
   const [sortAsc, setSortAsc] = useState(true);
 
   const { data: contracts, isLoading, refetch } = useQuery({
-    queryKey: ["contracts", isFinalized],
+    queryKey: ["contracts", isFinalized, isAll],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('contracts')
         .select(`
           *,
           contractor:legal_persons!contractor_id(company_name, cnpj, trade_name),
           contracted:legal_persons!contracted_id(company_name, cnpj, trade_name)
-        `)
-        .eq('status', isFinalized ? 'finished' : 'active')
-        .order('end_date', { ascending: true });
+        `);
+
+      if (!isAll) {
+        query = query.eq('status', isFinalized ? 'finished' : 'active');
+      }
+
+      const { data, error } = await query.order('end_date', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar contratos:", error);
@@ -219,7 +224,7 @@ const ContractList = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `contratos-${isFinalized ? "finalizados" : "ativos"}-${new Date()
+    link.download = `contratos-${isAll ? "todos" : isFinalized ? "finalizados" : "ativos"}-${new Date()
       .toISOString()
       .slice(0, 10)}.csv`;
     link.click();
@@ -278,9 +283,29 @@ const ContractList = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-2xl font-bold mb-6">
-              {isFinalized ? "Contratos Finalizados" : "Contratos Ativos"}
+            <h1 className="text-2xl font-bold mb-4">
+              {isAll ? "Todos os Contratos" : isFinalized ? "Contratos Finalizados" : "Contratos Ativos"}
             </h1>
+
+            <div className="flex gap-2 mb-6">
+              {[
+                { label: "Ativos", path: "/contracts/ativos", active: !isAll && !isFinalized },
+                { label: "Finalizados", path: "/contracts/finalizados", active: isFinalized },
+                { label: "Todos", path: "/contracts/todos", active: isAll },
+              ].map((tab) => (
+                <Link
+                  key={tab.path}
+                  to={tab.path}
+                  className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
+                    tab.active
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-white text-warm-800 border-warm-200 hover:bg-warm-100"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
 
             {/* Filtros */}
             <div className="bg-warm-50 border border-warm-200 rounded-lg p-4 mb-4 space-y-4">
@@ -422,7 +447,7 @@ const ContractList = () => {
                       <TableCell colSpan={9} className="text-center py-10">
                         {hasFilters
                           ? "Nenhum contrato corresponde aos filtros aplicados."
-                          : `Nenhum contrato ${isFinalized ? "finalizado" : "ativo"} encontrado.`}
+                          : `Nenhum contrato ${isAll ? "" : isFinalized ? "finalizado " : "ativo "}encontrado.`}
                       </TableCell>
                     </TableRow>
                   ) : (

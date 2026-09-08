@@ -55,6 +55,7 @@ function App() {
               <Route path="/contracts" element={<ContractList />} />
               <Route path="/contracts/ativos" element={<ContractList />} />
               <Route path="/contracts/finalizados" element={<ContractList />} />
+              <Route path="/contracts/todos" element={<ContractList />} />
               <Route path="/contracts/new" element={<ContractRegistration />} />
               <Route path="/contracts/edit/:id" element={<ContractRegistration />} />
               <Route path="/contract-template" element={<ContractTemplate />} />
