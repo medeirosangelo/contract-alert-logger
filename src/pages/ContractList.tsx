@@ -52,17 +52,21 @@ const ContractList = () => {
   const [sortAsc, setSortAsc] = useState(true);
 
   const { data: contracts, isLoading, refetch } = useQuery({
-    queryKey: ["contracts", isFinalized],
+    queryKey: ["contracts", isFinalized, isAll],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('contracts')
         .select(`
           *,
           contractor:legal_persons!contractor_id(company_name, cnpj, trade_name),
           contracted:legal_persons!contracted_id(company_name, cnpj, trade_name)
-        `)
-        .eq('status', isFinalized ? 'finished' : 'active')
-        .order('end_date', { ascending: true });
+        `);
+
+      if (!isAll) {
+        query = query.eq('status', isFinalized ? 'finished' : 'active');
+      }
+
+      const { data, error } = await query.order('end_date', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar contratos:", error);
