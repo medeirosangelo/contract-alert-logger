@@ -255,6 +255,16 @@ const Navigation = () => {
                     {item.icon}
                   </span>
                   {isExpanded && <span className="ml-3 text-sm font-medium">{item.name}</span>}
+                  {item.path === "/alerts/contracts" && criticalCount > 0 && (
+                    <span
+                      className={`${
+                        isExpanded ? "ml-auto" : "absolute top-1 right-1"
+                      } inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-red-600 text-white text-xs font-semibold`}
+                      title={`${criticalCount} contrato(s) vencendo em até 30 dias`}
+                    >
+                      {criticalCount}
+                    </span>
+                  )}
                 </Link>
               )}
             </div>
