@@ -59,6 +59,7 @@ interface LegalPersonFormProps {
 
 const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLookingUpCnpj, setIsLookingUpCnpj] = useState(false);
   const navigate = useNavigate();
   
   const form = useForm<FormData>({
