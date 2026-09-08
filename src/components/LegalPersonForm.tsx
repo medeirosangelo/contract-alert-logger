@@ -28,6 +28,7 @@ import { LegalPersonInsert } from "@/services/types";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MaskedInput } from "@/components/ui/masked-input";
+import { fetchCompanyByCNPJ } from "@/services/company";
 
 const formSchema = z.object({
   company_name: z.string().min(2, "Razão social é obrigatória"),
@@ -86,6 +87,52 @@ const LegalPersonForm = ({ initialData }: LegalPersonFormProps) => {
       account: "",
     },
   });
+
+  const handleCnpjLookup = async (cnpj: string) => {
+    const digits = (cnpj || "").replace(/\D/g, "");
+    if (digits.length !== 14) return;
+
+    try {
+      setIsLookingUpCnpj(true);
+      const data = await fetchCompanyByCNPJ(digits);
+
+      if (!data.companyName) {
+        toast({
+          title: "CNPJ não encontrado",
+          description: "Não foi possível localizar dados públicos para este CNPJ.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.companyName) form.setValue("company_name", data.companyName);
+      if (data.tradeName) form.setValue("trade_name", data.tradeName);
+      if (data.street) form.setValue("street", data.street);
+      if (data.number) form.setValue("number", data.number);
+      if (data.complement) form.setValue("complement", data.complement);
+      if (data.neighborhood) form.setValue("neighborhood", data.neighborhood);
+      if (data.city) form.setValue("city", data.city);
+      if (data.state) form.setValue("state", data.state);
+      if (data.zipCode) form.setValue("zip_code", data.zipCode);
+      if (data.phone) form.setValue("phone", data.phone);
+      if (data.email) form.setValue("email", data.email);
+      if (data.legalRepName) form.setValue("legal_rep_name", data.legalRepName);
+
+      toast({
+        title: "Dados encontrados",
+        description: "Os campos foram preenchidos automaticamente. Revise antes de salvar.",
+      });
+    } catch (error) {
+      console.error("Erro na consulta de CNPJ:", error);
+      toast({
+        title: "Erro na consulta",
+        description: "Não foi possível consultar o CNPJ agora.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLookingUpCnpj(false);
+    }
+  };
 
   const onSubmit = async (values: FormData) => {
     try {
