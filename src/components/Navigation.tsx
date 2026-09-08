@@ -271,7 +271,7 @@ const Navigation = () => {
                     isMenuItemActive(item)
                       ? "bg-primary text-white"
                       : "text-warm-800 hover:bg-warm-100"
-                  } transition-colors rounded-md mx-1`}
+                  } transition-colors rounded-md mx-1 relative`}
                 >
                   <span className={isMenuItemActive(item) ? "" : "text-warm-600"}>
                     {item.icon}
