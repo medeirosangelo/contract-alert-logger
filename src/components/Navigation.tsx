@@ -55,7 +55,9 @@ const menuItems: MenuItem[] = [
     icon: <FileText className="w-5 h-5" />,
     subItems: [
       { name: "Cadastro de Contratos", path: "/contracts/new" },
-      { name: "Lista de Contratos", path: "/contracts" },
+      { name: "Contratos Ativos", path: "/contracts/ativos" },
+      { name: "Contratos Finalizados", path: "/contracts/finalizados" },
+      { name: "Todos os Contratos", path: "/contracts/todos" },
       { name: "Editor de Modelos", path: "/contract-template" },
       { name: "Assinatura Digital (Demo)", path: "/digital-signature-demo" },
     ],
