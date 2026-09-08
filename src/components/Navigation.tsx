@@ -89,6 +89,27 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user, role } = useAuth();
+  const [criticalCount, setCriticalCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    const loadCritical = async () => {
+      const today = new Date();
+      const limit = new Date();
+      limit.setDate(limit.getDate() + 30);
+      const { count } = await supabase
+        .from("contracts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active")
+        .gte("end_date", today.toISOString().slice(0, 10))
+        .lte("end_date", limit.toISOString().slice(0, 10));
+      if (active) setCriticalCount(count || 0);
+    };
+    loadCritical();
+    return () => {
+      active = false;
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     const currentPath = location.pathname;
