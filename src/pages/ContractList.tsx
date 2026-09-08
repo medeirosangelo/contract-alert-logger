@@ -39,6 +39,7 @@ const ContractList = () => {
   const { toast } = useToast();
 
   const isFinalized = location.pathname.includes("finalizados");
+  const isAll = location.pathname.includes("todos");
 
   // Filtros
   const [search, setSearch] = useState("");
