@@ -283,9 +283,29 @@ const ContractList = () => {
       <main className="ml-64 pt-16 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-2xl font-bold mb-6">
-              {isFinalized ? "Contratos Finalizados" : "Contratos Ativos"}
+            <h1 className="text-2xl font-bold mb-4">
+              {isAll ? "Todos os Contratos" : isFinalized ? "Contratos Finalizados" : "Contratos Ativos"}
             </h1>
+
+            <div className="flex gap-2 mb-6">
+              {[
+                { label: "Ativos", path: "/contracts/ativos", active: !isAll && !isFinalized },
+                { label: "Finalizados", path: "/contracts/finalizados", active: isFinalized },
+                { label: "Todos", path: "/contracts/todos", active: isAll },
+              ].map((tab) => (
+                <Link
+                  key={tab.path}
+                  to={tab.path}
+                  className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
+                    tab.active
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-white text-warm-800 border-warm-200 hover:bg-warm-100"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
 
             {/* Filtros */}
             <div className="bg-warm-50 border border-warm-200 rounded-lg p-4 mb-4 space-y-4">
