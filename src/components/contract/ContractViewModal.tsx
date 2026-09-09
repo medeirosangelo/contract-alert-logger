@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Pencil, Calendar, DollarSign, Clock, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import DocumentUploadComponent from "@/components/DocumentUpload";
 
 interface Contract {
   id?: string;
@@ -88,6 +89,7 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="dates">Datas e Prazos</TabsTrigger>
+            <TabsTrigger value="files">Anexos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-6">
@@ -283,6 +285,18 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
                 <p className="text-foreground font-medium">{contract.duration ? `${contract.duration} meses` : "-"}</p>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="files">
+            {contract.id ? (
+              <DocumentUploadComponent
+                entityType="contract"
+                entityId={contract.id}
+                title="Contrato assinado e anexos"
+              />
+            ) : (
+              <p className="text-muted-foreground">Contrato sem identificação para anexos.</p>
+            )}
           </TabsContent>
         </Tabs>
 
