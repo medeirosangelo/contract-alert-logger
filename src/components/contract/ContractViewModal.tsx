@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Pencil, Calendar, DollarSign, Clock, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import DocumentUploadComponent from "@/components/DocumentUpload";
 
 interface Contract {
   id?: string;
