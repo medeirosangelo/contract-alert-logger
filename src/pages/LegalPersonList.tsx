@@ -58,6 +58,26 @@ const LegalPersonList = () => {
     refetch();
   };
 
+  const handleExport = () => {
+    if (!companies || companies.length === 0) return;
+    exportToCsv(
+      "empresas",
+      ["Razão Social", "Nome Fantasia", "CNPJ", "E-mail", "Telefone", "Cidade", "UF", "Representante", "CPF do Representante"],
+      companies.map((c: LegalPerson) => [
+        c.company_name,
+        c.trade_name,
+        c.cnpj,
+        c.email,
+        c.phone,
+        c.city,
+        c.state,
+        c.legal_rep_name,
+        c.legal_rep_cpf,
+      ])
+    );
+    toast.success("Lista exportada em CSV (abre no Excel).");
+  };
+
   return (
     <div className="min-h-screen bg-warm-50">
       <Navigation />
