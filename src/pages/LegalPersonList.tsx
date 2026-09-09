@@ -12,7 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Building2, Loader2, RefreshCw } from "lucide-react";
+import { Building2, Loader2, RefreshCw, Download } from "lucide-react";
+import { exportToCsv } from "@/utils/exportCsv";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
@@ -57,6 +58,26 @@ const LegalPersonList = () => {
     refetch();
   };
 
+  const handleExport = () => {
+    if (!companies || companies.length === 0) return;
+    exportToCsv(
+      "empresas",
+      ["Razão Social", "Nome Fantasia", "CNPJ", "E-mail", "Telefone", "Cidade", "UF", "Representante", "CPF do Representante"],
+      companies.map((c: LegalPerson) => [
+        c.company_name,
+        c.trade_name,
+        c.cnpj,
+        c.email,
+        c.phone,
+        c.city,
+        c.state,
+        c.legal_rep_name,
+        c.legal_rep_cpf,
+      ])
+    );
+    toast.success("Lista exportada em CSV (abre no Excel).");
+  };
+
   return (
     <div className="min-h-screen bg-warm-50">
       <Navigation />
@@ -75,6 +96,15 @@ const LegalPersonList = () => {
                 title="Atualizar lista"
               >
                 <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleExport}
+                disabled={!companies || companies.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Exportar
               </Button>
               <Link to="/legal-persons/new">
                 <Button className="gap-2 bg-primary hover:bg-primary/90">

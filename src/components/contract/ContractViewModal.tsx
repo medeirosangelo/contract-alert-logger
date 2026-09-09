@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Download, Pencil, Calendar, DollarSign, Clock, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DocumentUploadComponent from "@/components/DocumentUpload";
+import ContractHistory from "@/components/contract/ContractHistory";
 
 interface Contract {
   id?: string;
@@ -90,6 +91,7 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="dates">Datas e Prazos</TabsTrigger>
             <TabsTrigger value="files">Anexos</TabsTrigger>
+            <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-6">
@@ -296,6 +298,14 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
               />
             ) : (
               <p className="text-muted-foreground">Contrato sem identificação para anexos.</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="history">
+            {contract.id ? (
+              <ContractHistory contractId={contract.id} />
+            ) : (
+              <p className="text-muted-foreground">Contrato sem histórico disponível.</p>
             )}
           </TabsContent>
         </Tabs>

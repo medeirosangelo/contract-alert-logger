@@ -34,6 +34,7 @@ import { legalPersonsApi } from "@/services/legalPersons";
 import { physicalPersonsApi } from "@/services/physicalPersons";
 import type { ContractInsert } from "@/services/types";
 import DocumentUploadComponent from "./DocumentUpload";
+import { contractHistoryApi } from "@/services/contractHistory";
 
 const NONE = "__none__";
 
@@ -266,7 +267,15 @@ const ContractForm = () => {
       };
 
       if (isEditing && id) {
+        const previous = await contractsApi.getById(id).catch(() => null);
         await contractsApi.update(id, payload as any);
+        if (previous) {
+          await contractHistoryApi.logChanges(
+            id,
+            previous as unknown as Record<string, unknown>,
+            payload as unknown as Record<string, unknown>
+          );
+        }
         navigate("/contracts");
         return;
       }

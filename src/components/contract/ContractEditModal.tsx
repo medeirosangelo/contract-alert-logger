@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Save } from "lucide-react";
+import { contractHistoryApi } from "@/services/contractHistory";
 
 interface ContractEditModalProps {
   isOpen: boolean;
@@ -78,22 +79,30 @@ const ContractEditModal = ({ isOpen, onClose, contract, onSave }: ContractEditMo
     setIsLoading(true);
 
     try {
+      const payload = {
+        contract_number: formData.contract_number,
+        object: formData.object,
+        total_value: Number(formData.total_value),
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        duration: Number(formData.duration),
+        status: formData.status,
+        general_observations: formData.general_observations,
+      };
+
       const { error } = await supabase
         .from('contracts')
-        .update({
-          contract_number: formData.contract_number,
-          object: formData.object,
-          total_value: Number(formData.total_value),
-          start_date: formData.start_date,
-          end_date: formData.end_date,
-          duration: Number(formData.duration),
-          status: formData.status,
-          general_observations: formData.general_observations,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', contract.id);
 
       if (error) throw error;
+
+      await contractHistoryApi.logChanges(
+        contract.id,
+        contract as unknown as Record<string, unknown>,
+        payload as unknown as Record<string, unknown>
+      );
+
 
       toast({
         title: "Contrato atualizado",

@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Loader2, RefreshCw } from "lucide-react";
+import { UserPlus, Loader2, RefreshCw, Download } from "lucide-react";
+import { exportToCsv } from "@/utils/exportCsv";
 import { Link } from "react-router-dom";
 import { physicalPersonsApi } from "@/services/physicalPersons";
 import { PhysicalPerson } from "@/services/types";
@@ -50,6 +51,26 @@ const PhysicalPersonList = () => {
     refetch();
   };
 
+  const handleExport = () => {
+    if (!people || people.length === 0) return;
+    exportToCsv(
+      "pessoas-fisicas",
+      ["Nome", "CPF", "RG", "Nascimento", "E-mail", "Telefone", "Cidade", "UF", "Função"],
+      people.map((p: PhysicalPerson) => [
+        p.full_name,
+        p.cpf,
+        p.rg,
+        p.birth_date,
+        p.email,
+        p.phone,
+        p.city,
+        p.state,
+        p.role,
+      ])
+    );
+    toast.success("Lista exportada em CSV (abre no Excel).");
+  };
+
   const handlePersonClick = (id: string) => {
     navigate(`/physical-persons/${id}`);
   };
@@ -72,6 +93,15 @@ const PhysicalPersonList = () => {
                 title="Atualizar lista"
               >
                 <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleExport}
+                disabled={!people || people.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Exportar
               </Button>
               <Link to="/physical-persons/new">
                 <Button className="gap-2 bg-primary hover:bg-primary/90">
