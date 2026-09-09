@@ -285,6 +285,18 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
               </div>
             </div>
           </TabsContent>
+
+          <TabsContent value="files">
+            {contract.id ? (
+              <DocumentUploadComponent
+                entityType="contract"
+                entityId={contract.id}
+                title="Contrato assinado e anexos"
+              />
+            ) : (
+              <p className="text-muted-foreground">Contrato sem identificação para anexos.</p>
+            )}
+          </TabsContent>
         </Tabs>
 
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
