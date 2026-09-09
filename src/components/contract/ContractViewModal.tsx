@@ -90,6 +90,7 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="dates">Datas e Prazos</TabsTrigger>
             <TabsTrigger value="files">Anexos</TabsTrigger>
+            <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-6">
