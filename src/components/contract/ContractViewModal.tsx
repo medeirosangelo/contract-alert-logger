@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Download, Pencil, Calendar, DollarSign, Clock, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DocumentUploadComponent from "@/components/DocumentUpload";
+import ContractHistory from "@/components/contract/ContractHistory";
 
 interface Contract {
   id?: string;
