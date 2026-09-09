@@ -12,7 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Building2, Loader2, RefreshCw } from "lucide-react";
+import { Building2, Loader2, RefreshCw, Download } from "lucide-react";
+import { exportToCsv } from "@/utils/exportCsv";
 import { Link } from "react-router-dom";
 import { legalPersonsApi } from "@/services/legalPersons";
 import { LegalPerson } from "@/services/types";
