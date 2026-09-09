@@ -73,6 +73,15 @@ const PhysicalPersonList = () => {
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleExport}
+                disabled={!people || people.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Exportar
+              </Button>
               <Link to="/physical-persons/new">
                 <Button className="gap-2 bg-primary hover:bg-primary/90">
                   <UserPlus className="h-4 w-4" />
