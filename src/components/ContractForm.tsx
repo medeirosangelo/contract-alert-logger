@@ -266,7 +266,15 @@ const ContractForm = () => {
       };
 
       if (isEditing && id) {
+        const previous = await contractsApi.getById(id).catch(() => null);
         await contractsApi.update(id, payload as any);
+        if (previous) {
+          await contractHistoryApi.logChanges(
+            id,
+            previous as unknown as Record<string, unknown>,
+            payload as unknown as Record<string, unknown>
+          );
+        }
         navigate("/contracts");
         return;
       }
