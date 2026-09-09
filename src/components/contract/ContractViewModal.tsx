@@ -299,6 +299,14 @@ const ContractViewModal = ({ isOpen, onClose, contract }: ContractViewModalProps
               <p className="text-muted-foreground">Contrato sem identificação para anexos.</p>
             )}
           </TabsContent>
+
+          <TabsContent value="history">
+            {contract.id ? (
+              <ContractHistory contractId={contract.id} />
+            ) : (
+              <p className="text-muted-foreground">Contrato sem histórico disponível.</p>
+            )}
+          </TabsContent>
         </Tabs>
 
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
