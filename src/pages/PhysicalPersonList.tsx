@@ -51,6 +51,26 @@ const PhysicalPersonList = () => {
     refetch();
   };
 
+  const handleExport = () => {
+    if (!people || people.length === 0) return;
+    exportToCsv(
+      "pessoas-fisicas",
+      ["Nome", "CPF", "RG", "Nascimento", "E-mail", "Telefone", "Cidade", "UF", "Função"],
+      people.map((p: PhysicalPerson) => [
+        p.full_name,
+        p.cpf,
+        p.rg,
+        p.birth_date,
+        p.email,
+        p.phone,
+        p.city,
+        p.state,
+        p.role,
+      ])
+    );
+    toast.success("Lista exportada em CSV (abre no Excel).");
+  };
+
   const handlePersonClick = (id: string) => {
     navigate(`/physical-persons/${id}`);
   };
