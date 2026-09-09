@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Save } from "lucide-react";
+import { contractHistoryApi } from "@/services/contractHistory";
 
 interface ContractEditModalProps {
   isOpen: boolean;
