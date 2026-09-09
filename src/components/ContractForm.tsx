@@ -34,6 +34,7 @@ import { legalPersonsApi } from "@/services/legalPersons";
 import { physicalPersonsApi } from "@/services/physicalPersons";
 import type { ContractInsert } from "@/services/types";
 import DocumentUploadComponent from "./DocumentUpload";
+import { contractHistoryApi } from "@/services/contractHistory";
 
 const NONE = "__none__";
 
