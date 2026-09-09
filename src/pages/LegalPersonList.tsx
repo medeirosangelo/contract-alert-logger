@@ -97,6 +97,15 @@ const LegalPersonList = () => {
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleExport}
+                disabled={!companies || companies.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Exportar
+              </Button>
               <Link to="/legal-persons/new">
                 <Button className="gap-2 bg-primary hover:bg-primary/90">
                   <Building2 className="h-4 w-4" />
