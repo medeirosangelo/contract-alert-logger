@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_resolutions: {
+        Row: {
+          action: string
+          additional_months: number
+          additional_value: number
+          alert_id: string
+          contract_id: string | null
+          created_at: string
+          id: string
+          justification: string
+          requested_at: string
+          requested_by: string | null
+          requested_by_name: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewed_by_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          additional_months?: number
+          additional_value?: number
+          alert_id: string
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          justification: string
+          requested_at?: string
+          requested_by?: string | null
+          requested_by_name?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewed_by_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          additional_months?: number
+          additional_value?: number
+          alert_id?: string
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          justification?: string
+          requested_at?: string
+          requested_by?: string | null
+          requested_by_name?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewed_by_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_resolutions_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "contract_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_resolutions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auth_logs: {
         Row: {
           action: string
