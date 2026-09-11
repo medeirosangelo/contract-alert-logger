@@ -90,17 +90,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Criar registro na tabela users
+    // Criar/atualizar registro na tabela users (um trigger pode já ter criado a linha)
     const { data: dbUser, error: dbError } = await supabase
       .from('users')
-      .insert({
+      .upsert({
         id: authUser.user!.id,
         email,
         name,
         username: email.split('@')[0],
         role,
         permissions
-      })
+      }, { onConflict: 'id' })
       .select()
       .single()
 
