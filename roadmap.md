@@ -19,8 +19,10 @@ Segurança e novas funcionalidades grandes ficam para depois.
 - [x] Busca automática de empresa por CNPJ (BrasilAPI) no cadastro de pessoa jurídica
 - [x] Geração de PDF do contrato
 - [x] Upload de anexos do contrato
-- [ ] Histórico de alterações do contrato (quem alterou o que e quando)
-- [ ] Exportação CSV nas listas de pessoas físicas e jurídicas
+- [x] Histórico de alterações do contrato (quem alterou o que e quando)
+- [x] Exportação CSV nas listas de pessoas físicas e jurídicas
+- [x] Alertas de contrato com pedido de resolução e conferência de duas pessoas
+- [x] Criação de usuários pela função administrativa (Geovanna e Vitória com login ativo)
 - [ ] Edição em massa na lista de contratos
 - [ ] Rascunho automático dos formulários longos
 
