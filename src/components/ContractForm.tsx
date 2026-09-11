@@ -152,6 +152,59 @@ const ContractForm = () => {
     defaultValues: emptyValues,
   });
 
+  // ----- Rascunho automático (apenas no cadastro de novo contrato) -----
+  const DRAFT_KEY = "swgcm:contract-draft";
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isEditing) return;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed?.values) {
+        form.reset({ ...emptyValues, ...parsed.values });
+        setDraftSavedAt(parsed.savedAt ?? null);
+        toast({
+          title: "Rascunho recuperado",
+          description: "Continuamos de onde você parou. Você pode descartar se preferir.",
+        });
+      }
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const watchedValues = form.watch();
+  useEffect(() => {
+    if (isEditing) return;
+    const timer = setTimeout(() => {
+      const values = form.getValues();
+      const isEmpty = Object.entries(values).every(
+        ([key, value]) =>
+          value === "" ||
+          value === null ||
+          value === undefined ||
+          value === NONE ||
+          (key === "status" && value === "active")
+      );
+      if (isEmpty) return;
+      const savedAt = new Date().toISOString();
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ values, savedAt }));
+      setDraftSavedAt(savedAt);
+    }, 1000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(watchedValues), isEditing]);
+
+  const discardDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setDraftSavedAt(null);
+    form.reset(emptyValues);
+    toast({ title: "Rascunho descartado", description: "O formulário foi limpo." });
+  };
+
   const { data: legalPersons = [], isLoading: loadingLegal } = useQuery({
     queryKey: ["legalPersons"],
     queryFn: legalPersonsApi.getAll,
